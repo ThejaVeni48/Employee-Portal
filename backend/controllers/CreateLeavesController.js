@@ -6,7 +6,7 @@ const db = require('../config/db');
 const leavesCreate = (req,res)=>{
     try{
 
-        const {leaveType,leaveShortForm,leaveDesc,days,companyId} = req.body;
+        const {leaveType,leaveShortForm,leaveDesc,days,companyId,createdBy} = req.body;
 
 
         const code = companyId.slice(0,3);
@@ -18,10 +18,10 @@ const leavesCreate = (req,res)=>{
 
 
         const insertSql = `
-        INSERT INTO LEAVES (LEAVE_NAME,LEAVE_SHORTFORM,DAYS,DESCRIPTION,COMPANY_ID)
-         VALUES(?,?,?,?,?)`;
+        INSERT INTO LEAVES (LEAVE_NAME,LEAVE_SHORTFORM,DAYS,DESCRIPTION,COMPANY_ID,CREATION_DATE,CREATED_BY)
+         VALUES(?,?,?,?,?,NOW(),?)`;
 
-         db.query(insertSql,[leaveType,leaveShortForm1,days,leaveDesc,companyId],(error,result)=>{
+         db.query(insertSql,[leaveType,leaveShortForm1,days,leaveDesc,companyId,createdBy],(error,result)=>{
             if(error)
             {
                 console.error("error occured",error);
@@ -30,7 +30,7 @@ const leavesCreate = (req,res)=>{
             }
 
             console.log("result",result);
-            return res.status(200).json({data:result})
+            return res.status(200).json({data:result,status:201,leaveType:leaveType})
             
          })
 

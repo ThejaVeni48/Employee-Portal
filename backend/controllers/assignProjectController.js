@@ -1,103 +1,75 @@
-const db = require('../config/db');
-const moment = require('moment');
+const db = require("../config/db");
+const moment = require("moment");
 
+const assignProject = (req, res) => {
+  const { companyId, selectedEmp, projectId, createdBy } = req.body;
 
-// need to check the api once
+  console.log("selectedEmp", selectedEmp);
 
-// storing in table but giving error
+  const assignedDate = moment().format("YYYY-MM-DD");
+  const insertDate = moment().format("YYYY-MM-DD HH:mm:ss");
 
-//working
+  // Prepatre values for insert
+  const values = selectedEmp.map((emp) => [
+    companyId,
+    emp.EMP_ID,
+    projectId,
+    emp.DEPT_ID || emp.DEPARTMENT,
+    assignedDate,
+    insertDate,
+    createdBy,
+  ]);
 
-const assignProject = (req,res)=>{
+  const insertSQL = `
+    INSERT INTO PROJECTS_EMPLOYEE 
+    (COMPANY_ID, EMP_ID, PROJECT_NO, DEPARTMENT, ASSIGNED_DATE, CREATION_DATE, CREATED_BY)
+    VALUES ?
+  `;
 
-    const {companyId,selectedEmp, dept,projectId} = req.body;
-
-
-    console.log("selectedEmp", selectedEmp);
-    
-
-    const date = new Date();
-
-
-    const empIds = selectedEmp.map(()=>'?').join(',');
-    // const getDay = date.getDate();
-    // const getMonth = date.getMonth() +1;
-    // const getYear = date.getYear();
-     const assignedDate  =  moment(date).format("YYYY-MM-DD");
-
-    // const assignedDate = `${getDay}-${getMonth}-${getYear}`
-console.log("assdate",assignedDate);
-
-    
-
-    const values = selectedEmp.map((empId)=>[companyId,empId,projectId,dept,assignedDate])
-
-
-    console.log("values",values);
-    
-    const sql = `INSERT INTO PROJECTS_EMPLOYEE (COMPANY_ID,EMP_ID,PROJECT_NO,DEPARTMENT,ASSIGNED_DATE)
-                 VALUES ?`;
-
-
-   db.query(sql,[values],(error,result)=>{
-    if(error)
-    {
-        console.log("error occured",error);
-        return res.status(500).json({data:error})
-        
+  db.query(insertSQL, [values], (error, result) => {
+    if (error) {
+      console.log("Insert error:", error);
+      return res.status(500).json({ data: error });
     }
-    console.log("result for the assign the project",result);
 
+    console.log("Project assignment result:", result);
     const affectedRows = result.affectedRows;
-    console.log("adffe",affectedRows);
-    
-    // return res.status(201).json({data:result})
 
-    const updatedStatus = 'Project';
+    if (affectedRows > 0) {
+      const updatedStatus = "Project";
+      const empIds = selectedEmp.map((emp) => emp.EMP_ID);
+      const placeholders = empIds.map(() => "?").join(",");
 
-
-    if(affectedRows> 0)
-    {
-        // console.log("update the status of the employee in employee details");
-
-        const updateStatussql = `
+      const updateSQL = `
         UPDATE EMPLOYEES_DETAILS
-        SET STATUS = ? 
-        WHERE COMPANY_ID  = ? AND EMP_ID IN (?) `;
+        SET STATUS = ?,
+            PROJECT_ID = ?,
+            LAST_UPDATED_DATE = ?,
+            LAST_UPDATED_BY = ?
+        WHERE COMPANY_ID = ? AND EMP_ID IN (${placeholders})
+      `;
 
+      db.query(
+        updateSQL,
+        [updatedStatus, projectId, insertDate, createdBy, companyId, ...empIds],
+        (updateError, updateResult) => {
+          if (updateError) {
+            console.log("Update error:", updateError);
+            return res.status(500).json({ data: updateError });
+          }
 
-        console.log("updateStatusSql",updateStatussql);
-        
-
-        db.query(updateStatussql,[updatedStatus,companyId,selectedEmp],(updateError,updateResult)=>{
-            if(updateError)
-            {
-                console.log("updateError",updateError);
-                return res.status(500).json({data:updateError})
-                
-            }
-
-            console.log("updateResult",updateResult);
-                            return res.status(200).json({data:updateResult})
-
-            
-        })
-
-        
-
-        
+          console.log("Employee status updated:", updateResult);
+          return res.status(200).json({
+            message: "Project assigned successfully",
+            data: updateResult,
+            status: 201,
+          });
+        }
+      );
+    } else {
+      res.status(400).json({ message: "No employees were updated" });
     }
-    else{
-        console.log("update error");
-        
-    }
+  });
+};
 
-
-    
-   })
-
-
-}
-
-
-module.exports = {assignProject}
+module.exports = { assignProject };

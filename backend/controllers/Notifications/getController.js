@@ -1,5 +1,5 @@
 
-const db = require('../config/db');
+const db = require('../../config/db');
 
 const getNotifications =(req,res)=>{
     const {companyId,empId} = req.query;

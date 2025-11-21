@@ -10,7 +10,10 @@ const postTimeSheet =(req, res) => {
     status,
     companyId,
     timesheetCode,
+    projectId
   } = req.body;
+  console.log("entries",entries);
+  
 
   console.log("companyid post timesheet", companyId);
   console.log("empId post timesheet", empId);
@@ -104,8 +107,8 @@ const postTimeSheet =(req, res) => {
                       // scenarioi : first saved and then submitting the timesheet
                       const insertTempSql = `
                         INSERT INTO TIMESHEET_ENTRIES 
-                        (ENTRY_DATE, DAILY_HOURS, PROJECT_TYPE, BILLABLE_TYPE, TIMESHEET_ID, TASK, COMPANY_ID, EMP_ID, TIMESHEET_CODE)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        (ENTRY_DATE, DAILY_HOURS, PROJECT_TYPE, BILLABLE_TYPE, TIMESHEET_ID, TASK, COMPANY_ID, EMP_ID, TIMESHEET_CODE,PROJECT_NO)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)
                       `;
                       db.query(
                         insertTempSql,
@@ -119,6 +122,7 @@ const postTimeSheet =(req, res) => {
                           companyId,
                           empId,
                           timesheetCode,
+                          projectId
                         ],
                         (err) => {
                           if (err) console.error("Error inserting entry:", err);
@@ -187,6 +191,7 @@ const postTimeSheet =(req, res) => {
                   companyId,
                   empId,
                   timesheetCode,
+                  projectId
                 ]);
               }
             }
@@ -202,7 +207,7 @@ const postTimeSheet =(req, res) => {
 
           const insertTempSql = `
             INSERT INTO TIMESHEET_ENTRIES 
-            (ENTRY_DATE, DAILY_HOURS, PROJECT_TYPE, BILLABLE_TYPE, TIMESHEET_ID, TASK, COMPANY_ID, EMP_ID, TIMESHEET_CODE) 
+            (ENTRY_DATE, DAILY_HOURS, PROJECT_TYPE, BILLABLE_TYPE, TIMESHEET_ID, TASK, COMPANY_ID, EMP_ID, TIMESHEET_CODE,PROJECT_NO) 
             VALUES ?
           `;
           db.query(insertTempSql, [entryData], (err) => {

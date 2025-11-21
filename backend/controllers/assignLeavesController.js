@@ -1,11 +1,12 @@
 
 const db = require("../config/db");
+const moment = require("moment");
 
 
 
 const assignLeaves =(req,res)=>{
 
-    const {selectedEmployee,companyId,selectedLeaveType} = req.body;
+    const {selectedEmployee,companyId,selectedLeaveType,createdBy} = req.body;
 
     console.log("selectedLeaveType",selectedLeaveType);
     
@@ -39,9 +40,10 @@ const assignLeaves =(req,res)=>{
         const usedLeaves = 0;
 
         const availableLeaves = totalLeaves - usedLeaves;
+  const insertDate =moment().format("YYYY-MM-DD HH:mm:ss");
+ 
 
-
-        const value = selectedLeaveType.map((leaveId)=>[selectedEmployee,companyId,totalLeaves,usedLeaves,availableLeaves,leaveId,])
+        const value = selectedLeaveType.map((leaveId)=>[selectedEmployee,companyId,totalLeaves,usedLeaves,availableLeaves,leaveId,insertDate,createdBy])
 
 
 
@@ -50,7 +52,7 @@ const assignLeaves =(req,res)=>{
 
 
         const insertLeaves =  `
-        INSERT INTO EMPLOYEE_ALLOCATION (EMP_ID,COMPANY_ID,TOTAL_LEAVES,USED_LEAVES,AVAILABLE_LEAVES,LEAVE_ID) 
+        INSERT INTO EMPLOYEE_ALLOCATION (EMP_ID,COMPANY_ID,TOTAL_LEAVES,USED_LEAVES,AVAILABLE_LEAVES,LEAVE_ID,CREATION_DATE,CREATED_BY) 
         VALUES ? `;
 
         db.query(insertLeaves,[value],(insertError,insertResult)=>{

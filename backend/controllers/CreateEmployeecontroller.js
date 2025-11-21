@@ -1,123 +1,141 @@
+const express = require("express");
+const router = express.Router();
+const moment = require("moment");
 
-const db = require('../config/db');
-// const bcrypt = require('bcrypt');
+// const {
+//   formatDateToLocal,
+//   generateEmpId,
+//   generatePassword,
+//   queryAsync,
+// } = require("../helpers/functions"); 
 
-// Function to format date to YYYY-MM-DD
-function formatDateToLocal(dateString) {
-  const d = new Date(dateString);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-// Function to generate Employee ID
-function generateEmpId(companyName, hireDate, companyId) {
-  return new Promise((resolve, reject) => {
-    const prefix = companyName.slice(0, 2).toUpperCase();
-    const d = new Date(hireDate);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-
-    const checkEmpSql = `SELECT COUNT(*) AS total FROM EMPLOYEES_LOGINS WHERE COMPANY_ID = ?`;
-    db.query(checkEmpSql, [companyId], (err, result) => {
-      if (err) return reject(err);
-
-      const count = result[0].total;
-      const nextNumber = (count + 1).toString().padStart(3, '0');
-      const empId = `${prefix}${nextNumber}${year}${month}`;
-      resolve(empId);
-    });
-  });
-}
-
-// Function to generate random password
-function generatePassword() {
-  const length = 8;
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$';
-  let password = '';
-  for (let i = 0; i < length; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return password;
-}
-
-function queryAsync(sql, params) {
-  return new Promise((resolve, reject) => {
-    db.query(sql, params, (err, result) => {
-      if (err) reject(err);
-      else resolve(result);
-    });
-  });
-}
-
-// Route to add new employee
-const createEmp= async (req, res) => {
+// Bulk upload employees
+const createEmp = async (req, res) => {
   try {
-    const { firstName, lastName, gender, empStatus, email, dept, hireDate, companyId, role,middleName,phnNumber,displayName } = req.body;
+    const { employees, companyId, createdBy } = req.body;
 
-    //  Get company name
+    if (!employees || !Array.isArray(employees) || employees.length === 0) {
+      return res.status(400).json({ message: "No employee data provided" });
+    }
+
+    // Get company name
     const companyResult = await queryAsync(
       `SELECT COMPANY_NAME FROM COMPANIES_REGISTRATIONS WHERE COMPANY_ID = ?`,
       [companyId]
     );
 
-    if (!companyResult.length) return res.status(400).json({ message: 'Company not found' });
+    if (!companyResult.length) {
+      return res.status(400).json({ message: "Company not found" });
+    }
+
     const companyName = companyResult[0].COMPANY_NAME;
 
-        const formattedHireDate = formatDateToLocal(hireDate);
+    const insertLogins = [];
+    const insertDetails = [];
+    const insertLeaves = [];
+    const insertDate = moment().format("YYYY-MM-DD HH:mm:ss");
 
-    //  Generate Employee ID
-    const empId = await generateEmpId(companyName, hireDate, companyId);
+    for (const emp of employees) {
+      const hireDate = formatDateToLocal(emp.hireDate);
+      const empId = await generateEmpId(companyName, hireDate, companyId);
+      const tempPassword = generatePassword();
+      const empName = `${emp.firstName} ${emp.lastName}`;
+      const status = "Bench";
+      const empStatus = "Active";
 
-    //  Generate and hash password
-    const tempPassword = generatePassword();
+      // Prepare EMPLOYEES_LOGINS
+      insertLogins.push([
+        empName,
+        empId,
+        emp.email,
+        emp.selectedRole,
+        tempPassword,
+        companyId,
+        insertDate,
+        createdBy,
+      ]);
 
-    //Prepare employee name
-    const empName = firstName + lastName;
+      // Prepare EMPLOYEES_DETAILS
+      insertDetails.push([
+        empId,
+        emp.firstName,
+        emp.lastName,
+        emp.gender,
+        emp.dept,
+        emp.email,
+        companyId,
+        hireDate,
+        emp.middleName || null,
+        emp.phnNumber || null,
+        emp.displayName || empName,
+        emp.selectedRole,
+        empStatus,
+        status,
+        insertDate,
+        createdBy,
+      ]);
 
-    const status = 'Bench'
+      // Allocate leaves
+      const hireMonth = new Date(hireDate).getMonth() + 1;
+      const totalLeaves = 12 - hireMonth + 1; // 1 leave per remaining month
+      const usedLeaves = 0;
+      const availableLeaves = totalLeaves;
 
-    //  Insert into EMPLOYEES_LOGINS
-    const insertSql = `INSERT INTO EMPLOYEES_LOGINS (EMPNAME, EMP_ID, EMAIL, ROLE, PASSWORD, COMPANY_ID) VALUES (?, ?, ?, ?, ?, ?)`;
-    await queryAsync(insertSql, [empName, empId, email, role, tempPassword, companyId]);
+      const leaveTypeRows = await queryAsync(
+        `SELECT LEAVE_ID FROM LEAVES WHERE COMPANY_ID = ?`,
+        [companyId]
+      );
 
-   
-    const insertDetailsSql  = `
- INSERT INTO EMPLOYEES_DETAILS
-        (EMP_ID, FIRST_NAME, LAST_NAME, GENDER, DEPARTMENT, EMPLOYEE_STATUS, EMAIL, COMPANY_ID, HIRE_DATE,MIDDLE_NAME,MOBILE_NUMBER,DISPLAY_NAME,ROLE,STATUS)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)`;
+      leaveTypeRows.forEach((lt) => {
+        insertLeaves.push([
+          empId,
+          companyId,
+          totalLeaves,
+          usedLeaves,
+          availableLeaves,
+          lt.LEAVE_ID,
+          insertDate,
+          createdBy,
+        ]);
+      });
+    }
 
-    await queryAsync(insertDetailsSql,[empId,firstName,lastName,gender,dept,empStatus,email,companyId,formattedHireDate,middleName,phnNumber,displayName,role,status]);
+    // Bulk inserts
+    if (insertLogins.length) {
+      await queryAsync(
+        `INSERT INTO EMPLOYEES_LOGINS
+         (EMPNAME, EMP_ID, EMAIL, ROLE_ID, PASSWORD, COMPANY_ID, CREATION_DATE, CREATED_BY)
+         VALUES ?`,
+        [insertLogins]
+      );
+    }
 
+    if (insertDetails.length) {
+      await queryAsync(
+        `INSERT INTO EMPLOYEES_DETAILS
+         (EMP_ID, FIRST_NAME, LAST_NAME, GENDER, DEPT_ID, EMAIL, COMPANY_ID, HIRE_DATE,
+          MIDDLE_NAME, MOBILE_NUMBER, DISPLAY_NAME, ROLE_ID, STATUS, STATUS_REASON, CREATION_DATE, CREATED_BY)
+         VALUES ?`,
+        [insertDetails]
+      );
+    }
 
+    if (insertLeaves.length) {
+      await queryAsync(
+        `INSERT INTO EMPLOYEE_ALLOCATION
+         (EMP_ID, COMPANY_ID, TOTAL_LEAVES, USED_LEAVES, AVAILABLE_LEAVES, LEAVE_ID, CREATION_DATE, CREATED_BY)
+         VALUES ?`,
+        [insertLeaves]
+      );
+    }
 
-    
-        
-
-
-
-    // // inserting details into employee details also
-    //  Send success response
-    res.status(200).json({
-      message: 'Employee created successfully',
-      empId,
-
+    res.status(201).json({
+      message: `Successfully uploaded ${employees.length} employees.`,
+      totalEmployees: employees.length,
     });
-
-  } 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  catch (error) {
-    console.error('Error creating employee:', error);
-    res.status(500).json({ error });
+  } catch (error) {
+    console.error("Bulk employee upload failed:", error);
+    res.status(500).json({ error: error.message });
   }
 };
 

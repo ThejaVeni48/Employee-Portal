@@ -1,33 +1,78 @@
-
 const db = require('../config/db');
 
-// this api is used for getting the pending leaves of the employees to the manager
+// API: Get pending leaves for employees for a manager
+const getPendingLeaves = (req, res) => {
+  const { companyId, deptId, projectContext } = req.query;
 
-const getPendingLeaves = (req,res)=>{
-   const {companyId} = req.query
-    
-    const sql =`
-SELECT E.FIRST_NAME,E.LAST_NAME,L.START_DATE,L.END_DATE,L.DAYS,L.REASON,L.EMP_ID,L.REQUEST_ID,L.STATUS
-FROM EMPLOYEEs_DETAILS E
-JOIN LEAVES_REQUESTS L
-ON E.EMP_ID = L.EMP_ID
-AND E.COMPANY_ID = L.COMPANY_ID
-WHERE L.STATUS = 'Pending'
-AND L.COMPANY_ID = ?
-ORDER BY L.REQUEST_ID DESC
+  if (!companyId) {
+    return res.status(400).json({ error: "companyId is required" });
+  }
+
+  // Bench employees
+  if (projectContext === 'Bench') {
+    const sqlBench = `
+      SELECT 
+        E.FIRST_NAME,
+        E.LAST_NAME,
+        LR.REQUEST_ID,
+        LR.EMP_ID,
+        LR.DAYS,
+        LR.START_DATE,
+        LR.END_DATE,
+        LR.REASON
+      FROM EMPLOYEES_DETAILS E
+      JOIN LEAVES_REQUESTS LR
+        ON LR.EMP_ID = E.EMP_ID 
+        AND LR.COMPANY_ID = E.COMPANY_ID
+      WHERE LR.STATUS = 'Pending'
+        AND E.COMPANY_ID = ?
+        AND E.DEPT_ID = ?      -- keep dept filter for bench
+        AND LR.PROJECT_CONTEXT = 'Bench'
+      ORDER BY LR.REQUEST_ID DESC
     `;
 
-   db.query(sql,[companyId],(err,result)=>{
-    if(err)
-    {
-        console.log("error occured for fetching leaves",err);
-        return res.status(500).json({data:err})
-        
-    }
-// console.log("result FOR PENDING APPROVALS",result);
+    db.query(sqlBench, [companyId, deptId], (err, result) => {
+      if (err) {
+        console.log("Error fetching bench leaves:", err);
+        return res.status(500).json({ error: err });
+      }
+      return res.status(200).json({ data: result });
+    });
+  }
 
-    return res.status(200).json({data:result})
-   })
-}
+  // Project employees
+  else if (projectContext === 'Project') {
+    const sqlProject = `
+      SELECT 
+        E.FIRST_NAME,
+        E.LAST_NAME,
+        LR.REQUEST_ID,
+        LR.EMP_ID,
+        LR.DAYS,
+        LR.START_DATE,
+        LR.END_DATE,
+        LR.REASON
+      FROM EMPLOYEES_DETAILS E
+      JOIN LEAVES_REQUESTS LR
+        ON LR.EMP_ID = E.EMP_ID 
+        AND LR.COMPANY_ID = E.COMPANY_ID
+      WHERE LR.STATUS = 'Pending'
+        AND E.COMPANY_ID = ?     -- no dept filter
+        AND LR.PROJECT_CONTEXT = 'Project'
+      ORDER BY LR.REQUEST_ID DESC
+    `;
 
-module.exports = {getPendingLeaves};
+    db.query(sqlProject, [companyId], (err, result) => {
+      if (err) {
+        console.log("Error fetching project leaves:", err);
+        return res.status(500).json({ error: err });
+      }
+      return res.status(200).json({ data: result });
+    });
+  } 
+  else {
+    return res.status(400).json({ error: "Invalid projectContext" });
+  }
+};
+
+module.exports = { getPendingLeaves };

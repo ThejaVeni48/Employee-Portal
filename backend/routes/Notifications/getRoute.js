@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 
-const {getNotifications} = require('../controllers/getNotificationsController');
+const {getNotifications} = require('../../controllers/Notifications/getController');
 
 router.get('/',getNotifications);
 

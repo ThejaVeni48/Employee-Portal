@@ -17,7 +17,7 @@ const  acceptRejectLeave =(req, res) => {
       return res.status(500).json({data:error})
       
     }
-    console.log("result for acceptreject leave",result);
+    // console.log("result for acceptreject leave",result);
 
     const getLeaveDetails = `
     SELECT LEAVE_ID, DAYS,EMP_ID,COMPANY_ID,START_DATE FROM LEAVES_REQUESTS WHERE REQUEST_ID = ?`;
@@ -103,11 +103,12 @@ const  acceptRejectLeave =(req, res) => {
     if(approveError)
     {
       console.log("approveError",approveError);
-      return res.status(500).json({data:approveError})
+      return res.status(500).json({data:approveError,status:200})
       
     }
-
+    
     console.log(" during approveResult",approveResult);
+    return res.status(500).json({data:approveResult,status:200})
     
   })
 
@@ -122,12 +123,13 @@ else{
     if(approveError)
     {
       console.log("approveError",approveError);
-      return res.status(500).json({data:approveError})
+      return res.status(500).json({data:approveError,status:201})
       
     }
 
     console.log(" during approveResult",approveResult);
-    
+        return res.status(500).json({data:approveResult,status:201})
+
   })
       
     }

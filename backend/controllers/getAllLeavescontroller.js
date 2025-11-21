@@ -6,9 +6,9 @@ const db= require('../config/db');
 //leaves history for employee
 
 const getAllLeaves = (req,res)=>{
-    const {EmpId,companyId} = req.query;
+    const {empId,companyId} = req.query;
     
-    console.log("empid",EmpId);
+    console.log("empid",empId);
     console.log("companyId",companyId);
 
     const sql = `
@@ -16,7 +16,7 @@ const getAllLeaves = (req,res)=>{
     WHERE EMP_ID = ? AND COMPANY_ID = ?
     `;
 
-    db.query(sql,[EmpId,companyId],(err,result)=>{
+    db.query(sql,[empId,companyId],(err,result)=>{
         if(err)
         {
             console.log("error occured",err);

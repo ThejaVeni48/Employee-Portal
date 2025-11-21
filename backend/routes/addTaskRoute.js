@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const {getEmp} = require('../controllers/getEmployeescontroller');
 
-router.get('/',getEmp);
+const {addTask} = require('../controllers/addTaskController');
+
+router.post('/',addTask);
 
 
 module.exports = router;

@@ -12,15 +12,18 @@ function generateDeptCode(deptName,companyId)
 }
 
 const addDept=(req,res)=>{
-    const {deptName,companyId} = req.body;
+    const {deptName,companyId,createdBy} = req.body;
+
+    console.log("crearedby",createdBy);
+    
 
       const deptCode = generateDeptCode(deptName,companyId)
 
       const insertSql = `
-      INSERT INTO DEPARTMENTS(DEPT_NAME,COMPANY_ID,DEPT_CODE)
-      VALUES(?,?,?)`;
+      INSERT INTO DEPARTMENTS(DEPT_NAME,COMPANY_ID,DEPT_CODE,CREATION_DATE,CREATED_BY)
+      VALUES(?,?,?,NOW(),?)`;
 
-      db.query(insertSql,[deptName,companyId,deptCode],(insertError,insertResult)=>{
+      db.query(insertSql,[deptName,companyId,deptCode,createdBy],(insertError,insertResult)=>{
         if(insertError)
         {
             console.log("error occured during dept inserting",insertError);
@@ -28,7 +31,7 @@ const addDept=(req,res)=>{
             
         }
         console.log("successfully entered dept",insertResult);
-        return res.status(201).json({data:insertResult})
+        return res.status(201).json({data:insertResult,status:201,deptName:deptName})
         
       })
 

@@ -2,7 +2,7 @@
 const db = require("../config/db");
 
 const saveTimeSheets = (req, res) => {
-  const { empId, startDate, totalHours, entries, status,companyId,timesheetCode } = req.body;
+  const { empId, startDate, totalHours, entries, status,companyId,timesheetCode,projectId } = req.body;
   console.log("company id",companyId);
   console.log("empId",empId);
   console.log("timesheetCode",timesheetCode);
@@ -80,12 +80,12 @@ const saveTimeSheets = (req, res) => {
                   // Insert new entry
                   const insertTempSql = `
                     INSERT INTO TEMP_TIMESHEET_ENTRIES 
-                    (EMP_ID,ENTRY_DATE, DAILY_HOURS, PROJECT_TYPE, BILLABLE_TYPE, TIMESHEET_ID, TASK,COMPANY_ID)
-                    VALUES (?,?, ?, ?, ?, ?, ?,?)
+                    (EMP_ID,ENTRY_DATE, DAILY_HOURS, PROJECT_TYPE, BILLABLE_TYPE, TIMESHEET_ID, TASK,COMPANY_ID,PROJECT_NO)
+                    VALUES (?,?, ?, ?, ?, ?, ?,?,?)
                   `;
                   db.query(
                     insertTempSql,
-                    [empId,dates[i], safeHours, projectType, billable, timeSheetId, notes[i],companyId],
+                    [empId,dates[i], safeHours, projectType, billable, timeSheetId, notes[i],companyId,projectId],
                     (err) => { if (err) console.error("Error inserting entry:", err); }
                   );
                 }
@@ -102,10 +102,10 @@ const saveTimeSheets = (req, res) => {
     //------------------case2: NEW TIMESHEET ------------------
     else {
       console.log("ELSE BLOCK",companyId);
-      const insertTimesheetSql = "INSERT INTO TIMESHEETS (EMP_ID, WEEK_START, TOTAL_HOURS, STATUS,COMPANY_ID,TIMESHEET_CODE) VALUES (?, ?, ?, ?,?,?)";
+      const insertTimesheetSql = "INSERT INTO TIMESHEETS (EMP_ID, WEEK_START, TOTAL_HOURS, STATUS,COMPANY_ID,TIMESHEET_CODE,PROJECT_NO) VALUES (?, ?, ?, ?,?,?,?)";
      console.log("insertTimesheetSql",insertTimesheetSql);
      
-      db.query(insertTimesheetSql, [empId, startDate, totalHours, status,companyId,timesheetCode], (err, result) => {
+      db.query(insertTimesheetSql, [empId, startDate, totalHours, status,companyId,timesheetCode,projectId], (err, result) => {
         if (err)
 
           {
@@ -122,7 +122,7 @@ const saveTimeSheets = (req, res) => {
           if (Array.isArray(notes) && Array.isArray(hours) && notes.length === hours.length) {
             for (let i = 0; i < notes.length; i++) {
               const safeHours = hours[i] === "" ? null : parseInt(hours[i], 10);
-              entryData.push([empId,dates[i], safeHours, projectType, billable, timeSheetId, notes[i],companyId,timesheetCode]);
+              entryData.push([empId,dates[i], safeHours, projectType, billable, timeSheetId, notes[i],companyId,timesheetCode,projectId]);
             }
           }
         });
@@ -133,7 +133,7 @@ const saveTimeSheets = (req, res) => {
 
         const insertTempSql = `
           INSERT INTO TEMP_TIMESHEET_ENTRIES 
-          (EMP_ID,ENTRY_DATE,DAILY_HOURS, PROJECT_TYPE, BILLABLE_TYPE, TIMESHEET_ID, TASK,COMPANY_ID,TIMESHEET_CODE) 
+          (EMP_ID,ENTRY_DATE,DAILY_HOURS, PROJECT_TYPE, BILLABLE_TYPE, TIMESHEET_ID, TASK,COMPANY_ID,TIMESHEET_CODE,PROJECT_NO) 
           VALUES ?
         `;
         db.query(insertTempSql, [entryData], (err) => {

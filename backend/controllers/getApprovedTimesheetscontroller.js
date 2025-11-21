@@ -5,7 +5,7 @@ const db = require('../config/db');
 
 // THIS API IS USED FOR GETTING THE OVERALL APPROVED TIMESHEETS  
 const getApprovedTimesheet = (req, res) => {
-    const {date} = req.query;
+    const {date,deptId} = req.query;
   console.log("date",date);
     if(!date)
     {
@@ -15,22 +15,20 @@ const getApprovedTimesheet = (req, res) => {
 
   const sql = `
     SELECT 
-      R.FIRSTNAME,
-      R.LASTNAME,
+     E.FIRST_NAME,E.LAST_NAME,
       T.EMP_ID,
       T.WEEK_START,
       T.TOTAL_HOURS,
        T.TIMESHEET_ID
-    FROM REGISTRATIONS R
+    FROM EMPLOYEES_DETAILS E
     INNER JOIN TIMESHEETS T
-      ON T.EMP_ID = R.EMP_ID
-          INNER JOIN COMPANIES C
-      ON R.COMPANY_ID = C.COMPANY_ID
-      where STATUS = 'ACCEPTED';
+      ON T.EMP_ID = E.EMP_ID
+      AND T.COMPANY_ID = E.COMPANY_ID
+      where T.STATUS = 'Approved'
+       AND E.DEPT_ID = ?;
     
   `;
-
-  db.query(sql, [], (err, result) => {
+  db.query(sql, [deptId], (err, result) => {
     if (err) {
       console.error("Error occurred:", err);
       return res.status(500).json({ error: "eror occured" });
@@ -42,23 +40,26 @@ console.log("result for approved1",result);
 
 else{
    const sql = `
-    SELECT 
-      R.FIRSTNAME,
-      R.LASTNAME,
-      T.EMP_ID,
-      T.WEEK_START,
-      T.TOTAL_HOURS,
-       T.TIMESHEET_ID
-    FROM REGISTRATIONS R
-    INNER JOIN TIMESHEETS T
-      ON T.EMP_ID = R.EMP_ID
-          INNER JOIN COMPANIES C
-      ON R.COMPANY_ID = C.COMPANY_ID
-      where T.WEEK_START = ?;
+   SELECT 
+  E.FIRST_NAME,
+  E.LAST_NAME,
+  T.EMP_ID,
+  T.WEEK_START,
+  T.TOTAL_HOURS,
+  T.TIMESHEET_ID
+FROM EMPLOYEES_DETAILS E
+INNER JOIN TIMESHEETS T
+  ON T.EMP_ID = E.EMP_ID
+  AND T.COMPANY_ID = E.COMPANY_ID
+WHERE 
+  T.STATUS = 'Approved'
+  AND T.WEEK_START = ?
+  AND E.DEPARTMENT = ?;
+
     
   `;
 
-  db.query(sql, [date], (err, result) => {
+  db.query(sql, [date,deptId], (err, result) => {
     if (err) {
       console.error("Error occurred:", err);
       return res.status(500).json({ error: "eror occured" });

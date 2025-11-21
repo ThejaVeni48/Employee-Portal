@@ -3,7 +3,7 @@ const db = require('../config/db');
 
 // API for submitting leaves
 const submitLeave = (req, res) => {
-  const { empId, companyId, selectedLeaveType, startDate, endDate, daysLeave, reason } = req.body;
+  const { empId, companyId, selectedLeaveType, startDate, endDate, daysLeave, reason,pStatus } = req.body;
 
   console.log("Leave Request:", req.body);
 
@@ -30,10 +30,10 @@ const submitLeave = (req, res) => {
 
     const insertSql = `
       INSERT INTO LEAVES_REQUESTS
-      (EMP_ID, COMPANY_ID, LEAVE_ID, START_DATE, END_DATE, DAYS, REASON, STATUS)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?);`;
+      (EMP_ID, COMPANY_ID, LEAVE_ID, START_DATE, END_DATE, DAYS, REASON, STATUS,PROJECT_CONTEXT)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?,?);`;
 
-    db.query(insertSql, [empId, companyId, selectedLeaveType, startDate, endDate, daysLeave, reason, 'Pending'], (err, result) => {
+    db.query(insertSql, [empId, companyId, selectedLeaveType, startDate, endDate, daysLeave, reason, 'Pending',pStatus], (err, result) => {
       if (err) {
         console.error("Insert Error:", err);
         return res.status(500).json({ error: "Failed to submit leave", details: err });

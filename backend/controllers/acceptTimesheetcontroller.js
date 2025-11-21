@@ -7,17 +7,17 @@ const db = require('../config/db');
 // THIS API IS USED FOR ACCEPTING THE TIMESHEET
 
 const acceptTimesheet = (req, res) => {
-    const { EmpId, timesheetId, action, companyId } = req.body;
+    const { employeeEmpId, timesheetId, action, companyId,empId } = req.body;
     console.log("timesheetId", timesheetId);
-    console.log("EmpId", EmpId);
+    console.log("employeeEmpId", employeeEmpId);
     console.log("companyId", companyId);
 
     const status = action === "Rejected" ? "Rejected" : "Approved";
 
-    const updateStatus = `UPDATE TIMESHEETS SET STATUS = ? WHERE TIMESHEET_ID = ?`;
+    const updateStatus = `UPDATE TIMESHEETS SET STATUS = ?,APPROVED_REJECTED_BY = ? WHERE TIMESHEET_ID = ?`;
 
     // 1.Update timesheet
-    db.query(updateStatus, [status, timesheetId], (err, result) => {
+    db.query(updateStatus, [status,empId ,timesheetId], (err, result) => {
         if (err) {
             console.log("Error updating timesheet:", err);
             return res.status(500).json({ message: "Failed to update timesheet." });
@@ -44,10 +44,10 @@ const acceptTimesheet = (req, res) => {
               INSERT INTO NOTIFICATIONS (EMPLOYEE_ID, COMPANY_ID, MESSAGE, TYPE,REFERENCE_ID)
               VALUES (?, ?, ?, ?,?)
             `;
-            // db.query(insertSql, [EmpId, companyId, message, "Timesheet",timesheetId], (notiErr, notiResult) => {
+            // db.query(insertSql, [employeeEmpId, companyId, message, "Timesheet",timesheetId], (notiErr, notiResult) => {
             //   VALUES (?, ?, ?, ?,?)
             // `;
-            db.query(insertSql, [EmpId, companyId, message, "Timesheet",timesheetId], (notiErr, notiResult) => {
+            db.query(insertSql, [employeeEmpId, companyId, message, "Timesheet",timesheetId], (notiErr, notiResult) => {
                 if (notiErr) {
                     console.log("Notification insert error:", notiErr);
                     // still respond 200 because timesheet update succeeded
@@ -56,7 +56,8 @@ const acceptTimesheet = (req, res) => {
 
                 console.log("Notification inserted:", notiResult);
                 return res.status(200).json({
-                    message: `Timesheet ${status} successfully and notification sent.`
+                    message: `Timesheet ${status} successfully and notification sent.`,
+                    status:1
                 });
             });
         });

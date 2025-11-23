@@ -7,144 +7,102 @@ const assignRes = (req, res) => {
     empId,
     selectedRoleCode,
     selectedDesgn,
-    selectedAccess, 
-    email 
+    selectedAccess,
+    email
   } = req.body;
 
-  // Validate required fields
   if (!companyId || !empId || !selectedRoleCode) {
     return res.status(400).json({
       success: false,
-      message: "ORG_ID, EMP_ID, and Role are required"
+      message: "ORG_ID, EMP_ID and ROLE are required"
     });
   }
 
   const today = moment().format('YYYY-MM-DD');
-  const ACTIVE = 'A';
-  const INACTIVE = 'I';
+  const ACTIVE = "A";
+  const INACTIVE = "I";
 
-  // Convert selectedAccess array → comma-separated string (or null if empty)
-  // const accessCodeStr = Array.isArray(selectedAccess) && selectedAccess.length > 0
-  //   ? selectedAccess.join(',')
-  //   : null;
+  const accessList = Array.isArray(selectedAccess) ? selectedAccess : [];
 
-
- 
-
-
-
-  console.log("Assigning responsibilities:", {
-    companyId,
-    empId,
-    selectedRoleCode,
-    selectedDesgn,
-    selectedAccess,
-    email
-  });
-
-  const checkSql = `SELECT ASSIGNMENT_ID FROM TC_ORG_USER_ASSIGNMENT 
-                    WHERE ORG_ID = ? AND EMP_ID = ? AND STATUS = ?`;
-
-  db.query(checkSql, [companyId, empId, ACTIVE], (checkErr, activeRows) => {
-    if (checkErr) {
-      console.error("DB Error on check:", checkErr);
-      return res.status(500).json({ success: false, message: "Database error", error: checkErr });
+  // START transaction
+  db.beginTransaction((txErr) => {
+    if (txErr) {
+      console.error("Transaction error:", txErr);
+      return res.status(500).json({ success: false, message: "Transaction start failed" });
     }
 
-    // If there's an active assignment → close it first
-    if (activeRows.length > 0) {
-      const assignmentId = activeRows[0].ASSIGNMENT_ID;
+    // 1️⃣ Deactivate previous assignments
+    const deactivateSql = `
+      UPDATE TC_ORG_USER_ASSIGNMENT
+      SET STATUS = ?, END_DATE = ?, LAST_UPDATED_BY = ?, LAST_UPDATED_DATE = NOW()
+      WHERE ORG_ID = ? AND EMP_ID = ? AND STATUS = ?
+    `;
 
-      const closeOldSql = `UPDATE TC_ORG_USER_ASSIGNMENT 
-                           SET END_DATE = ?, STATUS = ?, LAST_UPDATED_BY = ?, LAST_UPDATED_DATE = NOW()
-                           WHERE ASSIGNMENT_ID = ?`;
-
-      db.query(closeOldSql, [today, INACTIVE, email, assignmentId], (closeErr) => {
-        if (closeErr) {
-          console.error("Error closing old assignment:", closeErr);
-          return res.status(500).json({ success: false, message: "Failed to update old assignment" });
+    db.query(
+      deactivateSql,
+      [INACTIVE, today, email, companyId, empId, ACTIVE],
+      (deactErr) => {
+        if (deactErr) {
+          return db.rollback(() => {
+            console.error("Deactivate error:", deactErr);
+            return res.status(500).json({ success: false, message: "Failed to deactivate old assignments" });
+          });
         }
 
-        insertNewAssignment();
-      });
-    } else {
-      insertNewAssignment();
-    }
+        // 2️⃣ Insert New Assignments
+        const insertSql = `
+          INSERT INTO TC_ORG_USER_ASSIGNMENT
+          (ORG_ID, EMP_ID, ROLE_CODE, DESGN_CODE, ACCESS_CODE, START_DATE, STATUS, CREATED_BY, CREATION_DATE)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        `;
 
-    // Helper function to insert new assignment
-    function insertNewAssignment() {
-      const insertSql = `
-        INSERT INTO TC_ORG_USER_ASSIGNMENT 
-        (ORG_ID, EMP_ID, ROLE_CODE, DESGN_CODE, ACCESS_CODE, START_DATE, STATUS, CREATED_BY, CREATION_DATE)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
-      `;
+        const finalAccess = accessList.length > 0 ? accessList : [null];
 
- const accessList = Array.isArray(selectedAccess) && selectedAccess.length > 0 ? selectedAccess : [null];
+        let idx = 0;
+        const insertedIds = [];
 
-  let insertCount = 0;
+        const insertNext = () => {
+          if (idx >= finalAccess.length) {
+            return db.commit((commitErr) => {
+              if (commitErr) {
+                return db.rollback(() => {
+                  console.error("Commit error:", commitErr);
+                  return res.status(500).json({ success: false, message: "Commit failed" });
+                });
+              }
 
-  let assignmentIds = [];
-
-
-    accessList.forEach((accessCode,index)=>{
-      db.query(insertSql,
-        [
-          companyId,
-          empId,
-          selectedRoleCode,
-          selectedDesgn,
-          accessCode,
-          today,
-          ACTIVE,
-          email
-        ],
-         (err,result)=>{
-          if(err)
-          {
-           console.error("Insert error:", err);
-          return res
-            .status(500)
-            .json({ success: false, message: "Failed to assign responsibilities" });
+              return res.status(200).json({
+                success: true,
+                message: "Responsibilities updated successfully",
+                insertedRows: insertedIds.length,
+                insertedIds
+              });
+            });
           }
-          assignmentIds.push(result.insertId);
-          insertCount++;
 
-          if(insertCount === accessList.length)
-          {
-            return res.status(201).json({
-            success: true,
-            message: "Responsibilities assigned successfully",
-            data: {
-              insertedRows: insertCount,
-              assignmentIds,
-              startDate: today
+          const acc = finalAccess[idx];
+
+          db.query(
+            insertSql,
+            [companyId, empId, selectedRoleCode, selectedDesgn || null, acc, today, ACTIVE, email],
+            (insErr, insRes) => {
+              if (insErr) {
+                return db.rollback(() => {
+                  console.error("Insert error:", insErr);
+                  return res.status(500).json({ success: false, message: "Insert failed" });
+                });
+              }
+
+              insertedIds.push(insRes.insertId);
+              idx++;
+              insertNext();
             }
-          });
-          }
-         }
-      )
-    })
+          );
+        };
 
-      // db.query(
-      //   insertSql,
-      //   [companyId, empId, selectedRoleCode, selectedDesgn || null, accessCodeStr, today, ACTIVE, email],
-      //   (insertErr, insertResult) => {
-      //     if (insertErr) {
-      //       console.error("Error inserting new assignment:", insertErr);
-      //       return res.status(500).json({ success: false, message: "Failed to assign responsibilities", error: insertErr });
-      //     }
-
-      //     return res.status(201).json({
-      //       success: true,
-      //       message: "Responsibilities assigned successfully",
-      //       data: {
-      //         assignmentId: insertResult.insertId,
-      //         startDate: today
-      //       }
-      //     });
-      //   }
-      // );
-    }
+        insertNext();
+      }
+    );
   });
 };
 

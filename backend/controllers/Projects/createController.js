@@ -1,5 +1,7 @@
 const db = require('../../config/db');
 
+// OLD API
+
 // Utility: get current timestamp
 function getCurrentDateTime() {
   const now = new Date();

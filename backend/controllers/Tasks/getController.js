@@ -1,6 +1,7 @@
 
 // this api is used to get all tasks to show to the teamlead (which are created by him)
 
+// not use in api
 
 const db = require('../../config/db');
 

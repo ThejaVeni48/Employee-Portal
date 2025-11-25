@@ -1,13 +1,12 @@
 
 
-// not in use
+
 const express = require('express');
 
 const router = express.Router();
 
 
-
-const {createTask} = require('../../controllers/Tasks/createController');
+const {createTask} = require('../../controllers/Tasks/createTask');
 
 
 router.post('/',createTask);

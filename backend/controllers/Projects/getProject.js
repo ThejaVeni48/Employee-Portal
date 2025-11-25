@@ -25,7 +25,7 @@ const sql = `SELECT * FROM TC_PROJECTS_MASTER WHERE  ORG_ID = ?`;
             
         }
 
-        console.log("Results",result);
+        // console.log("Results",result);
                     return res.status(200).json({data:result})
 
         
@@ -56,7 +56,7 @@ AND PA.ORG_ID = PM.ORG_ID
             
         }
 
-        console.log("Results for employee",result);
+        // console.log("Results for employee",result);
                     return res.status(200).json({data:result})
 
         

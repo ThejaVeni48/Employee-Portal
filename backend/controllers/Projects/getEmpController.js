@@ -3,7 +3,6 @@
 /// this api is used for getting the project's employee.
 
 
-
 const db = require('../../config/db');
 
 
@@ -34,7 +33,7 @@ AND PA.STATUS = 'YES' ;`;
             
         }
 
-        console.log("Result for project employee",result);
+        // console.log("Result for project employee",result);
                     return res.status(200).json({data:result})
 
         

@@ -377,9 +377,9 @@ const addTask = require('./routes/addTaskRoute');
 app.use('/api/addTask',addTask);
 
 
-const getTask = require('./routes/getTaskaRoute');
+// const getTask = require('./routes/getTaskaRoute');
 
-app.use('/api/getTask',getTask);
+// app.use('/api/getTask',getTask);
 
 
 
@@ -439,16 +439,15 @@ const updatePStatus = require('./routes/Project/updateStatusRoute');
 app.use('/api/updateStatus',updatePStatus);
 
 
-const empProjects = require('./routes/EmpProjects/getRoute');
-app.use('/api/empProjects',empProjects);
+
 
 
 const activeProject = require('./routes/Project/activeProjectRoute');
 app.use('/api/activeProject',activeProject);
 
 
-const createTask = require('./routes/Tasks/createRoute');
-app.use('/api/createTask',createTask);
+// const createTask = require('./routes/Tasks/createRoute');
+// app.use('/api/createTask',createTask);
 
 const getTasks = require('./routes/Tasks/getRoute');
 app.use('/api/getTasks', getTasks);
@@ -582,6 +581,24 @@ app.use('/api/addProject',addProject)
 
 const assignProject = require('./routes/Employees/assignProjects');
 app.use('/api/assignProject',assignProject);
+
+
+// api for creating task
+
+const createTask = require('./routes/Tasks/createTask');
+app.use('/api/createTask',createTask);
+
+const getTask = require('./routes/Tasks/getTask');
+app.use('/api/getTask',getTask);
+
+
+const empProjects = require('./routes/Employees/empProjects');
+app.use('/api/empProjects',empProjects);
+
+
+const showApproveAccess = require('./routes/Project/showApproveAccess');
+app.use('/api/showApproveAccess',showApproveAccess);
+
 
 // to listen on port
 

@@ -14,6 +14,9 @@ const addProject = (req, res) => {
     hierachy, companyId, email, notes
   } = req.body;
 
+
+  console.log("rea.nody",req.body);
+  
   const now = moment().format('');
 
   const checkSql = `
@@ -42,7 +45,7 @@ const addProject = (req, res) => {
     db.query(insertSql, 
       [ companyId, projectName, projectCode, projDesc, startDate, endDate,
         supportId, status, clientId, clientName, billable, hierachy,
-        email, now, notes ],
+        email, now, notes],
       (error, result) => {
         if (error) {
           console.log("Error occured", error);

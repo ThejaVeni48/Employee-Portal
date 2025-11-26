@@ -1,36 +1,43 @@
-// this api is used for creating the task
-
-
 const db = require('../../config/db');
 
+const createTask = (req, res) => {
+  const { taskType, description, code, email, companyId, projectId } = req.body;
 
+  if (!taskType || !projectId || !companyId) {
+    return res.status(400).json({ data: "Task name, projectId and companyId are required" });
+  }
 
-const createTask = (req,res)=>{
+  // Step 1: Check if task already exists for the project
+  const checkSql = `SELECT * FROM TASKS WHERE TASK_NAME = ? AND PROJ_ID = ? AND ORG_ID = ?`;
+  db.query(checkSql, [taskType, projectId, companyId], (checkError, checkResult) => {
+    if (checkError) {
+      console.error("Error checking existing task:", checkError);
+      return res.status(500).json({ data: checkError });
+    }
 
+    if (checkResult.length > 0) {
+      // Task already exists
+      return res.status(400).json({ data: `Task "${taskType}" already exists for this project.` });
+    }
 
-    const {taskType,description,code,email,companyId,projectId} = req.body;
+    // Step 2: Insert new task
+    const insertSql = `INSERT INTO TASKS(TASK_NAME, TASK_DESC, CODE, PROJ_ID, ORG_ID, CREATED_BY, CREATION_DATE)
+                       VALUES (?, ?, ?, ?, ?, ?, NOW())`;
 
-    console.log("companyId");
-    
-
-
-    const insertSql = `INSERT INTO TASKS(TASK_NAME,TASK_DESC,CODE,PROJ_ID,ORG_ID,CREATED_BY,CREATION_DATE)
-    VALUES (?,?,?,?,?,?,NOW())`;
-
-    db.query(insertSql,[taskType,description,code,projectId,companyId,email],(error,result)=>{
-        if(error)
-        {
-            console.log("Error occured",error);
-            return res.status(500).json({data:error})
-            
+    db.query(
+      insertSql,
+      [taskType, description, code, projectId, companyId, email],
+      (insertError, insertResult) => {
+        if (insertError) {
+          console.error("Error creating task:", insertError);
+          return res.status(500).json({ data: insertError });
         }
 
-        console.log("Result for task creation",result);
-        return res.status(201).json({data:result})
-        
-    })
+        console.log("Task created successfully:", insertResult);
+        return res.status(201).json({ data: insertResult });
+      }
+    );
+  });
+};
 
-}
-
-
-module.exports = {createTask}
+module.exports = { createTask };

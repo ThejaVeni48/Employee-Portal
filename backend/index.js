@@ -600,6 +600,10 @@ const showApproveAccess = require('./routes/Project/showApproveAccess');
 app.use('/api/showApproveAccess',showApproveAccess);
 
 
+const approvalHierarchy = require('./routes/Project/approvalHierarchy');
+app.use('/api/approvalHierarchy',approvalHierarchy);
+
+
 // to listen on port
 
 app.listen(3001,()=>{

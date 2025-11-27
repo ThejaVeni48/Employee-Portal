@@ -604,6 +604,14 @@ const approvalHierarchy = require('./routes/Project/approvalHierarchy');
 app.use('/api/approvalHierarchy',approvalHierarchy);
 
 
+const getApproveHierarchy = require('./routes/Project/getApproveHierarchy');
+app.use('/api/getApproveHierarchy',getApproveHierarchy);
+
+
+const currentWeek = require('./routes/Timesheet/getCurrentWeek');
+app.use('/api/currentWeek',currentWeek);
+
+
 // to listen on port
 
 app.listen(3001,()=>{

@@ -94,6 +94,34 @@ const ApproveRejectOrg = (req, res) => {
 
                     console.log("Jobs Insert Result", insertJobResult);
 
+// Generate 1 year of weeks
+const startOfWeek = moment().startOf('week').add(1, 'days').subtract(2, 'weeks');
+const createdBy = system;
+
+let insertWeekQuery = `
+    INSERT INTO TC_MASTER (ORG_ID, WEEK_START, WEEK_END, CREATION_DATE, CREATED_BY)
+    VALUES (?, ?, ?, ?, ?)
+`;
+
+for (let i = 0; i < 10; i++) {
+    let weekStart = moment(startOfWeek).add(i, 'weeks').format("YYYY-MM-DD");
+    let weekEnd = moment(weekStart).add(6, 'days').format("YYYY-MM-DD");
+
+    db.query(
+        insertWeekQuery,
+        [companyId, weekStart, weekEnd, today, createdBy],
+        (weekErr) => {
+            if (weekErr) console.log("Week insert error", weekErr);
+        }
+    );
+}
+
+
+                    
+
+
+                    
+
                     return res.status(200).json({
                       message:
                         "Organization approved successfully. Roles, designations, and jobs inserted.",

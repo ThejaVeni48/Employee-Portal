@@ -1,22 +1,18 @@
-// this api is used for creating a new project
-
-
-
-
 const db = require('../../config/db');
 const moment = require('moment');
-
 
 const addProject = (req, res) => {
   const {          
     projectName, startDate, endDate, projectCode, projDesc,
     supportId, status, clientId, clientName, billable,
-    hierachy, companyId, email, notes
+    hierarchy, companyId, email, notes
   } = req.body;
 
+  console.log("req.body", req.body);
 
-  console.log("rea.nody",req.body);
-  
+  const billableValue = billable || 'NO';
+  const hierarchyValue = hierarchy || 'NO';
+  const notesValue = notes || 'NO';
   const now = moment().format('');
 
   const checkSql = `
@@ -42,13 +38,28 @@ const addProject = (req, res) => {
       VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     `;
 
-    db.query(insertSql, 
-      [ companyId, projectName, projectCode, projDesc, startDate, endDate,
-        supportId, status, clientId, clientName, billable, hierachy,
-        email, now, notes],
+    db.query(
+      insertSql,
+      [
+        companyId,
+        projectName,
+        projectCode,
+        projDesc,
+        startDate,
+        endDate,
+        supportId,
+        status,
+        clientId,
+        clientName,
+        billableValue,
+        hierarchyValue,     
+        email,
+        now,
+        notesValue
+      ],
       (error, result) => {
         if (error) {
-          console.log("Error occured", error);
+          console.log("Error occurred", error);
           return res.status(500).json({ data: error });
         }
 
@@ -59,6 +70,4 @@ const addProject = (req, res) => {
   });
 };
 
-
-
-module.exports = {addProject}
+module.exports = { addProject };

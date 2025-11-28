@@ -2,7 +2,6 @@
 const db = require('../../config/db');
 
 
-// THIS API FOR MANAGER
 
 // THIS API IS USED FOR ACCEPTING THE TIMESHEET
 

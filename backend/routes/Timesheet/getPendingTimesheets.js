@@ -5,10 +5,10 @@ const router = express.Router();
 
 
 
-const {getSubmittedTimesheets} = require('../../controllers/Timesheets/getPendingTimesheets');
+const {getPendingTimesheets} = require('../../controllers/Timesheets/getPendingTimesheets');
 
 
-router.get('/',getSubmittedTimesheets);
+router.get('/',getPendingTimesheets);
 
 
 module.exports = router;

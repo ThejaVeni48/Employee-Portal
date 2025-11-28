@@ -460,9 +460,9 @@ app.use('/api/EmpTask',EmpTask);
 const getTProjects = require('./routes/Timesheet/getRoute');
 app.use('/api/getTProjects',getTProjects);
 
-// api for  save button
-const saveTimeSheets = require('./routes/Timesheet/saveTimesheetsRoute');
-app.use("/api/saveTimeSheets",saveTimeSheets);
+// // api for  save button
+// const saveTimeSheets = require('./routes/Timesheet/saveTimesheetsRoute');
+// app.use("/api/saveTimeSheets",saveTimeSheets);
 
 // api for getting the  timesheetId
 const getTimesheetId = require('./routes/Timesheet/getTimesheetId');
@@ -607,9 +607,21 @@ app.use('/api/approvalHierarchy',approvalHierarchy);
 const getApproveHierarchy = require('./routes/Project/getApproveHierarchy');
 app.use('/api/getApproveHierarchy',getApproveHierarchy);
 
+// ------------------------------Timesheets------------------------------------------ 
+
 
 const currentWeek = require('./routes/Timesheet/getCurrentWeek');
 app.use('/api/currentWeek',currentWeek);
+
+
+
+const saveTimesheet = require('./routes/Timesheet/saveTimesheet');
+app.use('/api/saveTimesheet',saveTimesheet);
+
+
+const getPendingTimesheets  = require('./routes/Timesheet/getPendingTimesheets');
+app.use('/api/getPendingTimesheets',getPendingTimesheets);
+
 
 
 // to listen on port

@@ -508,8 +508,7 @@ app.use('/api/submitLeave',submitLeave);
 const weeklyTimesheetCSV = require('./routes/Timesheet/weeklyTimesheetCSV');
 app.use('/api/weeklyTimesheetCSV',weeklyTimesheetCSV); 
 
-const getAllEmpTimesheets = require('./routes/Timesheet/getAllTimesheets');
-app.use('/api/getAllEmpTimesheets',getAllEmpTimesheets); 
+
 
 
 
@@ -621,6 +620,14 @@ app.use('/api/saveTimesheet',saveTimesheet);
 
 const getPendingTimesheets  = require('./routes/Timesheet/getPendingTimesheets');
 app.use('/api/getPendingTimesheets',getPendingTimesheets);
+
+
+const getHierarchy = require('./routes/Timesheet/getHierarchy');
+app.use('/api/getHierarchy',getHierarchy);
+
+
+const getAllEmpTimesheets = require('./routes/Timesheet/getAllTimesheets');
+app.use('/api/getAllEmpTimesheets',getAllEmpTimesheets); 
 
 
 

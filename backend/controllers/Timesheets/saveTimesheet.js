@@ -2,7 +2,7 @@ const db = require('../../config/db');
 
 
 const saveTimesheet = (req, res) => {
-  const { empId, orgId, weekId, totalHours, status, entries } = req.body;
+  const { empId, orgId, weekId, totalHours, status, entries,currentApprover,finalApprover } = req.body;
 
 
 
@@ -37,8 +37,8 @@ const saveTimesheet = (req, res) => {
       INSERT INTO TC_TIMESHEET 
       (TC_MASTER_ID, ORG_ID, EMP_ID, PROJ_ID, TASK_ID,
        DAY1, DAY2, DAY3, DAY4, DAY5, DAY6, DAY7,
-       TOTAL_HOURS, STATUS, CREATED_BY, CREATION_DATE)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())`;
+       TOTAL_HOURS, STATUS,CURRENT_APPROVER,FINAL_APPROVER, CREATED_BY, CREATION_DATE)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())`;
 
     let completed = 0;
     let hasError = false;
@@ -61,6 +61,8 @@ const saveTimesheet = (req, res) => {
         hours[6] || 0,
         totalHours,
         status,
+        currentApprover,
+        finalApprover,
         empId,
       ];
 

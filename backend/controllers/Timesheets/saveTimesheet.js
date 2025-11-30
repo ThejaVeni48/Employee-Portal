@@ -12,6 +12,8 @@ const saveTimesheet = (req, res) => {
   console.log("totalHours",totalHours);
   console.log("status",status);
   console.log("entries",entries);
+  console.log("currentApprover",currentApprover);
+  console.log("finalApprover",finalApprover);
   
 
   if (!empId || !orgId || !weekId) {

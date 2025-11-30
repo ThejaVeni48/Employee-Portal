@@ -629,6 +629,9 @@ app.use('/api/getHierarchy',getHierarchy);
 const getAllEmpTimesheets = require('./routes/Timesheet/getAllTimesheets');
 app.use('/api/getAllEmpTimesheets',getAllEmpTimesheets); 
 
+const empTimesheetSummary = require('./routes/Timesheet/empTimesheetSummary');
+app.use('/api/empTimesheetSummary',empTimesheetSummary);
+
 
 
 // to listen on port

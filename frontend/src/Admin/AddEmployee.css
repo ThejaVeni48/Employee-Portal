@@ -1,0 +1,146 @@
+.addemployee-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto 100px auto;
+    width: 90%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.addemployee-header {
+    background-color: #1c3681;
+    padding: 15px 30px;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.addemployee-sections {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.addemployee-section-headers {
+    display: flex;
+    justify-content: flex-start;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.addemployee-buttons {
+    padding: 12px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.3s;
+}
+.addemployee-buttons:hover {
+    background-color: #1c3681;
+    color: white;
+}
+
+.addemployee-section-forms-container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.addemployee-section-forms-container h4 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #1c3681;
+    font-weight: 600;
+}
+
+.addemployee-section-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px 20px;
+}
+
+.addemployee-input-containers {
+    flex: 1 1 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.addemployee-input-containers label {
+    font-weight: 500;
+    color: #333;
+}
+
+.addemployee-input-containers span {
+    color: red;
+}
+
+.addemployee-input-fields {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+.addemployee-input-fields:focus {
+    border-color: #1c3681;
+    box-shadow: 0 0 5px rgba(28, 54, 129, 0.2);
+    outline: none;
+}
+
+.addemployee-date-container {
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+}
+.addemployee-date-container svg {
+    margin-left: 10px;
+    color: #1c3681;
+}
+.addemployee-datepicker {
+    border: none;
+    width: 100%;
+}
+
+.addemployee-buttons-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+.addemployee-buttons-container button {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.addemployee-buttons-container button:hover {
+    opacity: 0.9;
+}
+
+.previous-btn {
+    background-color: #1c3681;
+    color: white;
+}
+
+.addemployee-buttons-container button:not(.previous-btn) {
+    background-color: #28a745;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .addemployee-section-form {
+        flex-direction: column;
+    }
+    .addemployee-buttons-container {
+        justify-content: center;
+    }
+}

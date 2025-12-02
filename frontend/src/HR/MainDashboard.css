@@ -1,0 +1,121 @@
+.hr-dashboard {
+  padding: 2rem;
+  background: #f7f9fc;
+  min-height: 100vh;
+  font-family: "Poppins", sans-serif;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h2 {
+  color: #1c3681;
+  font-weight: 600;
+}
+
+.cards-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  flex: 1;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.table-section {
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding: 1rem;
+}
+
+.input-field {
+  width: 100%;
+}
+
+.dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+.table-section {
+  margin: 30px auto;
+  padding: 20px;
+  width: 90%;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 15px;
+  color: #333;
+}
+
+.custom-table thead {
+  background-color: #b8c1e8;
+  color: #1c3681;
+}
+
+.custom-table th {
+  padding: 14px 16px;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.custom-table tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: all 0.2s ease;
+}
+
+.custom-table td {
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #f5f8ff;
+  transform: scale(1.01);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.custom-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 768px) {
+  .custom-table th,
+  .custom-table td {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .table-section {
+    width: 100%;
+    padding: 10px;
+  }
+}

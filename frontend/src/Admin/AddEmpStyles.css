@@ -1,0 +1,139 @@
+.addemployee-wrapper {
+  padding: 25px;
+  margin: 20px 30px;
+  background-color: #f4f5f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  font-family: "Nunito", sans-serif;
+}
+
+.addemployee-header h4 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1c3681;
+  margin-bottom: 25px;
+}
+
+.addemployee-section-headers {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.addemployee-buttons {
+  background-color: #c3c8e0;
+  color: #1c3681;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.addemployee-buttons:hover {
+  background-color: #aeb8dd;
+}
+
+.addemployee-section-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px 25px; 
+}
+
+.addemployee-input-containers {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.addemployee-input-containers label {
+  font-weight: 600;
+  color: #2e3e50;
+  font-size: 14px;
+}
+
+.addemployee-input-fields,
+.addemployee-input-containers select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d6d6e0;
+  background-color: #ffffff;
+  font-size: 14px;
+  color: #2e3e50;
+  outline: none;
+  transition: border 0.3s ease;
+}
+
+.addemployee-input-fields:focus,
+.addemployee-input-containers select:focus {
+  border-color: #aeb8dd;
+}
+
+.addemployee-date-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-date-picker {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #d6d6e0;
+  width: 100%;
+  background-color: #ffffff;
+  font-size: 14px;
+}
+
+.addemployee-buttons-container {
+  margin-top: 30px;
+  display: flex;
+  gap: 12px;
+}
+
+.addemployee-buttons-container button {
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.addemployee-buttons-container button:hover {
+  opacity: 0.9;
+}
+
+.addemployee-buttons-container button:first-child {
+  background-color: #b8c1e8;
+  color: #1c3681;
+}
+
+.addemployee-buttons-container .previous-btn {
+  background-color: #1c3681;
+  color: #ffffff;
+}
+
+.addemployee-input-containers p {
+  color: #7d7d7d;
+  font-style: italic;
+  margin: 0;
+}
+
+@media screen and (max-width: 768px) {
+  .addemployee-section-form {
+    grid-template-columns: 1fr;
+  }
+
+  .addemployee-buttons-container {
+    flex-direction: column;
+  }
+
+  .addemployee-buttons-container button {
+    width: 100%;
+  }
+}

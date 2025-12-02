@@ -1,0 +1,150 @@
+.header {
+  background-color: #1c3681;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.logos img {
+  width: 180px;
+  height: auto;
+}
+.profile img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+  transition: transform 0.3s ease;
+}
+
+.maintabsContainer {
+  width: 90%;
+  margin: 20px auto;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  padding: 15px;
+}
+.innerTabContainer {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 20px;
+}
+.eachTab {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  padding: 12px 0;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  transition: all 0.3s ease;
+  list-style: none;
+}
+.react-tabs__tab--selected {
+  background-color: #1c3681;
+  /* color: #fff !important; */
+  box-shadow: 0 4px 10px rgba(28, 54, 129, 0.2);
+}
+.eachTab:hover {
+  background-color: #f2f3f7;
+  color: #163061;
+}
+
+/* Date Picker */
+.date-picker-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f8f9fb;
+  padding: 15px 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  max-width: 700px;
+  margin: 0 auto 25px;
+  gap: 15px;
+}
+.date-picker-container p {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1c3681;
+  padding: 8px 15px;
+  background-color: #e1e6f7;
+  border-radius: 8px;
+  min-width: 140px;
+  text-align: center;
+}
+.rightDatePickerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  /* border: 1px solid #000; */
+}
+.custom-date-picker {
+  padding: 10px 14px;
+  border-radius: 8px;
+  /* border: 1px solid #ccc; */
+  font-size: 14px;
+}
+
+/* Apply Button */
+.applyBtn {
+  background: linear-gradient(145deg, #1c3681, #2a4ca2);
+  color: #fff;
+  border: none;
+  padding: 10px 25px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(28, 54, 129, 0.3);
+  transition: all 0.3s ease;
+}
+.applyBtn:hover {
+  background: linear-gradient(145deg, #163061, #224080);
+  box-shadow: 0 8px 16px rgba(28, 54, 129, 0.35);
+}
+.applyBtn:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 8px rgba(28, 54, 129, 0.25);
+}
+
+/* Table */
+.userstable {
+  width: 90%;
+  margin: 0 auto 30px;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+.userstable th,
+.userstable td {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+.userstable th {
+  background-color: #1c3681;
+  color: #fff;
+  font-weight: 600;
+}
+.userstable tbody tr:hover {
+  background-color: #f5f7fb;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.userstable button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 500;
+  background: linear-gradient(145deg, #1c3681, #2a4ca2);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.userstable button:hover {
+  background: linear-gradient(145deg, #163061, #224080);
+}

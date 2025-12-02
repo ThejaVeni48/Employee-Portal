@@ -1,0 +1,279 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #f7f9fb;
+  margin: 0;
+  padding: 0;
+}
+
+.mainContainer {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.leftSection {
+  background: linear-gradient(180deg, #e3e9f7 0%, #cfdaf1 100%);
+  color: #2c3e50;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
+  align-items: center;
+}
+
+.leftSection.expanded {
+  width: 240px;
+}
+
+.leftSection.collapsed {
+  width: 120px;
+}
+
+.sidebarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 16px;
+  background: #dde6f3;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.sidebarHeader h2 {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1c2b54;
+}
+
+.toggleBtn {
+  background: none;
+  border: none;
+  color: #4c5c8a;
+  font-size: 22px;
+  cursor: pointer;
+  transition: transform 0.3s ease, color 0.3s ease;
+  margin-top: -10px;
+}
+
+.toggleBtn:hover {
+  transform: rotate(90deg);
+  color: #1c3681;
+}
+
+.dashboardSections {
+  padding: 20px 0;
+}
+
+.menuSection h5 {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-left: 20px;
+  margin-bottom: 8px;
+  color: #6b7da0;
+}
+
+.menuSection ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menuSection ul li {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  font-size: 15px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+  border-radius: 8px;
+  margin: 3px 10px;
+}
+
+.menuSection ul li:hover {
+  background: #e6edfb;
+  border-left: 3px solid #91a4e8;
+  color: #1c3681;
+}
+
+.icon {
+  font-size: 20px;
+  margin-right: 14px;
+  color: #4c5c8a;
+}
+
+.text.hidden {
+  display: none;
+}
+
+.logoutBtn {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border: none;
+  background: #dde6f3;
+  color: #2c3e50;
+  font-size: 15px;
+  cursor: pointer;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.logoutBtn:hover {
+  background: #cfdaf1;
+  color: #1c3681;
+}
+
+.rightSection {
+  flex: 1;
+  background: #f9fbff;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s ease;
+}
+
+.contentContainer {
+  padding: 24px;
+  overflow-y: auto;
+  background-color: #f7f9fb;
+  border-radius: 10px;
+}
+
+.leftSection::-webkit-scrollbar {
+  width: 6px;
+}
+
+.leftSection::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+}
+
+.submenu {
+  margin-left: 25px;
+  margin-top: 5px;
+  list-style-type: none;
+  padding-left: 10px;
+}
+
+.submenuItem {
+  cursor: pointer;
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 4px;
+  transition: 0.2s;
+}
+
+.submenuItem:hover {
+  color: #1c3681;
+  font-weight: 500;
+}
+
+/* =============================
+   RESPONSIVE SECTION
+============================= */
+@media (max-width: 768px) {
+  .leftSection {
+    position: fixed;
+    height: 100%;
+    z-index: 1000;
+    transform: translateX(0);
+  }
+
+  .leftSection.collapsed {
+    transform: translateX(-100%);
+  }
+
+  .rightSection {
+    width: 100%;
+  }
+}
+
+/* =============================
+   NESTED CHILD MENU STYLING
+============================= */
+
+/* Dropdown container */
+.nestedMenu {
+  width: 100%;
+  background: rgba(28, 54, 129, 0.05);
+  margin: 0;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-radius: 0;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Ensure each Timesheet / Leaves block stacks vertically */
+.menuSection ul li .nestedMenu > li {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 4px;
+}
+
+/* Section headers (like Timesheets, Leaves) */
+.nestedHeader {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4c5c8a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 20px 4px 20px;
+}
+
+/* Inner list (like Weekly Timesheet, View Summary) */
+.nestedMenuChild {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* Each clickable nested item */
+.nestedItem {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+  padding: 8px 32px;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+}
+
+/* Hover effect */
+.nestedItem:hover {
+  background: rgba(28, 54, 129, 0.08);
+  color: #1c3681;
+  border-left: 3px solid #1c3681;
+}
+
+/* Active state */
+.nestedItem.active {
+  background: rgba(28, 54, 129, 0.1);
+  color: #1c3681;
+  font-weight: 600;
+  border-left: 3px solid #1c3681;
+}
+
+/* Fade animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

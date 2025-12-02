@@ -1,0 +1,128 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+
+* {
+  font-family: "Inter", sans-serif;
+}
+
+.calendar-container {
+  width: 90%;
+  max-width: 900px;
+  margin: 30px auto;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  padding: 25px 30px;
+  transition: all 0.3s ease-in-out;
+}
+
+.calendar-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+}
+
+.calendar-title {
+  color: #1c3681;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  border-left: 4px solid #1c3681;
+  padding-left: 10px;
+}
+
+.calendar-card {
+  background: #f8f9fd;
+  border-radius: 12px;
+  padding: 15px;
+}
+
+.p-calendar {
+  width: 100%;
+}
+
+.calendar-cell {
+  text-align: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 8px;
+  line-height: 2.8rem;
+  margin: auto;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+.calendar-cell:hover {
+  background-color: rgba(28, 54, 129, 0.1);
+  cursor: pointer;
+}
+
+.holiday-cell {
+  background-color: #ffefb3 !important;
+  color: #c27c00;
+  font-weight: 600;
+  position: relative;
+  border: 1px solid #f3d36b;
+}
+
+.holiday-label {
+  position: absolute;
+  bottom: -1.3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff4cc;
+  color: #a36700;
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+  box-shadow: 0 2px 5px rgba(255, 200, 0, 0.15);
+}
+
+.today-cell {
+  border: 2px solid #1c3681;
+  background-color: #e8ecff;
+  color: #1c3681;
+  font-weight: 600;
+}
+
+.p-datepicker-title {
+  color: #1c3681;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+
+.p-datepicker-prev,
+.p-datepicker-next {
+  color: #1c3681;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+
+.p-datepicker th {
+  color: #1c3681;
+  font-weight: 600;
+  background: #edf0fa;
+  border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+  .calendar-container {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .calendar-title {
+    font-size: 1.2rem;
+  }
+
+  .calendar-cell {
+    width: 2.2rem;
+    height: 2.2rem;
+    line-height: 2.2rem;
+    font-size: 12px;
+  }
+}

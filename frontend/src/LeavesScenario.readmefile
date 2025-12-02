@@ -1,0 +1,26 @@
+Leaves Scenario:
+
+1.When a employee applied for a leave on 16/09/2025
+
+ I need to fill timesheet for the 15/09/2025 to 19/09/2025
+ 
+ 
+2.when i went for filling the timesheet that week, 
+
+the empid,companyid, startweek is checking in levaes_requests table 
+
+checks if presents
+
+status : pending
+
+1.blocks that date and we cannot submit that timesheet for that week until the leave is approved.
+
+
+status: approved
+
+blocks that data and can submit the timesheet for that week
+
+
+status:rejected
+
+unblocks that leave and can submit the week timesheet

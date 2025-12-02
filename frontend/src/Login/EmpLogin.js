@@ -1,0 +1,251 @@
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {
+  getCompanyId,
+  getCompanyName,
+  getCreatedBy,
+  getDeptId,
+  getDomain,
+  getEmpId,
+  getFirstName,
+  getLastName,
+  getMiddleName,
+  getProjectId,
+  getProjectStatus,
+  getRole,
+  getTimeSheetCode,
+} from "../Redux/actions/UserActions";
+import { CiUser } from "react-icons/ci";
+import { IoMdEye } from "react-icons/io";
+import { FaRegEyeSlash } from "react-icons/fa6";
+
+const EmpLogin = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const nav = useNavigate();
+  const dispatch = useDispatch();
+  const handleNav = () => nav("/register");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:3001/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const res = await response.json();
+      console.log("data", res);
+
+      // Handle inactive/terminated employees (403)
+      if (response.status === 403) {
+        alert("Access denied. You are not authorized to login.");
+        setEmail("");
+        setPassword("");
+
+        return;
+      }
+
+      // Handle invalid credentials
+      if (response.status === 404 || res.success === false) {
+        alert("Invalid email or password.");
+        return;
+      }
+
+      // Successful login  store data
+      dispatch(getFirstName(res.firstName));
+      dispatch(getLastName(res.lastName));
+      dispatch(getMiddleName(res.middleName));
+      dispatch(getRole(res.role));
+      dispatch(getCompanyId(res.companyId));
+      dispatch(getEmpId(res.empId));
+      dispatch(getCompanyName(res.companyName));
+      dispatch(getTimeSheetCode(res.timesheetCode));
+      dispatch(getDeptId(res.deptId));
+      dispatch(getProjectStatus(res.pStatus));
+      dispatch(getCreatedBy(res.createdBy));
+      dispatch(getDomain(res.domain));
+      dispatch(getProjectId(res.projectId));
+
+      const routes = {
+        Admin: "/adminDashboard",
+        Employee: "/employeedashboard",
+        Manager: "/managerdashboard",
+        "Project Manager": "/pmDashboard",
+        HR: "/hrDashboard",
+        "Team Lead":"/employeedashboard",
+        DeptHead :'/deptDashboard'
+      };
+
+      if (res.role && routes[res.role]) {
+        nav(routes[res.role]);
+      } else {
+        alert("Invalid role configuration.");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("Unable to connect to server.");
+    }
+  };
+
+  const containerStyle = {
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "linear-gradient(135deg, #E6EBF1, #F2F4F8)",
+    padding: "20px",
+    fontFamily: "'Inter', sans-serif",
+  };
+
+  const cardStyle = {
+    backgroundColor: "#FFFFFF",
+    padding: "40px 30px",
+    borderRadius: "16px",
+    boxShadow: "0 6px 20px rgba(0,0,0,0.08)",
+    width: "100%",
+    maxWidth: "400px",
+    transition: "all 0.3s ease",
+  };
+
+  const titleStyle = {
+    fontSize: "26px",
+    fontWeight: "700",
+    color: "#2F3E46",
+    textAlign: "center",
+    marginBottom: "25px",
+    letterSpacing: "0.5px",
+  };
+
+  const inputContainer = {
+    position: "relative",
+    marginBottom: "20px",
+  };
+
+  const inputStyle = {
+    width: "100%",
+    padding: "14px 40px 14px 14px",
+    borderRadius: "8px",
+    border: "1px solid #C7CBD1",
+    outline: "none",
+    fontSize: "15px",
+    transition: "all 0.2s ease",
+    backgroundColor: "#F9FAFB",
+  };
+
+  const inputFocusStyle = {
+    border: "1px solid #9CA3AF",
+    backgroundColor: "#FFFFFF",
+  };
+
+  const iconStyle = {
+    position: "absolute",
+    right: "10px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    cursor: "pointer",
+    color: "#6B7280",
+  };
+
+  const loginButtonStyle = {
+    width: "100%",
+    padding: "12px",
+    borderRadius: "8px",
+    border: "none",
+    // backgroundColor: "#9FB6C3",
+    backgroundColor: "#E65100",
+    color: "#fff",
+    fontSize: "16px",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "background 0.3s ease, transform 0.2s ease",
+  };
+
+  const loginButtonHoverStyle = {
+    backgroundColor: "#8199A9",
+    transform: "scale(1.02)",
+  };
+
+  const footerStyle = {
+    marginTop: "20px",
+    textAlign: "center",
+    fontSize: "14px",
+    color: "#6B7280",
+  };
+
+  const errorStyle = {
+    color: "#DC2626",
+    fontSize: "13px",
+    marginTop: "5px",
+    textAlign: "center",
+  };
+
+  return (
+    <div style={containerStyle}>
+      <div style={cardStyle}>
+        <h2 style={titleStyle}>Login</h2>
+        <form onSubmit={handleLogin}>
+          <div style={inputContainer}>
+            <input
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={inputStyle}
+              onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
+              onBlur={(e) => Object.assign(e.target.style, inputStyle)}
+              required
+            />
+            <CiUser style={{ ...iconStyle, right: "10px" }} size={20} />
+          </div>
+
+          <div style={inputContainer}>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={inputStyle}
+              onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
+              onBlur={(e) => Object.assign(e.target.style, inputStyle)}
+              required
+            />
+            <span
+              style={iconStyle}
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <IoMdEye size={20} />
+              ) : (
+                <FaRegEyeSlash size={20} />
+              )}
+            </span>
+          </div>
+
+          {error && <p style={errorStyle}>{error}</p>}
+
+          <button
+            type="submit"
+            style={loginButtonStyle}
+            onMouseOver={(e) =>
+              Object.assign(e.target.style, loginButtonHoverStyle)
+            }
+            onMouseOut={(e) => Object.assign(e.target.style, loginButtonStyle)}
+          >
+            Login
+          </button>
+        </form>
+
+
+      </div>
+    </div>
+  );
+};
+
+export default EmpLogin;

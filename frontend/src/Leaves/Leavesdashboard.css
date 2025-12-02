@@ -1,0 +1,231 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#leavesWrapper {
+  min-height: 100vh;
+  background: #f8faff;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+/* ---------- HEADER ---------- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  /* background-color: #1c3681;  */
+  color: white;
+  border-bottom: 3px solid #e5e9f2;
+}
+
+.header .logos img {
+  width: 160px;
+  height: auto;
+}
+
+.profileimage {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e5e9f2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: #1c3681;
+  font-size: 18px;
+}
+
+.profilepic {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.letterAvatar {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* ---------- LEAVES SUMMARY ---------- */
+.leavesHeader {
+  width: 90%;
+  margin: 25px auto;
+  display: flex;
+  justify-content: space-around;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.profileContainer1 {
+  flex: 1;
+  min-width: 180px;
+  padding: 15px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.profileContainer1:hover {
+  transform: translateY(-4px);
+}
+
+.profileContainer1 p:first-child {
+  font-weight: 600;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.profileContainer1 p:nth-child(2) {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* color themes */
+.firstSection {
+  background-color: #f1f5ff;
+  color: #1c3681;
+}
+.secondSection {
+  background-color: #fff5ec;
+  color: #a45100;
+}
+.thirdSection {
+  background-color: #ecf7f9;
+  color: #006d77;
+}
+.fourthSection {
+  background-color: #eef7f1;
+  color: #2d6a4f;
+}
+
+/* ---------- LOWER SECTION ---------- */
+.lowerSection {
+  width: 90%;
+  margin: 20px auto;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.applyLeavesSection,
+.leavesHistorySection {
+  flex: 1;
+  min-height: 250px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.applyLeavesSection p,
+.leavesHistorySection p {
+  font-weight: 600;
+  margin-bottom: 15px;
+  font-size: 16px;
+  color: #1c3681;
+}
+
+/* ---------- DATE PICKER ---------- */
+.date-picker-container {
+  margin-bottom: 15px;
+}
+
+.date-picker-container h3 {
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.custom-date-picker {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.custom-date-picker:focus {
+  border-color: #1c3681;
+}
+.applyLeavesSection {
+  flex: 1.3;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.applyLeavesSection p {
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #1c3681;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.custom-date-picker,
+.readonly-input,
+.custom-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: border-color 0.2s ease;
+  font-size: 14px;
+}
+
+.custom-date-picker:focus,
+.custom-textarea:focus {
+  border-color: #1c3681;
+}
+
+.readonly-input {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* Textarea */
+.custom-textarea {
+  resize: none;
+}
+
+/* Button */
+.apply-btn {
+  background-color: #1c3681;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.apply-btn:hover {
+  background-color: #162a63;
+}

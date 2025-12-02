@@ -1,0 +1,137 @@
+.header {
+  background-color: #1c3681;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 40px;
+  color: #fff;
+}
+
+.logos img {
+  width: 180px;
+  height: auto;
+}
+
+.profile img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+  margin: 20px 100px;
+  gap: 5px;
+}
+
+.userDetails p {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.tableContainer {
+  margin: 20px auto;
+  width: 95%;
+  overflow-x: auto;
+}
+
+table {
+  width: 90%;
+  margin: auto;
+  border-collapse: collapse;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+th,
+td {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tableContainer th {
+  background-color: #1c3681;
+  color: #fff;
+  font-weight: 600;
+}
+
+tbody tr:hover {
+  background-color: #f5f7fb;
+  transition: all 0.3s ease;
+}
+
+.remarksContainer {
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  margin: 30px auto;
+}
+
+.remarksContainer label {
+  font-weight: 500;
+  color: #1c3681;
+}
+
+textarea {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  resize: vertical;
+  transition: all 0.3s ease;
+}
+
+textarea:focus {
+  border-color: #1c3681;
+  box-shadow: 0 0 8px rgba(28, 54, 129, 0.3);
+  outline: none;
+}
+
+.btnContainer {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 30px 0;
+}
+
+.btnContainer button {
+  padding: 12px 25px;
+  border: none;
+  outline: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #fff;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btnContainer button:first-child {
+  background-color: #28a745;
+  border: 1px solid #28a745;
+}
+
+.btnContainer button:first-child:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+  transform: translateY(-2px);
+}
+
+.btnContainer button:last-child {
+  background-color: #dc3545; 
+  border: 1px solid #dc3545;
+}
+
+.btnContainer button:last-child:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+  transform: translateY(-2px);
+}

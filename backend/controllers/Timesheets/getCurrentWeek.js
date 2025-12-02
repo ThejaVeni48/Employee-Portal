@@ -26,7 +26,7 @@ const currentWeek = (req,res)=>{
         
     }
 
-    console.log("result for weeks",result);
+    // console.log("result for weeks",result);
     return res.status(200).json({data:result})
     
   })

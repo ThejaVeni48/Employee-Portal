@@ -20,7 +20,7 @@ AND T.TC_MASTER_ID =? `;
       return res.status(500).json({ data: error });
     }
 
-    console.log("Result", result);
+    // console.log("Result", result);
     return res.status(200).json({ data: result });
   });
 };

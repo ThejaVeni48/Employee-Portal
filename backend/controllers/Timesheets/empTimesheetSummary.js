@@ -9,8 +9,8 @@ const empTimesheetSummary = (req,res)=>{
 
      const {orgId,empId} = req.query;
 
-     console.log("orgId",orgId);
-     console.log("empId",empId);
+   //   console.log("orgId",orgId);
+   //   console.log("empId",empId);
      
 
 
@@ -38,7 +38,7 @@ ORDER BY M.WEEK_START DESC`;
         return res.status(500).json({data:error})
         
      }
-       console.log("result occured FOR EMPTIMESHEET ",result);
+      //  console.log("result occured FOR EMPTIMESHEET ",result);
         return res.status(200).json({data:result})
    })
 

@@ -9,7 +9,7 @@ const getSavedTimeSheetEntries = (req, res) => {
     WHERE EMP_ID = ?
       AND ORG_ID = ?
       AND TC_MASTER_ID = ?
-      AND STATUS = 'SU'
+      AND (STATUS = 'SU' OR STATUS = 'A')
   `;
 
   const savedSQL = `
@@ -18,7 +18,7 @@ const getSavedTimeSheetEntries = (req, res) => {
     WHERE EMP_ID = ?
       AND ORG_ID = ?
       AND TC_MASTER_ID = ?
-      AND STATUS = 'S'
+      AND (STATUS = 'S' OR STATUS = 'R')
   `;
 
   db.query(submittedSQL, [empId, companyId, weekId], (err, submittedRows) => {
@@ -32,7 +32,14 @@ const getSavedTimeSheetEntries = (req, res) => {
       if (err) return res.status(500).json({ error: err });
 
       if (savedRows.length > 0) {
-        return res.json({ status: "S", data: savedRows });
+        console.log("savedRows",savedRows);
+
+        const status = savedRows[0].STATUS;
+
+        console.log("STATUS ",status);
+        
+        
+        return res.json({ status: status, data: savedRows });
       }
 
       return res.json({ status: "NONE", data: [] });

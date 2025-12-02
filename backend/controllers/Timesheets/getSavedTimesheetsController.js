@@ -3,34 +3,42 @@ const db = require("../../config/db");
 const getSavedTimeSheetEntries = (req, res) => {
   const { empId, companyId, weekId } = req.query;
 
-  const sql = `
-    SELECT 
-      TT.PROJ_ID,
-      TT.TASK_ID,
-      TT.DAY1,
-      TT.DAY2,
-      TT.DAY3,
-      TT.DAY4,
-      TT.DAY5,
-      TT.DAY6,
-      TT.DAY7
-    FROM TC_TIMESHEET TT
-    WHERE TT.EMP_ID = ? 
-      AND TT.ORG_ID = ? 
-      AND TT.TC_MASTER_ID = ?;
+  const submittedSQL = `
+    SELECT *
+    FROM TC_TIMESHEET
+    WHERE EMP_ID = ?
+      AND ORG_ID = ?
+      AND TC_MASTER_ID = ?
+      AND STATUS = 'SU'
   `;
 
-  db.query(sql, [empId, companyId, weekId], (err, results) => {
-    if (err) {
-      console.log("Error fetching saved timesheet:", err);
-      return res.status(500).json({ error: "Database error" });
+  const savedSQL = `
+    SELECT *
+    FROM TC_TIMESHEET
+    WHERE EMP_ID = ?
+      AND ORG_ID = ?
+      AND TC_MASTER_ID = ?
+      AND STATUS = 'S'
+  `;
+
+  db.query(submittedSQL, [empId, companyId, weekId], (err, submittedRows) => {
+    if (err) return res.status(500).json({ error: err });
+
+    if (submittedRows.length > 0) {
+      return res.json({ status: "SU", data: submittedRows });
     }
 
-    console.log("Saved Timesheet:", results);
+    db.query(savedSQL, [empId, companyId, weekId], (err, savedRows) => {
+      if (err) return res.status(500).json({ error: err });
 
-    // Just return raw DB results
-    return res.json({ data: results });
+      if (savedRows.length > 0) {
+        return res.json({ status: "S", data: savedRows });
+      }
+
+      return res.json({ status: "NONE", data: [] });
+    });
   });
 };
+
 
 module.exports = { getSavedTimeSheetEntries };

@@ -230,6 +230,12 @@ const ProjectAssignmnet = () => {
 
   // console.log("approveaccess",approveAccess);
 
+
+  console.log("employees",employees);
+  
+
+  console.log("project EMployee",projEmployees);
+  
   return (
     <>
       <p>ProjectAssignmnet</p>
@@ -489,7 +495,7 @@ const ProjectAssignmnet = () => {
 
         {Hierachy && (
           <TabPanel header="Approvals">
-            <Approvals employees={{ employees, projectId }} />
+            <Approvals employees={{ employees, projectId,projEmployees }} />
           </TabPanel>
         )}
         

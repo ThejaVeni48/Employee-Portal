@@ -13,6 +13,8 @@ import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import Task from "../Tasks/Task";
 import ProjectProfile from "./ProjectProfile";
 import Approvals from "./Approvals";
+import ProjectHolidays from "./ProjectHolidays";
+import ProjectScheduler from "./ProjectScheduler";
 
 const ProjectAssignmnet = () => {
   const location = useLocation();
@@ -490,6 +492,16 @@ const ProjectAssignmnet = () => {
             <Approvals employees={{ employees, projectId }} />
           </TabPanel>
         )}
+        
+        
+        <TabPanel header='Holidays'>
+
+<ProjectHolidays/>
+        </TabPanel>
+        <TabPanel header="Scheduler">
+
+<ProjectScheduler/>
+        </TabPanel>
       </TabView>
     </>
   );

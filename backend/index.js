@@ -86,6 +86,17 @@ const uploadRoles = require('./routes/SSO/uploadRole');
 app.use("/api/uploadRoles",uploadRoles);
 
 
+// sso for creating leaves
+
+const createLeaves = require('./routes/SSO/leaves');
+app.use("/api/createLeaves",createLeaves);
+
+// sso for getting leaves
+
+
+const getSSOLeaves = require('./routes/SSO/getLeaves');
+app.use("/api/getSSOLeaves",getSSOLeaves);
+
 
 // api for posting the timesheets into timesheet table
 

@@ -31,7 +31,6 @@ import Projects from "./Projects/Projects";
 import ProjectsEmployee from "./Projects/ProjectsEmployee";
 import AllEmployees from "./Manager/AllEmployees";
 import Dashboard from "./Admin/dashboard";
-import Holidays from "./Admin/Holidays";
 import AssignmentPage from "./Employee/AssignmentPage";
 import MyProjects from "./Employee/MyProjects";
 import MainDashboard from "./HR/MainDashboard";
@@ -53,7 +52,6 @@ import EmpMainDashboard from "./Employee/EmpMainDashboard";
 import EmpTask from "./Employee/EmpTasks";
 import TimesheetEntries from "./Employee/TimeSheetEntries";
 import TimesheetSummary from "./Employee/TimesheetSummary";
-import Holiday from "./Holidays/Holiday";
 import LeaveSummary from "./Leaves/Leavesummary";
 import MngMainDashboard from "./Manager/MngMainDashboard";
 import EmpTimesheet from "./Timesheets/EmpTimesheet";
@@ -84,6 +82,9 @@ import Task from "./Tasks/Task";
 import TaskList from "./Tasks/TaskList";
 import ProjectProfile from "./Projects/ProjectProfile";
 import TimesheetWeeks from "./Timesheets/TimesheetWeeks";
+import SSOLeaves from "./SSO/SSOLeaves";
+import ProjectHolidays from "./Projects/ProjectHolidays";
+import Holiday from "./Holidays/Holiday";
 
 
 function AppRoutes() {
@@ -110,6 +111,7 @@ function AppRoutes() {
       <Route path="roles" element={<DRoles/>}/>
       <Route path="designation" element={<Designation/>}/>
       <Route path="jobs" element={<Jobs/>}/>
+      <Route path="ssoleaves" element={<SSOLeaves/>}/>
 
 
       </Route>
@@ -139,7 +141,7 @@ function AppRoutes() {
           <Route path="/viewLeaveTimeSheet" element={<ViewLeaveTimeSheet />} />
           <Route path="/emp" element={<AllEmployees />} />
 
-          {/* Employee */}
+          {/*----------------------------------- Employee ---------------------------------------------------------- */}
           <Route path="/employeedashboard" element={<EmpDashboard />}>
             <Route path="empMainDashboard" element={<EmpMainDashboard />} />
             <Route path="TimeSheetsInfo" element={<TimeSheetsInfo />} />
@@ -162,7 +164,7 @@ function AppRoutes() {
           <Route path="/LeavesDashboard" element={<LeavesDashboard />} />
           <Route path="/AssignmentsPage" element={<AssignmentPage />} />
 
-          {/* Admin */}
+          {/*------------------------------------------ Admin ---------------------------------------------------*/}
 
           <Route path="/adminDashboard" element={<AdminDashboard />}>
          <Route
@@ -215,10 +217,45 @@ function AppRoutes() {
             </ProtectedRoute>
            }
 />
+
+        <Route path="weektimesheet" element={
+          <ProtectedRoute accessCode={['ALL_R', 'TS_VW']}>
+            <WeekTimesheet />
+          </ProtectedRoute>
+        } 
+        
+        />
+          <Route path="timesheetsummary" element={
+          <ProtectedRoute accessCode={['ALL_R', 'TS_VW']}>
+            <TimesheetSummary />
+          </ProtectedRoute>
+        } 
+        
+        />
+
+        <Route path="timesheetsummary" element={
+          <ProtectedRoute accessCode={['ALL_R', 'LEAVE_VW']}>
+            <LeavesDashboard />
+          </ProtectedRoute>
+        } 
+        
+        />
+        <Route path="holidays" element={
+          <ProtectedRoute accessCode={['ALL_R', 'HD_TAB']}>
+            <Holiday/>
+          </ProtectedRoute>
+        } 
+        
+        />
+
+
+
+
+
          <Route path="timesheetweeks" element={<TimesheetWeeks/>}/>
             <Route path="timesheetapprovals" element={<Approvals />} />
-
            <Route path="noaccess" element={<Noaccess/>}/>
+           <Route path="projectHolidays" element={<ProjectHolidays/>}/>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="employees" element={<Employees />} />
             <Route path="message" element={<Message />} />
@@ -234,9 +271,8 @@ function AppRoutes() {
             <Route path="orgdesignations" element={<OrgDesignations/>}/>
                       <Route path="changePassword" element={<ChangePassword/>}/>
                       <Route path="orgacess" element={<OrgAccess/>}/>
-                       <Route path="weektimesheet" element={<WeekTimesheet />} />
-            <Route path="timesheetsummary" element={<TimesheetSummary />}></Route>
           <Route path="profile" element={<Profile/>}/>
+
 
           </Route>
           <Route path="/addEmp" element={<AddEmp />} />
@@ -254,7 +290,7 @@ function AppRoutes() {
             <Route path="leavescreation" element={<LeavesCreation />} />
             <Route path="leavesmanagement" element={<LeaveManagement />} />
             <Route path="adddept" element={<AddDept />} />
-            <Route path="holidays" element={<Holidays />} />
+            {/* <Route path="holidays" element={<Holidays />} /> */}
           </Route>
 
           <Route path="/Calender" element={<CalendarComponent />} />

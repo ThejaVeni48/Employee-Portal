@@ -145,7 +145,7 @@ const accessCode = useSelector((state) => state.user.accessCode);
     }
     return(
         <>
-        <p>ERtzyuisdfgy</p>
+        <p>ERtzy</p>
        <Card>
              <DataTable
                               value={filteredData}

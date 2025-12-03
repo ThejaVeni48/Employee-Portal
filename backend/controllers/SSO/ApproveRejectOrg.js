@@ -5,17 +5,11 @@ const { generatePassword } = require("../../helpers/functions");
 const ApproveRejectOrg = (req, res) => {
   const { companyId, status, userId } = req.body;
 
-
-  console.log("companyId",companyId);
-  
-
   const today = moment().format("YYYY-MM-DD");
   const endDate = moment(today).add(30, "days").format("YYYY-MM-DD");
-
   const password = generatePassword();
   const logins = 0;
 
-  // Approval Logic
   if (status === "A") {
     const updateSql = `
       UPDATE TC_ORG_REGISTRATIONS
@@ -29,15 +23,12 @@ const ApproveRejectOrg = (req, res) => {
       [status, today, endDate, password, today, userId, logins, companyId],
       (approveError, approveResult) => {
         if (approveError) {
-          console.log("Approve Error", approveError);
           return res.status(500).json({ data: approveError });
         }
 
-        console.log("Approve Result", approveResult);
-
         const system = "SYSTEM";
 
-        // Insert ROLES
+        // Insert Roles
         const insertRolesSql = `
           INSERT INTO TC_ORG_ROLES 
           (ROLE_NAME, ROLE_STATUS, ROLE_CODE, ROLE_DESCRIPTION, CREATED_BY, CREATION_DATE, ORG_ID)
@@ -50,17 +41,14 @@ const ApproveRejectOrg = (req, res) => {
           [system, today, companyId],
           (insertRolesError, insertRolesResult) => {
             if (insertRolesError) {
-              console.log("Insert Roles Error", insertRolesError);
               return res.status(500).json({ data: insertRolesError });
             }
 
-            console.log("Roles Insert Result", insertRolesResult);
-
-            // Insert DESIGNATIONS
+            // Insert Designations
             const insertDesgnSql = `
               INSERT INTO TC_ORG_DESIGNATIONS
-              (DESGN_NAME, DESGN_DESC, DESGN_CODE, DESGN_STATUS,ROLE_ID, CREATED_BY, CREATION_DATE, ORG_ID)
-              SELECT DESGN_NAME, DESGN_DESC, DESGN_CODE, DESGN_STATUS,ROLE_ID, ?, ?, ?
+              (DESGN_NAME, DESGN_DESC, DESGN_CODE, DESGN_STATUS, ROLE_ID, CREATED_BY, CREATION_DATE, ORG_ID)
+              SELECT DESGN_NAME, DESGN_DESC, DESGN_CODE, DESGN_STATUS, ROLE_ID, ?, ?, ?
               FROM SSO_DESIGNATIONS
             `;
 
@@ -69,13 +57,10 @@ const ApproveRejectOrg = (req, res) => {
               [system, today, companyId],
               (insertDesgnError, insertDesgnResult) => {
                 if (insertDesgnError) {
-                  console.log("Insert Designations Error", insertDesgnError);
                   return res.status(500).json({ data: insertDesgnError });
                 }
 
-                console.log("Designations Insert Result", insertDesgnResult);
-
-                // Insert JOBS
+                // Insert Jobs / Access Controls
                 const insertJobSql = `
                   INSERT INTO TC_ORG_ACCESS
                   (ACCESS_NAME, ACCESS_DESC, ACCESS_CODE, STATUS, CREATED_BY, CREATION_DATE, ORG_ID)
@@ -88,50 +73,66 @@ const ApproveRejectOrg = (req, res) => {
                   [system, today, companyId],
                   (insertJobError, insertJobResult) => {
                     if (insertJobError) {
-                      console.log("Insert Jobs Error", insertJobError);
                       return res.status(500).json({ data: insertJobError });
                     }
 
-                    console.log("Jobs Insert Result", insertJobResult);
+                    // Insert Leaves
+                    const insertLeavesSql = `
+                      INSERT INTO TC_ORG_LEAVES
+                      (LEAVE_TYPE, LEAVE_CODE, LEAVE_DESC, LEAVE_STATUS, CREATED_BY, CREATION_DATE, ORG_ID)
+                      SELECT LEAVE_TYPE, LEAVE_CODE, LEAVE_DESC, LEAVE_STATUS, ?, ?, ?
+                      FROM SSO_LEAVES
+                    `;
 
-// Generate 1 year of weeks
-const startOfWeek = moment().startOf('week').add(1, 'days').subtract(2, 'weeks');
-const createdBy = system;
+                    db.query(
+                      insertLeavesSql,
+                      [system, today, companyId],
+                      (insertLeaveError, insertLeaveResult) => {
+                        if (insertLeaveError) {
+                          return res.status(500).json({ data: insertLeaveError });
+                        }
 
-let insertWeekQuery = `
-    INSERT INTO TC_MASTER (ORG_ID, WEEK_START, WEEK_END, CREATION_DATE, CREATED_BY)
-    VALUES (?, ?, ?, ?, ?)
-`;
+                        // Generate 10 weeks
+                        const startOfWeek = moment()
+                          .startOf("week")
+                          .add(1, "days")
+                          .subtract(2, "weeks");
 
-for (let i = 0; i < 10; i++) {
-    let weekStart = moment(startOfWeek).add(i, 'weeks').format("YYYY-MM-DD");
-    let weekEnd = moment(weekStart).add(6, 'days').format("YYYY-MM-DD");
+                        let weekInsertSql = `
+                          INSERT INTO TC_MASTER (ORG_ID, WEEK_START, WEEK_END, CREATION_DATE, CREATED_BY)
+                          VALUES (?, ?, ?, ?, ?)
+                        `;
 
-    db.query(
-        insertWeekQuery,
-        [companyId, weekStart, weekEnd, today, createdBy],
-        (weekErr) => {
-            if (weekErr) console.log("Week insert error", weekErr);
-        }
-    );
-}
+                        for (let i = 0; i < 10; i++) {
+                          let weekStart = moment(startOfWeek)
+                            .add(i, "weeks")
+                            .format("YYYY-MM-DD");
+                          let weekEnd = moment(weekStart)
+                            .add(6, "days")
+                            .format("YYYY-MM-DD");
 
+                          db.query(
+                            weekInsertSql,
+                            [companyId, weekStart, weekEnd, today, system],
+                            (weekErr) => {
+                              if (weekErr) console.log("Week Insert Error", weekErr);
+                            }
+                          );
+                        }
 
-                    
-
-
-                    
-
-                    return res.status(200).json({
-                      message:
-                        "Organization approved successfully. Roles, designations, and jobs inserted.",
-                      details: {
-                        approveResult,
-                        insertRolesResult,
-                        insertDesgnResult,
-                        insertJobResult,
-                      },
-                    });
+                        return res.status(200).json({
+                          message:
+                            "Organization approved successfully. Roles, designations, jobs, leaves, and weeks inserted.",
+                          details: {
+                            approveResult,
+                            insertRolesResult,
+                            insertDesgnResult,
+                            insertJobResult,
+                            insertLeaveResult,
+                          },
+                        });
+                      }
+                    );
                   }
                 );
               }
@@ -142,7 +143,6 @@ for (let i = 0; i < 10; i++) {
     );
   }
 
-  // Reject Logic
   if (status === "R") {
     const updateSql = `
       UPDATE TC_ORG_REGISTRATIONS
@@ -155,11 +155,8 @@ for (let i = 0; i < 10; i++) {
       [status, today, userId, companyId],
       (RejectError, RejectResult) => {
         if (RejectError) {
-          console.log("Reject Error", RejectError);
           return res.status(500).json({ data: RejectError });
         }
-
-        console.log("Reject Result", RejectResult);
 
         return res.status(200).json({
           message: "Organization rejected successfully",

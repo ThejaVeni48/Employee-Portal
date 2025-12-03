@@ -33,6 +33,7 @@ const SSODashboard = ()=>{
         { section: "Organisation", name: "Roles", icon: <MdDashboard />, path: "roles" },
         { section: "Organisation", name: "Designation", icon: <MdDashboard />, path: "designation" },
         { section: "Organisation", name: "Access Control", icon: <MdDashboard />, path: "jobs" },
+        { section: "Organisation", name: "Leaves", icon: <MdDashboard />, path: "ssoleaves" },
        
       ];
     

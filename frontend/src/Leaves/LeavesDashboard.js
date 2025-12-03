@@ -206,26 +206,7 @@ const LeavesDashboard = () => {
 
   return (
     <div id="leavesWrapper">
-      <div className="header">
-        <div className="logos">
-          <img
-            src={gstsLogo}
-            alt="GSTS"
-            style={{ width: 200, height: "auto" }}
-          />
-        </div>
-        empid:{empId}
-        <div className="profileimage">
-          {profile ? (
-            <img src={profile} alt="Profile" className="profilepic" />
-          ) : (
-            <span className="letterAvatar">
-              {firstLetter}
-              {lastLetter}
-            </span>
-          )}
-        </div>
-      </div>
+   
 
       <div className="leavesHeader">
         <div className="profileContainer1 secondSection">

@@ -1,6 +1,6 @@
 const db = require('../../config/db');
 const moment = require('moment');
-
+// this api is used for customization of hierarchy of each employee
 const addProject = (req, res) => {
   const {          
     projectName, startDate, endDate, projectCode, projDesc,

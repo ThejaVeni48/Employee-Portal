@@ -123,7 +123,6 @@ const AdminDashboard = () => {
         { name: "Hour Sheet", path: "weektimesheet" },
         { name: "View Timesheets", path: "timesheetsummary" },
       ],
-      requiredAccess: ["ALL_R", "TS_TAB"],
     },
 
     ...(approveAccess

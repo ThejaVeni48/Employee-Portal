@@ -9,14 +9,7 @@ const getApproveHierarchy = (req,res)=>{
    const { projectId, orgId} = req.query;
 
 
-    const sql = `SELECT U.DISPLAY_NAME,PH.APPROVER_ID, PH.LINE_NO,PH.STATUS
-FROM TC_PROJ_HIER_LIST PH
-JOIN TC_PROJECTS_MASTER P
-ON P.PROJ_ID = PH.PROJ_ID
-AND P.ORG_ID = PH.ORG_ID
-JOIN TC_USERS U
-ON PH.APPROVER_ID = U.EMP_ID
-AND PH.ORG_ID = U.ORG_ID
+    const sql = `SELECT * FROM TC_PROJ_HIER_LIST PH
 WHERE PH.PROJ_ID = ?
 AND PH.ORG_ID = ?`;
 

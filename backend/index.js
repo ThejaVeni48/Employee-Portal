@@ -617,6 +617,10 @@ app.use('/api/approvalHierarchy',approvalHierarchy);
 const getApproveHierarchy = require('./routes/Project/getApproveHierarchy');
 app.use('/api/getApproveHierarchy',getApproveHierarchy);
 
+
+const hierarchyforAll = require('./routes/Project/HierarchyForAll');
+app.use('/api/hierarchyforAll',hierarchyforAll)
+
 // ------------------------------Timesheets------------------------------------------ 
 
 

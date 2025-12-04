@@ -218,13 +218,13 @@ function AppRoutes() {
            }
 />
 
-        <Route path="weektimesheet" element={
-          <ProtectedRoute accessCode={['ALL_R', 'TS_VW']}>
+        {/* <Route path="weektimesheet" element={
+          <ProtectedRoute accessCode={['ALL_R', 'TS_A']}>
             <WeekTimesheet />
           </ProtectedRoute>
         } 
         
-        />
+        /> */}
           <Route path="timesheetsummary" element={
           <ProtectedRoute accessCode={['ALL_R', 'TS_VW']}>
             <TimesheetSummary />
@@ -248,7 +248,13 @@ function AppRoutes() {
         
         />
 
-
+<Route path="weektimesheet" element={
+        
+            <WeekTimesheet />
+      
+        } 
+        
+        />
 
 
 

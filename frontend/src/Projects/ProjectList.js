@@ -123,7 +123,6 @@ const accessCode = useSelector((state) => state.user.accessCode);
 
     return(
         <>
-        <p>fgjkl;'</p>
 <Card>
              <DataTable
               value={filteredData}

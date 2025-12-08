@@ -66,6 +66,7 @@ const Approvals = ({ employees = {} }) => {
     if (employees) {
       setEmployee(employees.employees);
       setProjEmployees(employees.projEmployee);
+      
     }
   }, [employees]);
 

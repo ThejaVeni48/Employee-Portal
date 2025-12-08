@@ -18,7 +18,7 @@ const WelcomePage = ()=>{
     const sections = [
         {
             id:1,
-            name:"SSO_Admins_logins"
+            name:"Global Admin Login"
         },
          {
             id:2,

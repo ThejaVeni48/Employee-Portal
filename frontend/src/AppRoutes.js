@@ -85,6 +85,7 @@ import TimesheetWeeks from "./Timesheets/TimesheetWeeks";
 import SSOLeaves from "./SSO/SSOLeaves";
 import ProjectHolidays from "./Projects/ProjectHolidays";
 import Holiday from "./Holidays/Holiday";
+import PHolidays from "./Projects/ProjectHolidays/PHolidays";
 
 
 function AppRoutes() {
@@ -225,19 +226,28 @@ function AppRoutes() {
         } 
         
         /> */}
-          <Route path="timesheetsummary" element={
+          {/* <Route path="timesheetsummary" element={
           <ProtectedRoute accessCode={['ALL_R', 'TS_VW']}>
             <TimesheetSummary />
           </ProtectedRoute>
         } 
         
-        />
+        /> */}
 
-        <Route path="timesheetsummary" element={
+        {/* <Route path="timesheetsummary" element={
           <ProtectedRoute accessCode={['ALL_R', 'LEAVE_VW']}>
             <LeavesDashboard />
           </ProtectedRoute>
         } 
+        /> */}
+
+        <Route path="timesheetsummary" element={
+         
+            <TimesheetSummary />
+     
+        } 
+        
+      
         
         />
         <Route path="holidays" element={
@@ -256,12 +266,20 @@ function AppRoutes() {
         
         />
 
+        <Route path="projectholidays" element={
+        <PHolidays/>
+            
+      
+        } 
+        
+        />
+
 
 
          <Route path="timesheetweeks" element={<TimesheetWeeks/>}/>
             <Route path="timesheetapprovals" element={<Approvals />} />
            <Route path="noaccess" element={<Noaccess/>}/>
-           <Route path="projectHolidays" element={<ProjectHolidays/>}/>
+           {/* <Route path="projectHolidays" element={<ProjectHolidays/>}/> */}
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="employees" element={<Employees />} />
             <Route path="message" element={<Message />} />

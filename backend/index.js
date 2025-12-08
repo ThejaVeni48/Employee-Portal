@@ -649,6 +649,21 @@ app.use('/api/empTimesheetSummary',empTimesheetSummary);
 
 
 
+// -----------------------------------Project Holidays --------------------------------------
+
+
+const createPHolidays = require('./routes/Project/Holidays/post');
+app.use('/api/createPHolidays',createPHolidays);
+
+
+const getPHolidays = require('./routes/Project/Holidays/get');
+app.use('/api/getPHolidays',getPHolidays);
+
+
+const checkPHolidays = require('./routes/Project/Holidays/checkPHolidays');
+app.use('/api/checkPHolidays',checkPHolidays)
+
+
 // to listen on port
 
 app.listen(3001,()=>{

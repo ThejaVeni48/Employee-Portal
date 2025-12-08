@@ -198,7 +198,7 @@ const handleLogin = async (e) => {
               type="email"
               placeholder="Email address"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) =>{ setEmail(e.target.value); console.log("email");}}
               style={inputStyle}
               onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
               onBlur={(e) => Object.assign(e.target.style, inputStyle)}
@@ -214,7 +214,7 @@ const handleLogin = async (e) => {
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {setPassword(e.target.value); console.log("password")}}
               style={inputStyle}
               onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
               onBlur={(e) => Object.assign(e.target.style, inputStyle)}

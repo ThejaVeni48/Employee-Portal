@@ -1,49 +1,32 @@
-// this api is used to apply the same hierarchy for  all.
-
 const db = require('../../config/db');
 
-const hierarchyforAll = (req,res)=>{
-
-
-
-   const { projectId, orgId, empId, levels, createdBy } = req.body;
-
-
-  console.log("projectId",projectId);
-  console.log("orgId",orgId);
-  console.log("empId",empId);
-  console.log("levels",levels);
-  console.log("createdBy",createdBy);
-
-
+const hierarchyforAll = (req, res) => {
+  const { projectId, orgId, empId, levels, createdBy } = req.body;
   const creationDate = new Date();
-  
+
+  console.log("levels", levels);
 
   if (!projectId || !orgId || !empId || !levels || levels.length === 0) {
     return res.status(400).json({ message: "Missing required fields" });
   }
 
-
- const insertQuery = `
+  const insertQuery = `
     INSERT INTO TC_PROJ_HIER_LIST (
       PROJ_ID, ORG_ID, EMP_ID, APPROVER_ID, LINE_NO, STATUS, 
       CREATION_DATE, CREATED_BY
-    )
-    VALUES ?
+    ) VALUES ? 
   `;
 
-  let values = [];
-
-
-
+  // ------------------------ INSERT HIERARCHY FOR MAIN EMPLOYEE   -------------------
+  let mainValues = [];
   levels.forEach((level, index) => {
     level.name.forEach((approver) => {
-      values.push([
+      mainValues.push([
         projectId,
         orgId,
         empId,
-        approver,       
-        index + 1,      
+        approver,
+        index + 1,
         "A",
         creationDate,
         createdBy
@@ -51,50 +34,121 @@ const hierarchyforAll = (req,res)=>{
     });
   });
 
-  db.query(insertQuery, [values], (err, result) => {
+  db.query(insertQuery, [mainValues], (err) => {
     if (err) {
       console.error("Insert Error:", err);
       return res.status(500).json({ message: "Failed to save hierarchy" });
     }
-    console.log("result",result);
-    console.log("result[0]",result.affectedRows);
+
+    // ----------------- GET ALL PROJECT EMPLOYEES (EXCLUDING APPROVERS & MAIN EMPLOYEE) -------------------
     
+    const getProjEmp = `
+      SELECT DISTINCT PA.EMP_ID
+      FROM TC_PROJECTS_ASSIGNEES PA
+      WHERE PA.PROJ_ID = ?
+        AND PA.ORG_ID = ?
+        AND PA.EMP_ID NOT IN (
+          SELECT APPROVER_ID FROM TC_PROJ_HIER_LIST WHERE PROJ_ID = ? AND ORG_ID = ?
+        )
+        AND PA.EMP_ID NOT IN (
+          SELECT EMP_ID FROM TC_PROJ_HIER_LIST WHERE PROJ_ID = ? AND ORG_ID = ?
+        )
+    `;
 
-    const res = result.affectedRows;
+    db.query(getProjEmp, [projectId, orgId, projectId, orgId, projectId, orgId], (getError, getResult) => {
+      if (getError) {
+        console.error("getError", getError);
+        return res.status(500).json({ message: "Error fetching employees" });
+      }
 
-    console.log("res",res);
+      const employees = getResult.map(row => row.EMP_ID);
+      console.log("Employees to apply same hierarchy:", employees);
 
-    // console.log("Result[0]",result[0])
-    
+      // ---------------- INSERT SAME HIERARCHY FOR REMAINING EMPLOYEES -------------------------
+      
+      let allValues = [];
+      employees.forEach((emp) => {
+        levels.forEach((level, index) => {
+          level.name.forEach((approver) => {
+            allValues.push([
+              projectId,
+              orgId,
+              emp,
+              approver,
+              index + 1,
+              "A",
+              creationDate,
+              createdBy
+            ]);
+          });
+        });
+      });
 
-    if(res>0)
-    {
-        const getProjEmp = `SELECT EMP_ID FROM TC_PROJECTS_ASSIGNEES 
-        WHERE PROJ_ID = ? AND ORG_ID = ?`;
+      db.query(insertQuery, [allValues], (empError) => {
+        if (empError) {
+          console.error("EmpError", empError);
+          return res.status(500).json({ message: "Error applying hierarchy to employees" });
+        }
 
+        // INSERT HIGHER-LEVEL APPROVERS FOR APPROVERS
+        let approverToApproverList = [];
 
-            db.query(getProjEmp,[projectId,orgId],(getError,getResult)=>{
-                if(getError)
-                {
-                    console.log("getError",getError);
-                    return res.status(500).json({data:getError})
-                    
-                }
+        levels.forEach((level, levelIndex) => {
+          level.name.forEach((appr) => {
+            // Insert all higher-level approvers
+            let hasHigher = false;
+            for (let nextLevelIndex = levelIndex + 1; nextLevelIndex < levels.length; nextLevelIndex++) {
+              levels[nextLevelIndex].name.forEach((higherAppr) => {
+                approverToApproverList.push([
+                  projectId,
+                  orgId,
+                  appr,
+                  higherAppr,
+                  nextLevelIndex + 1,
+                  "A",
+                  creationDate,
+                  createdBy
+                ]);
+              });
+              hasHigher = true;
+            }
 
-                console.log("getResult",getResult);
-                
-            })
-    }
-    
+            if (!hasHigher) {
+              approverToApproverList.push([
+                projectId,
+                orgId,
+                appr,
+                appr,
+                levelIndex + 1,
+                "A",
+                creationDate,
+                createdBy
+              ]);
+            }
+          });
+        });
+
+        if (approverToApproverList.length > 0) {
+          db.query(insertQuery, [approverToApproverList], (aErr) => {
+            if (aErr) {
+              console.error("Approver Chain Insert Error:", aErr);
+              return res.status(500).json({ message: "Error inserting approver chain" });
+            }
+
+            return res.status(200).json({
+              message: "Project hierarchy (Apply for All) saved successfully",
+              appliedTo: employees.length
+            });
+          });
+        } else {
+          return res.status(200).json({
+            message: "Project hierarchy (Apply for All) saved successfully",
+            appliedTo: employees.length
+          });
+        }
+      });
+    });
   });
+};
 
-
-
-
-
-
-}
-
-
-
-module.exports = {hierarchyforAll}
+module.exports = { hierarchyforAll };

@@ -1,0 +1,61 @@
+/* styles.css */
+
+.container {
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+.card {
+  border-radius: 12px;
+  background-color: transparent;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1c3681;
+  margin-bottom: 1rem;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: #cfdaf1;
+  color: #1c3681;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease-in-out;
+}
+
+.tableStyle {
+  width: 100%;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.headerStyle {
+  background-color: #cfdaf1;
+  color: #1c3681;
+  font-size: 13px;
+  text-align: center;
+}
+
+.cellStyle {
+  font-size: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}

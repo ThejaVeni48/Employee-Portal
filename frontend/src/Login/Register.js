@@ -231,7 +231,7 @@ const Register = () => {
             />
           </div>
 
-          <div>
+          {/* <div>
             <label style={labelStyle}>Domain Name</label>
             <input
               type="text"
@@ -242,8 +242,8 @@ const Register = () => {
               onBlur={(e) => Object.assign(e.target.style, inputStyle)}
               required
             />
-          </div>
-          <div>
+          </div> */}
+          {/* <div>
             <label style={labelStyle}>Branch</label>
             <input
               type="text"
@@ -254,7 +254,7 @@ const Register = () => {
               onBlur={(e) => Object.assign(e.target.style, inputStyle)}
               required
             />
-          </div>
+          </div> */}
 
           {/* Email */}
           <div>

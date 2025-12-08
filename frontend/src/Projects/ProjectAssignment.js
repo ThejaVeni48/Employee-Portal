@@ -15,6 +15,7 @@ import ProjectProfile from "./ProjectProfile";
 import Approvals from "./Approvals";
 import ProjectHolidays from "./ProjectHolidays";
 import ProjectScheduler from "./ProjectScheduler";
+import PHolidays from "./ProjectHolidays/PHolidays";
 
 const ProjectAssignmnet = () => {
   const location = useLocation();
@@ -500,13 +501,13 @@ const ProjectAssignmnet = () => {
         )}
         
         
-        <TabPanel header='Holidays'>
+<TabPanel header="Holidays">
+<PHolidays projectId={projectId} />
+</TabPanel>
 
-<ProjectHolidays/>
-        </TabPanel>
         <TabPanel header="Scheduler">
 
-<ProjectScheduler/>
+<ProjectScheduler employees={{ employees, projectId,projEmployees }} />
         </TabPanel>
       </TabView>
     </>

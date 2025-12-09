@@ -87,139 +87,129 @@ import ProjectHolidays from "./Projects/ProjectHolidays";
 import Holiday from "./Holidays/Holiday";
 import PHolidays from "./Projects/ProjectHolidays/PHolidays";
 
-
 function AppRoutes() {
-
-
-   
   return (
-  
-      <Router>
-        <Routes>
-          {/* Login Routes */}
-                <Route path="/" element={<WelcomePage/>}/>
-                <Route path="/login" element={<Login/>}/>
-          <Route path="/register" element={<Register />} />
-          <Route path="/empLogin" element={<EmpLogin />} />
-          <Route path="/vieworg" element={<ViewOrg/>}/>
-          <Route path="/changePassword" element={<ChangePassword/>}/>
+    <Router>
+      <Routes>
+        {/* Login Routes */}
+        <Route path="/" element={<WelcomePage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/empLogin" element={<EmpLogin />} />
+        <Route path="/vieworg" element={<ViewOrg />} />
+        <Route path="/changePassword" element={<ChangePassword />} />
 
+        {/* SSO */}
 
-      {/* SSO */}
+        <Route path="/SSODashboard" element={<SSODashboard />}>
+          <Route path="companies" element={<CompaniesList />} />
+          <Route path="roles" element={<DRoles />} />
+          <Route path="designation" element={<Designation />} />
+          <Route path="jobs" element={<Jobs />} />
+          <Route path="ssoleaves" element={<SSOLeaves />} />
+        </Route>
 
-      <Route path="/SSODashboard" element={<SSODashboard/>}>
-      <Route path="companies" element={<CompaniesList/>}/>
-      <Route path="roles" element={<DRoles/>}/>
-      <Route path="designation" element={<Designation/>}/>
-      <Route path="jobs" element={<Jobs/>}/>
-      <Route path="ssoleaves" element={<SSOLeaves/>}/>
+        {/* Manager */}
+        <Route path="/managerdashboard" element={<ManagerDashboard />}>
+          <Route path="weektimesheet" element={<WeekTimesheet />} />
+          <Route path="empleavesummary" element={<LeaveSummary />} />
 
+          <Route path="mngmainDashboard" element={<MngMainDashboard />} />
+          <Route path="empTimesheet" element={<EmpTimesheet />} />
+          <Route path="leavesrequest" element={<LeavesRequest />} />
+          {/* <Route path="holiday" element={<Holiday />} /> */}
+          <Route path="weektimesheet" element={<WeekTimesheet />} />
+          <Route path="timesheetsummary" element={<TimesheetSummary />}></Route>
+          <Route path="timesheetapprovals" element={<Approvals />} />
+        </Route>
 
-      </Route>
+        <Route path="/ApproveTimesheets" element={<ApproveTimesheets />} />
+        <Route path="/ViewTimesheets" element={<ViewTimesheets />} />
+        <Route path="/pendingApprovals" element={<PendingApprovals />} />
+        <Route path="/viewLeaveTimeSheet" element={<ViewLeaveTimeSheet />} />
+        <Route path="/emp" element={<AllEmployees />} />
 
-          {/* Manager */}
-          <Route path="/managerdashboard" element={<ManagerDashboard />}>
-            <Route path="weektimesheet" element={<WeekTimesheet />} />
-            <Route path="empleavesummary" element={<LeaveSummary />} />
-
-            <Route path="mngmainDashboard" element={<MngMainDashboard />} />
-            <Route path="empTimesheet" element={<EmpTimesheet />} />
-            <Route path="leavesrequest" element={<LeavesRequest />} />
-            <Route path="holiday" element={<Holiday />} />
-            <Route path="weektimesheet" element={<WeekTimesheet />} />
-            <Route
-              path="timesheetsummary"
-              element={<TimesheetSummary />}
-            >
-
-            </Route>
-            <Route path="timesheetapprovals" element={<Approvals />} />
+        {/*----------------------------------- Employee ---------------------------------------------------------- */}
+        <Route path="/employeedashboard" element={<EmpDashboard />}>
+          <Route path="empMainDashboard" element={<EmpMainDashboard />} />
+          <Route path="TimeSheetsInfo" element={<TimeSheetsInfo />} />
+          <Route path="myprojects" element={<MyProjects />} />
+          <Route path="emptask" element={<EmpTask />} />
+          {/* <Route path="tasks" element={<Tasks />} /> */}
+          <Route path="weektimesheet" element={<WeekTimesheet />} />
+          <Route path="timesheetsummary" element={<TimesheetSummary />}>
+            {/* <Route path="weektimesheet" element={<WeekTimesheet />} /> */}
           </Route>
 
-          <Route path="/ApproveTimesheets" element={<ApproveTimesheets />} />
-          <Route path="/ViewTimesheets" element={<ViewTimesheets />} />
-          <Route path="/pendingApprovals" element={<PendingApprovals />} />
-          <Route path="/viewLeaveTimeSheet" element={<ViewLeaveTimeSheet />} />
-          <Route path="/emp" element={<AllEmployees />} />
+          <Route path="timesheetentries" element={<TimesheetEntries />} />
+          <Route path="holiday" element={<Holiday />} />
+          <Route path="empleavesummary" element={<LeaveSummary />} />
+        </Route>
+        <Route path="/settingspage" element={<SettingsPage />} />
+        <Route path="/profilepage" element={<ProfilePage />} />
+        <Route path="/TimeSheetEntries" element={<TimeSheetEntries />} />
 
-          {/*----------------------------------- Employee ---------------------------------------------------------- */}
-          <Route path="/employeedashboard" element={<EmpDashboard />}>
-            <Route path="empMainDashboard" element={<EmpMainDashboard />} />
-            <Route path="TimeSheetsInfo" element={<TimeSheetsInfo />} />
-            <Route path="myprojects" element={<MyProjects />} />
-            <Route path="emptask" element={<EmpTask />} />
-            {/* <Route path="tasks" element={<Tasks />} /> */}
-            <Route path="weektimesheet" element={<WeekTimesheet />} />
-            <Route path="timesheetsummary" element={<TimesheetSummary />}>
-              {/* <Route path="weektimesheet" element={<WeekTimesheet />} /> */}
-            </Route>
+        <Route path="/LeavesDashboard" element={<LeavesDashboard />} />
+        <Route path="/AssignmentsPage" element={<AssignmentPage />} />
 
-            <Route path="timesheetentries" element={<TimesheetEntries />} />
-            <Route path="holiday" element={<Holiday />} />
-            <Route path="empleavesummary" element={<LeaveSummary />} />
-          </Route>
-          <Route path="/settingspage" element={<SettingsPage />} />
-          <Route path="/profilepage" element={<ProfilePage />} />
-          <Route path="/TimeSheetEntries" element={<TimeSheetEntries />} />
+        {/*------------------------------------------ Admin ---------------------------------------------------*/}
 
-          <Route path="/LeavesDashboard" element={<LeavesDashboard />} />
-          <Route path="/AssignmentsPage" element={<AssignmentPage />} />
+        <Route path="/adminDashboard" element={<AdminDashboard />}>
+          <Route
+            path="projects"
+            element={
+              <ProtectedRoute accessCode={["PROJ_VW", "ALL_R"]}>
+                <Projects />
+              </ProtectedRoute>
+            }
+          />
 
-          {/*------------------------------------------ Admin ---------------------------------------------------*/}
+          <Route
+            path="createproject"
+            element={
+              <ProtectedRoute accessCode={["PROJ_CR", "ALL_R", "PROJ_MD"]}>
+                <CreateProject />
+              </ProtectedRoute>
+            }
+          />
 
-          <Route path="/adminDashboard" element={<AdminDashboard />}>
-         <Route
-  path="projects"
-  element={
-    <ProtectedRoute accessCode={['PROJ_VW', 'ALL_R']}>
-      <Projects />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="projectassignment"
+            element={
+              <ProtectedRoute accessCode={["PROJ_ASSIGN", "ALL_R"]}>
+                <ProjectAssignmnet />
+              </ProtectedRoute>
+            }
+          />
 
- <Route
-  path="createproject"
-  element={
-    <ProtectedRoute accessCode={['PROJ_CR', 'ALL_R','PROJ_MD']}>
-      <CreateProject />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="tasks"
+            element={
+              <ProtectedRoute accessCode={["ALL_R", "PROJ_TASK"]}>
+                <Task />
+              </ProtectedRoute>
+            }
+          />
 
+          <Route
+            path="tasks"
+            element={
+              <ProtectedRoute accessCode={["ALL_R", "PROJ_TASK"]}>
+                <TaskList />
+              </ProtectedRoute>
+            }
+          />
 
+          <Route
+            path="projectprofile"
+            element={
+              <ProtectedRoute accessCode={["ALL_R", "PROJ_PROF"]}>
+                <ProjectProfile />
+              </ProtectedRoute>
+            }
+          />
 
- 
-
-        <Route path="projectassignment"
-           element={
-            <ProtectedRoute accessCode={['PROJ_ASSIGN','ALL_R']}>
-
-              <ProjectAssignmnet/>
-            </ProtectedRoute>
-           }/>
-
-           <Route path="tasks" element={
-            <ProtectedRoute accessCode={['ALL_R', 'PROJ_TASK']}>
-              <Task/>
-            </ProtectedRoute>
-           }/>
-          
-         
-           <Route path="tasks" element={
-            <ProtectedRoute accessCode={['ALL_R', 'PROJ_TASK']}>
-              <TaskList/>
-            </ProtectedRoute>
-           }/>
-
-           <Route path="projectprofile"
-           element ={
-            <ProtectedRoute accessCode={['ALL_R','PROJ_PROF']}>
-              <ProjectProfile/>
-            </ProtectedRoute>
-           }
-/>
-
-        {/* <Route path="weektimesheet" element={
+          {/* <Route path="weektimesheet" element={
           <ProtectedRoute accessCode={['ALL_R', 'TS_A']}>
             <WeekTimesheet />
           </ProtectedRoute>
@@ -234,123 +224,95 @@ function AppRoutes() {
         
         /> */}
 
-        {/* <Route path="timesheetsummary" element={
+          {/* <Route path="timesheetsummary" element={
           <ProtectedRoute accessCode={['ALL_R', 'LEAVE_VW']}>
             <LeavesDashboard />
           </ProtectedRoute>
         } 
         /> */}
 
-        <Route path="timesheetsummary" element={
-         
-            <TimesheetSummary />
-     
-        } 
-        
+          <Route path="timesheetsummary" element={<TimesheetSummary />} />
       
-        
-        />
-        <Route path="holidays" element={
-          <ProtectedRoute accessCode={['ALL_R', 'HD_TAB']}>
-            <Holiday/>
-          </ProtectedRoute>
-        } 
-        
-        />
+          <Route
+            path="holidays"
+            element={
+              <ProtectedRoute accessCode={["ALL_R", "HD_TAB"]}>
+                <Holiday />
+              </ProtectedRoute>
+            }
+          />
 
-<Route path="weektimesheet" element={
-        
-            <WeekTimesheet />
-      
-        } 
-        
-        />
+          <Route path="weektimesheet" element={<WeekTimesheet />} />
 
-        <Route path="projectholidays" element={
-        <PHolidays/>
-            
-      
-        } 
-        
-        />
+          <Route path="projectholidays" element={<PHolidays />} />
 
+          <Route path="timesheetweeks" element={<TimesheetWeeks />} />
+          <Route path="timesheetapprovals" element={<Approvals />} />
+          <Route path="noaccess" element={<Noaccess />} />
+          {/* <Route path="projectHolidays" element={<ProjectHolidays/>}/> */}
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="employees" element={<Employees />} />
+          <Route path="message" element={<Message />} />
+          {/* <Route path="jobs" element={<Jobs />} /> */}
+          <Route path="leavescreation" element={<LeavesCreation />} />
+          <Route path="leavesmanagement" element={<LeaveManagement />} />
+          <Route path="adddept" element={<AddDept />} />
+          {/* <Route path="projects" element={<Projects />} /> */}
+          <Route path="settings" element={<Settings />} />
+          <Route path="timesheet" element={<Timesheets />} />
+          <Route path="adminleaves" element={<AdminLeaves />} />
+          <Route path="roles" element={<Roles />} />
+          <Route path="orgdesignations" element={<OrgDesignations />} />
+          <Route path="changePassword" element={<ChangePassword />} />
+          <Route path="orgacess" element={<OrgAccess />} />
+          <Route path="profile" element={<Profile />} />
+        </Route>
+        <Route path="/addEmp" element={<AddEmp />} />
+        <Route path="/assignleaves" element={<AssignLeaves />} />
+        <Route path="/projectsemployee" element={<ProjectsEmployee />} />
 
+        {/* HR Module */}
 
-         <Route path="timesheetweeks" element={<TimesheetWeeks/>}/>
-            <Route path="timesheetapprovals" element={<Approvals />} />
-           <Route path="noaccess" element={<Noaccess/>}/>
-           {/* <Route path="projectHolidays" element={<ProjectHolidays/>}/> */}
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="employees" element={<Employees />} />
-            <Route path="message" element={<Message />} />
-            {/* <Route path="jobs" element={<Jobs />} /> */}
-            <Route path="leavescreation" element={<LeavesCreation />} />
-            <Route path="leavesmanagement" element={<LeaveManagement />} />
-            <Route path="adddept" element={<AddDept />} />
-            {/* <Route path="projects" element={<Projects />} /> */}
-            <Route path="settings" element={<Settings />} />
-            <Route path="timesheet" element={<Timesheets />} />
-            <Route path="adminleaves" element={<AdminLeaves />} />
-            <Route path="roles" element={<Roles />} />
-            <Route path="orgdesignations" element={<OrgDesignations/>}/>
-                      <Route path="changePassword" element={<ChangePassword/>}/>
-                      <Route path="orgacess" element={<OrgAccess/>}/>
-          <Route path="profile" element={<Profile/>}/>
+        <Route path="/hrDashboard" element={<HRDashboard />}>
+          <Route path="maindashboard" element={<MainDashboard />} />
 
+          <Route path="employees" element={<Employees />} />
+          <Route path="message" element={<Message />} />
+          {/* <Route path="jobs" element={<Jobs />} /> */}
+          <Route path="leavescreation" element={<LeavesCreation />} />
+          <Route path="leavesmanagement" element={<LeaveManagement />} />
+          <Route path="adddept" element={<AddDept />} />
+          {/* <Route path="holidays" element={<Holidays />} /> */}
+        </Route>
 
-          </Route>
-          <Route path="/addEmp" element={<AddEmp />} />
-          <Route path="/assignleaves" element={<AssignLeaves />} />
-          <Route path="/projectsemployee" element={<ProjectsEmployee />} />
+        <Route path="/Calender" element={<CalendarComponent />} />
+        <Route path="/approvedTimesheet" element={<ApprovedTimesheet />} />
 
-          {/* HR Module */}
+        {/* Project Manager */}
 
-          <Route path="/hrDashboard" element={<HRDashboard />}>
-            <Route path="maindashboard" element={<MainDashboard />} />
+        <Route path="/pmDashboard" element={<PMDashboard />}>
+          <Route path="pmmaindashboard" element={<PMMainDashboard />} />
+          <Route path="pmtimesheets" element={<PMTimesheets />} />
+          <Route path="pmteam" element={<PMTeam />} />
+          <Route path="weektimesheet" element={<WeekTimesheet />} />
+          <Route path="empleavesummary" element={<LeaveSummary />} />
+          <Route path="timesheetsummary" element={<TimesheetSummary />} />
 
-            <Route path="employees" element={<Employees />} />
-            <Route path="message" element={<Message />} />
-            {/* <Route path="jobs" element={<Jobs />} /> */}
-            <Route path="leavescreation" element={<LeavesCreation />} />
-            <Route path="leavesmanagement" element={<LeaveManagement />} />
-            <Route path="adddept" element={<AddDept />} />
-            {/* <Route path="holidays" element={<Holidays />} /> */}
-          </Route>
+          {/* <Route path="pmholiday" element={<Holiday />} /> */}
+          <Route path="leavesrequest" element={<LeavesRequest />} />
+          <Route path="leavesrequest" element={<LeavesRequest />} />
+        </Route>
+        <Route path="/pmprojectsdashboard" element={<PMProjectsDashboard />}>
+          <Route path="pmprojects" element={<PMProjects />} />
+          <Route path="pmtasks" element={<PMTasks />} />
+        </Route>
 
-          <Route path="/Calender" element={<CalendarComponent />} />
-          <Route path="/approvedTimesheet" element={<ApprovedTimesheet />} />
+        {/* Dept Head */}
+        <Route path="deptDashboard" element={<DeptDashboard />} />
 
-          {/* Project Manager */}
-
-          <Route path="/pmDashboard" element={<PMDashboard />}>
-            <Route path="pmmaindashboard" element={<PMMainDashboard />} />
-            <Route path="pmtimesheets" element={<PMTimesheets />} />
-            <Route path="pmteam" element={<PMTeam />} />
-            <Route path="weektimesheet" element={<WeekTimesheet />} />
-            <Route path="empleavesummary" element={<LeaveSummary />} />
-            <Route path="timesheetsummary" element={<TimesheetSummary />}/>
-
-            <Route path="pmholiday" element={<Holiday />} />
-            <Route path="leavesrequest" element={<LeavesRequest />} />
-            <Route path="leavesrequest" element={<LeavesRequest />} />
-          </Route>
-          <Route path="/pmprojectsdashboard" element={<PMProjectsDashboard />}>
-            <Route path="pmprojects" element={<PMProjects />} />
-            <Route path="pmtasks" element={<PMTasks />} />
-          </Route>
-
-          {/* Dept Head */}
-          <Route path="deptDashboard" element={<DeptDashboard />} />
-
-
-     {/* Logins */}
-     
-         
-
-          
-        </Routes>
-      </Router>
- 
+        {/* Logins */}
+      </Routes>
+    </Router>
   );
 }
 

@@ -507,7 +507,7 @@ const ProjectAssignmnet = () => {
 
         <TabPanel header="Scheduler">
 
-<ProjectScheduler employees={{ employees, projectId,projEmployees }} />
+<ProjectScheduler employees={projectId} />
         </TabPanel>
       </TabView>
     </>

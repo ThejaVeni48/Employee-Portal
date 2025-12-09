@@ -4,10 +4,10 @@ const express = require('express');
 
 const router = express.Router();
 
-const {CreateHoliday} = require('../../controllers/Holidays/createController');
+const {createHolidays} = require('../../controllers/Holidays/createController');
 
 
-router.post('/',CreateHoliday);
+router.post('/',createHolidays);
 
 
 module.exports = router;

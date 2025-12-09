@@ -2,7 +2,7 @@ const db = require('../../../config/db')
 
 
 const createPHolidays = (req, res) => {
-    const { projId, orgId, holidayName, startDate, endDate, days, status, email } = req.body;
+    const { projId, orgId, holidayName,code, startDate, endDate, days, email } = req.body;
 
 
      console.log("projId",projId);
@@ -11,7 +11,6 @@ const createPHolidays = (req, res) => {
        console.log("startDate",startDate);
        console.log("endDate",endDate);
        console.log("days",days);
-       console.log("status",status);
        console.log("email",email);
 
     const checkSql = `
@@ -37,13 +36,13 @@ const createPHolidays = (req, res) => {
      
         const insertSql = `
             INSERT INTO TC_PROJECT_HOLIDAYS 
-            (PROJ_ID, ORG_ID, HOLIDAY_NAME, START_DATE, END_DATE, DAYS, STATUS, CREATED_BY, CREATION_DATE)
-            VALUES (?,?,?,?,?,?,?,?, NOW())
+            (PROJ_ID, ORG_ID, HOLIDAY_NAME,HOLIDAY_CODE, START_DATE, END_DATE, DAYS,  CREATED_BY)
+            VALUES (?,?,?,?,?,?,?,?)
         `;
 
         db.query(
             insertSql,
-            [projId, orgId, holidayName, startDate, endDate, days, status, email],
+            [projId, orgId, holidayName,code, startDate, endDate, days, email],
             (insertError, insertResult) => {
 
                 if (insertError) {

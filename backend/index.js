@@ -358,23 +358,6 @@ app.use('/api/getCount',getCount)
 
 
 
-// this api is used for creating holidays by the hr
-
-const CreateHolidays = require('./routes/Holidays/createRoute');
-app.use('/api/createHolidays',CreateHolidays);
-
-
-// this api is used for checking the holidays 
-
-const checkHolidays = require('./routes/Holidays/checkHoliday');
-app.use('/api/checkHolidays',checkHolidays)
-
-
-// this api used for showing holidays in hr,employees and admin
-
-const getHolidays = require('./routes/getHolidaysRoute');
-app.use('/api/getHolidays',getHolidays);
-
 
 
 // this api is used to get the project manager to the projectiD
@@ -662,6 +645,39 @@ app.use('/api/getPHolidays',getPHolidays);
 
 const checkPHolidays = require('./routes/Project/Holidays/checkPHolidays');
 app.use('/api/checkPHolidays',checkPHolidays)
+
+
+
+// -----------------------project scheduler-----------------------
+
+const saveScheduler = require('./routes/Project/Schedule/Schedule');
+app.use('/api/saveScheduler',saveScheduler);
+
+
+
+
+
+// ------------------------- organization holidays ---------------------------------------
+
+
+
+// this api is used for creating holidays by the hr
+
+const createHolidays = require('./routes/Holidays/createRoute');
+app.use('/api/createHolidays',createHolidays);
+
+
+// this api is used for checking the holidays 
+
+const checkHolidays = require('./routes/Holidays/checkHoliday');
+app.use('/api/checkHolidays',checkHolidays)
+
+
+// this api used for showing holidays in hr,employees and admin
+
+const getHolidays = require('./routes/Holidays/getHolidays');
+app.use('/api/getHolidays',getHolidays);
+
 
 
 // to listen on port

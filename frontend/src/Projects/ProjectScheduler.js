@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import {  useSelector } from "react-redux";
+import moment from 'moment';
 
-
-export default function ProjectSchedulerUI({ employees = {}, orgId }) {
+export default function ProjectSchedulerUI({ employees = {}}) {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [hours, setHours] = useState(Array(7).fill(""));
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [projEmployee, setProjEmployees] = useState([]);
   const [blockedDays, setBlockedDays] = useState([]); 
   const companyId = useSelector((state) => state.user.companyId);
+  const email = useSelector((state) => state.user.email);
 
 const [projectId,setProjectId] = useState('');
   
@@ -18,16 +19,35 @@ const [projectId,setProjectId] = useState('');
 
   useEffect(() => {
     if (employees) {
-      setProjEmployees(employees.projEmployees || []);
-      setProjectId(employees.projectId)
+      setProjectId(employees)
     }
   }, [employees]);
 
 
-  console.log("employees",employees);
+  console.log("projectEMployees",employees);
 
 
-  console.log("projectId",projectId);
+  useEffect(()=>{
+ if(projectId)
+ {
+
+ 
+    fetchEmployees();
+}
+  },[projectId])
+ 
+  
+  const fetchEmployees = async()=>{
+    try {
+
+      const data = await fetch(``)
+      
+    } catch (error) {
+      console.error("error occured",error);
+      
+    }
+  }
+
   
 
   
@@ -37,7 +57,7 @@ const [projectId,setProjectId] = useState('');
     const monday = new Date(date);
     monday.setDate(date.getDate() - ((dayOfWeek + 6) % 7)); // move to Monday
 
-    return Array.from({ length: 7 }).map((_, i) => {
+    return Array.from({ length: 31 }).map((_, i) => {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
       return d;
@@ -46,46 +66,65 @@ const [projectId,setProjectId] = useState('');
 
   const weekDays = getWeekDays(selectedDate);
 
+ 
 
-  // console.log("weekDays",weekDays);
+useEffect(()=>{
+  checkHolidays();
+},[projectId]);
+
+
+const checkHolidays = async()=>{
+
+  // console.log("triggred checkHolidays");
+
+  const startDate = moment(weekDays[0]).format('YYYY-MM-DD');
+
+  const endDate = moment(weekDays[30]).format('YYYY-MM-DD');
+
+
   
+  
+  
+  try {
 
-  useEffect(() => {
-    if (!selectedEmployee) return;
+    const data  = await fetch(`http://localhost:3001/api/checkPHolidays?startDate=${startDate}&endDate=${endDate}&orgId=${companyId}&projId=${projectId}`);
 
-    const startDate = weekDays[0].toISOString().slice(0, 10);
-    const endDate = weekDays[6].toISOString().slice(0, 10);
-    const orgId = companyId;
+    if(!data.ok)
+    {
+      throw new Error("Network response was not good");
+      
+    }
 
+    const res = await data.json();
 
-console.log("startDate",startDate);
-console.log("endDate",endDate);
-
-
-
-    fetch(
-      `http://localhost:3001/api/checkPHolidays?startDate=${startDate}&endDate=${endDate}&orgId=${orgId}&projId=${projectId}`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("data for holidays",data);
-        
-        // Extract all holiday dates
-        const holidays = data.data.map((h) =>
-          new Date(h.START_DATE).toDateString()
-        );
-        setBlockedDays(holidays);
-      })
-      .catch((err) => {
-        console.error("Error fetching public holidays:", err);
-        setBlockedDays([]);
-      });
-  }, [selectedDate, selectedEmployee, orgId, projectId]);
+    console.log("res",res);
 
 
-  console.log("holidays",blockedDays);
+    const blockedDays = res.data.map((item)=>item.START_DATE);
+
+    setBlockedDays(blockedDays)
+    
+    
+  } catch (error) {
+    console.error("Error occured",error);
+    
+  }
+}
+
+
   
   const styles = {
+    scrollContainer: {
+  overflowX: "auto",
+  whiteSpace: "nowrap",
+  paddingBottom: "10px",
+},
+
+scrollInner: {
+  display: "inline-flex",
+  gap: "12px",
+},
+
     mainWrapper: {
       backgroundColor: "#f5f7fa",
       minHeight: "100vh",
@@ -99,7 +138,6 @@ console.log("endDate",endDate);
       borderRadius: "12px",
       backgroundColor: "#fff",
       boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-      overflow: "hidden",
     },
     leftPanel: {
       width: "30%",
@@ -162,6 +200,7 @@ console.log("endDate",endDate);
       justifyContent: "space-between",
       gap: "12px",
       marginBottom: "10px",
+       border:'3px solid red'
     },
     gridHeaderCell: {
       width: "100px",
@@ -172,12 +211,14 @@ console.log("endDate",endDate);
       fontWeight: "600",
       fontSize: "14px",
       color: "#1c3681",
+       border:'3px solid pink'
     },
     gridRow: {
       display: "flex",
       justifyContent: "space-between",
       gap: "12px",
       marginBottom: "20px",
+      border:'3px solid yellow'
     },
     hourInput: {
       width: "100px",
@@ -204,7 +245,51 @@ console.log("endDate",endDate);
   };
 
 
-  console.log("selectedDate",selectedDate);
+
+
+ const handleSave = async () => {
+  if (!selectedEmployee) return alert("Select an employee");
+
+  const total_hours = hours.reduce((sum, h) => sum + (parseInt(h) || 0), 0);
+  const month_year = selectedDate.toISOString().slice(0, 7); // YYYY-MM
+
+    const startDate = moment(weekDays[0]).format('YYYY-MM-DD');
+
+  const endDate = moment(weekDays[30]).format('YYYY-MM-DD');
+
+  const payload = {
+    proj_id: projectId,
+    emp_id: selectedEmployee.EMP_ID,
+    org_id: companyId,
+    month_year,
+    hours,
+    total_hours,
+    startDate,
+    endDate,
+     email,
+  };
+
+  console.log("payload",payload);
+  
+
+  try {
+    const res = await fetch("http://localhost:3001/api/saveScheduler", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    alert(data.message);
+  } catch (err) {
+    console.error(err);
+    alert("Error saving schedule");
+  }
+};
+
+
+console.log("boakcedDays",blockedDays);
+
   
 
   return (
@@ -245,42 +330,69 @@ console.log("endDate",endDate);
             style={styles.datePicker}
           />
 
-          <div style={styles.gridHeader}>
-            {weekDays.map((d) => (
-              <div key={d.toDateString()} style={styles.gridHeaderCell}>
-                {d.toLocaleDateString("en-US", {
-                  weekday: "short",
-                  day: "numeric",
-                  month: "short",
-                })}
-              </div>
-            ))}
-          </div>
+{/* 31–Day Schedule Table */}
+<table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+  <thead>
+    <tr>
+      <th style={{ border: "1px solid #ccc", padding: "10px", backgroundColor: "#e6e9f7", color: "#1c3681" }}>Date</th>
+      <th style={{ border: "1px solid #ccc", padding: "10px", backgroundColor: "#e6e9f7", color: "#1c3681" }}>Day</th>
+      <th style={{ border: "1px solid #ccc", padding: "10px", backgroundColor: "#e6e9f7", color: "#1c3681" }}>Hours</th>
+    </tr>
+  </thead>
+  <tbody>
+    {Array.from({ length: 31 }).map((_, i) => {
+      const d = new Date(selectedDate);
+      d.setDate(d.getDate() + i);
+      const newDate = moment(d).format('YYYY-MM-DD');
+      const isBlocked = blockedDays.includes(newDate);
+      
+      
 
-          <div style={styles.gridRow}>
-            {weekDays.map((d, index) => {
-              const isBlocked = blockedDays.includes(d.toDateString());
-              return (
-                <input
-                  key={index}
-                  style={{
-                    ...styles.hourInput,
-                    backgroundColor: isBlocked ? "#cdcdcd" : "white",
-                  }}
-                  value={hours[index]}
-                  onChange={(e) => {
-                    const newHours = [...hours];
-                    newHours[index] = e.target.value;
-                    setHours(newHours);
-                  }}
-                  placeholder="0"
-                  disabled={isBlocked}
-                />
-              );
-            })}
-          </div>
+      
 
-          <button style={styles.saveBtn}>Save Schedule</button>
+      return (
+        <tr key={i}>
+          <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center", }}>
+            {d.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}
+          </td>
+          <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center" }}>
+            {d.toLocaleDateString("en-US", { weekday: "short" })}
+          </td>
+          <td style={{ border: "1px solid #ccc", padding: "8px", textAlign: "center" }}>
+            <input
+              type="number"
+              min="0"
+              max="24"
+              style={{
+                width: "60px",
+                padding: "6px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                textAlign: "center",
+                backgroundColor: isBlocked ? "#cdcdcd" : "white",
+              }}
+              value={hours[i] || ""}
+              onChange={(e) => {
+                const newHours = [...hours];
+                newHours[i] = e.target.value;
+                setHours(newHours);
+              }}
+              placeholder="0"
+              disabled={isBlocked}
+            />
+          </td>
+        </tr>
+      );
+    })}
+  </tbody>
+</table>
+
+
+
+
+
+
+          <button style={styles.saveBtn} onClick={handleSave}>Save Schedule</button>
         </div>
       </div>
     </div>

@@ -71,10 +71,17 @@ export default function Settings() {
     },
     {
       key: "leave",
-      title: "Leave & Holidays",
-      desc: "Leave types, policies, and company holidays.",
+      title: "Leave ",
+      desc: "Leave types, policies",
       icon: FaCalendarAlt,
       path: "leave",
+    },
+    {
+      key: "holidays",
+      title: "Holidays",
+      desc: " policies, and company holidays.",
+      icon: FaCalendarAlt,
+      path: "holidays",
     },
     {
       key: "payroll",

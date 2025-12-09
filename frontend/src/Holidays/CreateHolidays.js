@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import styles from './PHolidays.module.css';
+import styles from '../Projects/ProjectHolidays/PHolidays.module.css';
 import { IoIosAdd } from "react-icons/io";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { Dialog } from "primereact/dialog";
@@ -12,7 +12,7 @@ import {  useSelector } from "react-redux";
 
 
 
-const CreateHolidays = ({ projectId }) => {
+const CreateHolidays = () => {
 
   const [visible, setVisible] = useState(false);
   const [holidayName,setHolidayName] = useState('');
@@ -22,15 +22,9 @@ const CreateHolidays = ({ projectId }) => {
   const [status,setStatus] = useState('');
  const email = useSelector((state) => state.user.email);
   const companyId = useSelector((state) => state.user.companyId);
-  const [projId,setProjectId] = useState('');
-  const [code,setCode] = useState('');
+  const [code,setCode]  = useState('');
   
-  
-useEffect(() => {
-    if (projectId) {
-        setProjectId(projectId);
-    }
-}, [projectId]);
+
 
 
   const calculateWorkingDays = (start, end) => {
@@ -67,17 +61,16 @@ useEffect(() => {
    
        try {
          const res = await fetch
-         ("http://localhost:3001/api/createPHolidays", {
+         ("http://localhost:3001/api/createHolidays", {
            method: "POST",
            headers: { "Content-Type": "application/json" },
            body: JSON.stringify({
              holidayName,
+             code,
              startDate: moment(startDate).format("YYYY-MM-DD"),
              endDate: moment(endDate).format("YYYY-MM-DD"),
               days,
-              code,
              status,
-           projId: projId,
             orgId: companyId,
              email,
            }),
@@ -88,12 +81,13 @@ useEffect(() => {
 
         if(data.status === 201){
     alert("Created Successfully");
-       setVisible(false);
-       setCode('');
-       setDays('');
-       setEndDate(null);
-       setHolidayName('');
-       setStartDate(null);
+    setVisible(false);
+    setDays('');
+    setEndDate(null);
+    setStartDate(null);
+    setCode('');
+    setHolidayName('');
+
 }
 
 if(data.status === 404){
@@ -154,17 +148,16 @@ if(data.status === 404){
               />
             </div>
 
+            {/* project code */}
 
-            {/* holiday code */}
 
-
-            <div style={{ display: "flex", alignItems: "center" }}>
+             <div style={{ display: "flex", alignItems: "center" }}>
               <label style={{ width: "130px", fontWeight: "500", color: "#333" }}>
                 Holiday code <span style={{ color: "red" }}>*</span>
               </label>
               <input
                 type="text"
-                placeholder="Enter project holiday code"
+                placeholder="Enter project code"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 style={{

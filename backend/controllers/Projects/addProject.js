@@ -1,6 +1,6 @@
 const db = require('../../config/db');
 const moment = require('moment');
-// this api is used for customization of hierarchy of each employee
+
 const addProject = (req, res) => {
   const {          
     projectName, startDate, endDate, projectCode, projDesc,
@@ -13,8 +13,9 @@ const addProject = (req, res) => {
   const billableValue = billable || 'NO';
   const hierarchyValue = hierarchy || 'NO';
   const notesValue = notes || 'NO';
-  const now = moment().format('');
+  const now = moment().format('YYYY-MM-DD HH:mm:ss');
 
+  // Step 1: Check duplicates
   const checkSql = `
       SELECT PROJ_ID FROM TC_PROJECTS_MASTER 
       WHERE ORG_ID = ? AND PROJ_CODE = ?
@@ -30,43 +31,66 @@ const addProject = (req, res) => {
       return res.status(400).json({ message: "Project code already exists" });
     }
 
-    const insertSql = `
-      INSERT INTO TC_PROJECTS_MASTER 
-      (ORG_ID,PROJ_NAME,PROJ_CODE,PROJ_DESC,START_DATE,END_DATE,
-      SUPPORT_IDENTIFIER,CURRENT_STATUS,CLIENT_ID,CLIENT_NAME,
-      BILLABLE,HIERARCHY,CREATED_BY,CREATION_DATE,NOTES)
-      VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    // Step 2: Generate next PROJ_NO
+    const projNoSql = `
+      SELECT IFNULL(MAX(PROJ_NO), 0) + 1 AS nextProjNo
+      FROM TC_PROJECTS_MASTER
+      WHERE ORG_ID = ?
     `;
 
-    db.query(
-      insertSql,
-      [
-        companyId,
-        projectName,
-        projectCode,
-        projDesc,
-        startDate,
-        endDate,
-        supportId,
-        status,
-        clientId,
-        clientName,
-        billableValue,
-        hierarchyValue,     
-        email,
-        now,
-        notesValue
-      ],
-      (error, result) => {
-        if (error) {
-          console.log("Error occurred", error);
-          return res.status(500).json({ data: error });
-        }
-
-        console.log("Project created", result);
-        return res.status(201).json({ data: result });
+    db.query(projNoSql, [companyId], (err2, result2) => {
+      if (err2) {
+        console.log("Error fetching proj_no", err2);
+        return res.status(500).json({ message: "Server error" });
       }
-    );
+
+      const nextProjNo = result2[0].nextProjNo;
+      console.log("Generated PROJ_NO:", nextProjNo);
+
+      // Step 3: Insert project
+      const insertSql = `
+        INSERT INTO TC_PROJECTS_MASTER 
+        (ORG_ID, PROJ_NO, PROJ_NAME, PROJ_CODE, PROJ_DESC, START_DATE, END_DATE,
+        SUPPORT_IDENTIFIER, CURRENT_STATUS, CLIENT_ID, CLIENT_NAME,
+        BILLABLE, HIERARCHY, CREATED_BY, CREATION_DATE, NOTES)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+
+      db.query(
+        insertSql,
+        [
+          companyId,
+          nextProjNo,
+          projectName,
+          projectCode,
+          projDesc,
+          startDate,
+          endDate,
+          supportId,
+          status,
+          clientId,
+          clientName,
+          billableValue,
+          hierarchyValue,     
+          email,
+          now,
+          notesValue
+        ],
+        (error, result) => {
+          if (error) {
+            console.log("Error occurred", error);
+            return res.status(500).json({ data: error });
+          }
+
+          console.log("Project created", result);
+          return res.status(201).json({
+            message: "Project created successfully",
+            proj_no: nextProjNo,
+            project_id: result.insertId
+          });
+        }
+      );
+    });
   });
 };
 

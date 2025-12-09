@@ -14,7 +14,7 @@ const getPHoliday = (req,res)=>{
 
 
     const getSql = `SELECT * FROM TC_PROJECT_HOLIDAYS
-    WHERE ORG_ID = ? AND PROJ_ID = ? AND STATUS = 'A' `;
+    WHERE ORG_ID = ? AND PROJ_ID = ?  `;
 
 
 

@@ -654,6 +654,10 @@ const saveScheduler = require('./routes/Project/Schedule/Schedule');
 app.use('/api/saveScheduler',saveScheduler);
 
 
+const getSchedule = require('./routes/Project/Schedule/getSchedule');
+app.use('/api/getSchedule',getSchedule);
+
+
 
 
 
@@ -677,6 +681,8 @@ app.use('/api/checkHolidays',checkHolidays)
 
 const getHolidays = require('./routes/Holidays/getHolidays');
 app.use('/api/getHolidays',getHolidays);
+
+
 
 
 

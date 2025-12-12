@@ -15,7 +15,7 @@ const addProject = (req, res) => {
   const notesValue = notes || 'NO';
   const now = moment().format('YYYY-MM-DD HH:mm:ss');
 
-  // Step 1: Check duplicates
+  //Check duplicates
   const checkSql = `
       SELECT PROJ_ID FROM TC_PROJECTS_MASTER 
       WHERE ORG_ID = ? AND PROJ_CODE = ?
@@ -31,7 +31,7 @@ const addProject = (req, res) => {
       return res.status(400).json({ message: "Project code already exists" });
     }
 
-    // Step 2: Generate next PROJ_NO
+    //  Generate next PROJ_NO
     const projNoSql = `
       SELECT IFNULL(MAX(PROJ_NO), 0) + 1 AS nextProjNo
       FROM TC_PROJECTS_MASTER
@@ -47,7 +47,7 @@ const addProject = (req, res) => {
       const nextProjNo = result2[0].nextProjNo;
       console.log("Generated PROJ_NO:", nextProjNo);
 
-      // Step 3: Insert project
+      //  Insert project
       const insertSql = `
         INSERT INTO TC_PROJECTS_MASTER 
         (ORG_ID, PROJ_NO, PROJ_NAME, PROJ_CODE, PROJ_DESC, START_DATE, END_DATE,

@@ -289,7 +289,7 @@ CREATE TABLE tc_leave_apply (
 );
 
 
-CREATE TABLE tc_tc_approval_history (
+CREATE TABLE tc_approval_history (
     approval_id        INT AUTO_INCREMENT PRIMARY KEY,  -- Unique ID
     tc_id              INT NOT NULL,                    -- Timesheet record ID
     approver_id        INT NOT NULL,                    -- Employee approving/rejecting

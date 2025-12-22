@@ -19,20 +19,25 @@ CREATE TABLE org_field_labels (
     last_updated_by VARCHAR(255) NULL            -- Audit: Updated by
 );
 
+--  it will store the  hr's history
+
 CREATE TABLE tc_hr_assignments (
-    assignment_id       INT AUTO_INCREMENT PRIMARY KEY,    -- Unique ID for assignment
+    assign_id       INT AUTO_INCREMENT PRIMARY KEY,    -- Unique ID for assignment
     emp_id              INT NOT NULL,                      -- Employee being assigned
     hr_emp_id           INT NOT NULL,                      -- HR employee responsible
     org_id              INT NOT NULL,                      -- Organization ID
     assigned_date       TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Assignment timestamp
     status              VARCHAR(2) DEFAULT 'A',           -- A → Active, I → Inactive
+    effective_from      DATE NOT NULL,                     -- Start of reporting
+    effective_to        DATE NULL,   
     created_by          VARCHAR(255),
     last_update_date    TIMESTAMP NULL,
     last_updated_by     VARCHAR(255)
 );
 
+
 CREATE TABLE tc_reporting_manager_assignments (
-    assignment_id       INT AUTO_INCREMENT PRIMARY KEY,    -- Unique ID for assignment
+    assign_id       INT AUTO_INCREMENT PRIMARY KEY,    -- Unique ID for assignment
     emp_id              INT NOT NULL,                      -- Employee
     manager_emp_id      INT NOT NULL,                      -- Manager employee
     org_id              INT NOT NULL,                      -- Organization
@@ -78,6 +83,9 @@ CREATE TABLE proj_tasks (
     org_id      INT ,
 	mod_no		INT,
 	created_date     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    start_date,
+    end_date,
+    status,
 	created_by		VARCHAR(255),
 	last_update_date date,
 	last_updated_by varchar2(255),
@@ -208,9 +216,9 @@ CREATE TABLE tc_timecard (
     day6     INT,
     day7     INT,
     scheduled INT,
-    reported  INT,
+    reported  INT,1
     submitted INT,
-    status VARCHAR(2), -- > SA SAVED, D DRAFT, A APPROVED, R REJECTED
+    status VARCHAR(2), -- > S Submitt, s submitt, A APPROVED, R REJECTED,hold
 	remarks TEXT,
     approver_id      INT,
     current_approver INT,
@@ -319,7 +327,7 @@ CREATE TABLE tc_activity_log (
     last_updated_by   VARCHAR(255)
 );
 
-
+-- this table is used for alerts 
 CREATE TABLE tc_org_modules_settings (
     setting_id        INT AUTO_INCREMENT PRIMARY KEY,  -- Unique ID
     org_id            INT NOT NULL,                    -- Organization
@@ -366,7 +374,6 @@ CREATE TABLE tc_notification_settings (
     last_update_date   TIMESTAMP NULL,
     last_updated_by    VARCHAR(255)
 );
-
 
 --- History TABLESPACE
 CREATE TABLE tc_employee_history (

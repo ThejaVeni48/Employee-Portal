@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import "./Leavesdashboard.css";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import gstsLogo from "../Assests/GSTS.png";
 import DatePicker from "react-datepicker";
 import moment from "moment";
 import { IoIosInformationCircleOutline } from "react-icons/io";

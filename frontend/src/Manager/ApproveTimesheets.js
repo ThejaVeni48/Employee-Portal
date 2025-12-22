@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import gstsLogo from "../Assests/GSTS.png";
 import { useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -206,7 +205,7 @@ const ApproveTimesheets = () => {
     <>
       <div className="header">
         <div className="logos">
-          <img src={gstsLogo} alt="GSTS" />
+          <img  alt="GSTS" />
         </div>
         <div className="profileimage">
           {image ? (

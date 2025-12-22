@@ -1,15 +1,15 @@
 import "./App.css";
 import "primereact/resources/themes/lara-light-cyan/theme.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Register from "./Login/Register";
+import Register from "./Login/Registration/Register";
 import Login from "./Login/Login";
 
-import TimeSheetsInfo from "./Employee/TimeSheetsInfo";
+// import TimeSheetsInfo from "./Employee/TimeSheetsInfo";
 import TimeSheetEntries from "./Employee/TimeSheetEntries";
 // import Info from './Employee/Info';
 import "react-datepicker/dist/react-datepicker.css";
-import EmpDashboard from "./Employee/EmpDashboard";
-import SettingsPage from "./Employee/SettingsPage";
+// import EmpDashboard from "./Employee/EmpDashboard";
+import SettingsPage from "./Settings/SettingPage";
 import ProfilePage from "./Employee/ProfilePage";
 import ApproveTimesheets from "./Manager/ApproveTimesheets";
 import ViewTimesheets from "./Manager/ViewTimesheets";
@@ -19,12 +19,11 @@ import ViewLeaveTimeSheet from "./Manager/ViewLeaveRequest";
 import ManagerDashboard from "./Manager/ManagerDashboard";
 import AdminDashboard from "./Admin/AdminDashboard";
 import AddEmp from "./Admin/AddEmp";
-import Message from "./Admin/Message";
+// import Message from "./Admin/Message";
 import Employees from "./Admin/Employees";
 import LeavesCreation from "./Admin/LeavesCreation";
 import LeaveManagement from "./Admin/LeavesManagement";
 import AssignLeaves from "./Admin/AssignLeaves";
-import AddDept from "./Department/AddDept";
 import HRDashboard from "./HR/HRDashboard";
 // import Dept from './Admin/Dept';
 import Projects from "./Projects/Projects";
@@ -49,7 +48,6 @@ import PMTasks from "./PM/Projects/PMTasks";
 import PMProjectsDashboard from "./PM/Projects/PMProjectsDashboard";
 import EmpMainDashboard from "./Employee/EmpMainDashboard";
 // import Tasks from "./Employee/Tasks";
-import EmpTask from "./Employee/EmpTasks";
 import TimesheetEntries from "./Employee/TimeSheetEntries";
 import TimesheetSummary from "./Employee/TimesheetSummary";
 import LeaveSummary from "./Leaves/Leavesummary";
@@ -58,14 +56,12 @@ import EmpTimesheet from "./Timesheets/EmpTimesheet";
 import LeavesRequest from "./Leaves/LeavesRequest";
 import Approvals from "./Timesheets/Approvals";
 import ApprovedTimesheet from "./Timesheets/ApprovedTimesheet";
-import DeptDashboard from "./DeptHead/DeptDashoard";
+// import DeptDashboard from "./DeptHead/DeptDashoard";
 import WeekTimesheet from "./Timesheets/WeeklyTimesheet";
 import EmpLogin from "./Login/EmpLogin";
 import WelcomePage from "./Login/WelcomePage";
 import SSODashboard from "./SSO/SSODashboard";
-import CompaniesList from "./SSO/Companies";
 import ViewOrg from "./Login/ViewOrg";
-import ChangePassword from "./Login/ChangePassword";
 import DRoles from "./SSO/DRoles";
 import Designation from "./SSO/Designation";
 import Jobs from "./SSO/Jobs";
@@ -86,6 +82,8 @@ import SSOLeaves from "./SSO/SSOLeaves";
 import ProjectHolidays from "./Projects/ProjectHolidays";
 import Holiday from "./Holidays/Holiday";
 import PHolidays from "./Projects/ProjectHolidays/PHolidays";
+import CompaniesList from "./SSO/Company/Company";
+import ChangePassword from "./Login/ChangePassword/ChangePwd";
 
 function AppRoutes() {
   return (
@@ -97,12 +95,13 @@ function AppRoutes() {
         <Route path="/register" element={<Register />} />
         <Route path="/empLogin" element={<EmpLogin />} />
         <Route path="/vieworg" element={<ViewOrg />} />
-        <Route path="/changePassword" element={<ChangePassword />} />
+         <Route path="changePassword" element={<ChangePassword />} />
+
 
         {/* SSO */}
 
         <Route path="/SSODashboard" element={<SSODashboard />}>
-          <Route path="companies" element={<CompaniesList />} />
+          <Route path="companies" element = {<CompaniesList/>}/>
           <Route path="roles" element={<DRoles />} />
           <Route path="designation" element={<Designation />} />
           <Route path="jobs" element={<Jobs />} />
@@ -130,22 +129,20 @@ function AppRoutes() {
         <Route path="/emp" element={<AllEmployees />} />
 
         {/*----------------------------------- Employee ---------------------------------------------------------- */}
-        <Route path="/employeedashboard" element={<EmpDashboard />}>
+        {/* <Route path="/employeedashboard" element={<EmpDashboard />}>
           <Route path="empMainDashboard" element={<EmpMainDashboard />} />
           <Route path="TimeSheetsInfo" element={<TimeSheetsInfo />} />
           <Route path="myprojects" element={<MyProjects />} />
           <Route path="emptask" element={<EmpTask />} />
-          {/* <Route path="tasks" element={<Tasks />} /> */}
           <Route path="weektimesheet" element={<WeekTimesheet />} />
           <Route path="timesheetsummary" element={<TimesheetSummary />}>
-            {/* <Route path="weektimesheet" element={<WeekTimesheet />} /> */}
           </Route>
 
           <Route path="timesheetentries" element={<TimesheetEntries />} />
           <Route path="holiday" element={<Holiday />} />
           <Route path="empleavesummary" element={<LeaveSummary />} />
-        </Route>
-        <Route path="/settingspage" element={<SettingsPage />} />
+        </Route> */}
+        {/* <Route path="/settingspage" element={<SettingsPage />} /> */}
         <Route path="/profilepage" element={<ProfilePage />} />
         <Route path="/TimeSheetEntries" element={<TimeSheetEntries />} />
 
@@ -252,20 +249,18 @@ function AppRoutes() {
           {/* <Route path="projectHolidays" element={<ProjectHolidays/>}/> */}
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="employees" element={<Employees />} />
-          <Route path="message" element={<Message />} />
           {/* <Route path="jobs" element={<Jobs />} /> */}
           <Route path="leavescreation" element={<LeavesCreation />} />
           <Route path="leavesmanagement" element={<LeaveManagement />} />
-          <Route path="adddept" element={<AddDept />} />
           {/* <Route path="projects" element={<Projects />} /> */}
           <Route path="settings" element={<Settings />} />
           <Route path="timesheet" element={<Timesheets />} />
           <Route path="adminleaves" element={<AdminLeaves />} />
           <Route path="roles" element={<Roles />} />
           <Route path="orgdesignations" element={<OrgDesignations />} />
-          <Route path="changePassword" element={<ChangePassword />} />
           <Route path="orgacess" element={<OrgAccess />} />
           <Route path="profile" element={<Profile />} />
+          <Route path="settingspage" element={<SettingsPage/>}/>
         </Route>
         <Route path="/addEmp" element={<AddEmp />} />
         <Route path="/assignleaves" element={<AssignLeaves />} />
@@ -277,11 +272,9 @@ function AppRoutes() {
           <Route path="maindashboard" element={<MainDashboard />} />
 
           <Route path="employees" element={<Employees />} />
-          <Route path="message" element={<Message />} />
           {/* <Route path="jobs" element={<Jobs />} /> */}
           <Route path="leavescreation" element={<LeavesCreation />} />
           <Route path="leavesmanagement" element={<LeaveManagement />} />
-          <Route path="adddept" element={<AddDept />} />
           {/* <Route path="holidays" element={<Holidays />} /> */}
         </Route>
 
@@ -307,8 +300,7 @@ function AppRoutes() {
           <Route path="pmtasks" element={<PMTasks />} />
         </Route>
 
-        {/* Dept Head */}
-        <Route path="deptDashboard" element={<DeptDashboard />} />
+      
 
         {/* Logins */}
       </Routes>

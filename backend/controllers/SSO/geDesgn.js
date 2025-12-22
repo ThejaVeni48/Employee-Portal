@@ -7,7 +7,7 @@ const getDefaultDesgn = (req,res)=>{
 
 
 
-const getSql = `SELECT *  FROM  SSO_DESIGNATIONS`;
+const getSql = `SELECT *  FROM  GA_Designations`;
 
 db.query(getSql,(error,result)=>{
     if(error)

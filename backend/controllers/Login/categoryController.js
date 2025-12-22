@@ -4,11 +4,9 @@ const categoryLogin = (req, res) => {
   const { email, password, id } = req.body;
   const categoryId = Number(id);
 
-  // ================================
   // CATEGORY 1 — SSO LOGIN
-  // ================================
   if (categoryId === 1) {
-    const sql = `SELECT * FROM SSO_MASTERS_USERS WHERE USER_NAME = ? AND PASSWORD = ?`;
+    const sql = `SELECT * FROM GA_MASTER_USERS WHERE USER_NAME = ? AND PASSWORD = ?`;
     return db.query(sql, [email, password], (err, result) => {
       if (err) return res.status(500).json({ message: "Database error", error: err });
 
@@ -23,16 +21,14 @@ const categoryLogin = (req, res) => {
     });
   }
 
-  // ================================
   // CATEGORY 2 — ORGANIZATION LOGIN
-  // ================================
   if (categoryId === 2) {
-    const orgSql = `SELECT * FROM TC_ORG_REGISTRATIONS WHERE EMAIL = ? AND PASSWORD = ?`;
+    const orgSql = `SELECT * FROM TC_ORG_REGISTRATIONS WHERE ORG_EMAIL = ? AND PASSWORD = ?`;
 
     return db.query(orgSql, [email, password], (orgErr, orgRes) => {
       if (orgErr) return res.status(500).json({ message: "Database error", error: orgErr });
 
-      // CASE 1: Not in ORG table → check TC_USERS + ASSIGNMENTS
+      // CASE 1: Not in ORG table  check TC_USERS + ASSIGNMENTS
       if (orgRes.length === 0) {
         const accessSql = `
           SELECT UA.ACCESS_CODE, U.ORG_ID,R.ROLE_NAME,U.*
@@ -45,6 +41,7 @@ const categoryLogin = (req, res) => {
             AND R.ORG_ID = UA.ORG_ID
           WHERE U.EMAIL = ?
            AND U.PASSWORD = ?;
+
         `;
 
         return db.query(accessSql, [email, password], (accErr, accRes) => {
@@ -124,9 +121,7 @@ const categoryLogin = (req, res) => {
     });
   }
 
-  // ================================
   // CATEGORY 3 — EMPLOYEE LOGIN
-  // ================================
   if (categoryId === 3) {
     const sql = `SELECT * FROM TC_USERS WHERE EMAIL = ? AND PASSWORD = ?`;
 

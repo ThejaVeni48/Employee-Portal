@@ -1,0 +1,147 @@
+.container {
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+.card {
+  border-radius: 12px;
+  background-color: transparent;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1c3681;
+  margin-bottom: 1rem;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.filter-button {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: none;
+  background: #cfdaf1;
+  color: #1c3681;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-button.active {
+  background-color: #1c3681;
+  color: white;
+  font-weight: 600;
+}
+
+.table-style {
+  width: 100%;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table-header {
+  background-color: #cfdaf1;
+  color: #1c3681;
+  font-size: 13px;
+}
+
+.table-cell {
+  text-align: left;
+  font-size: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.button {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: none;
+  background-color: #cfdaf1;
+  color: #1c3681;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.activeButton {
+  background-color: #1c3681;
+  color: white;
+  font-weight: 600;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalBox {
+  background: white;
+  width: 400px;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.closeBtn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.remarksInput {
+  width: 100%;
+  height: 80px;
+  margin-top: 15px;
+  padding: 10px;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.approveBtn {
+  background: #1c3681;
+  color: white;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 4px;
+}
+
+.rejectBtn {
+  background: #c62828;
+  color: white;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 4px;
+}
+

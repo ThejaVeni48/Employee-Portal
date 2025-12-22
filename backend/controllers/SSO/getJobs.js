@@ -7,7 +7,7 @@ const getDefaultJobs = (req,res)=>{
 
 
 
-const getSql = `SELECT *  FROM  SSO_ACCESS_CONTROL`;
+const getSql = `SELECT *  FROM  GA_Access_Control`;
 
 db.query(getSql,(error,result)=>{
     if(error)

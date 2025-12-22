@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import "./ViewTimesheet.css";
-import gstsLogo from "../Assests/GSTS.png";
 import { useSelector } from "react-redux";
 import moment from "moment";
 
@@ -121,7 +120,6 @@ const ViewTimesheets = () => {
       <div className="header">
         <div className="logos">
           <img
-            src={gstsLogo}
             alt="GSTS"
             style={{ width: 200, height: "auto" }}
           />

@@ -18,11 +18,12 @@ const AdminDashboard = () => {
   const companyId = useSelector((state) => state.user.companyId);
   const empId = useSelector((state) => state.user.empId);
   const role = useSelector((state) => state.user.Role);
-  const loginAttempts = useSelector((state) => state.user.loginAttempts);
+  const attempts = useSelector((state) => state.user.attempts);
   const fullName = useSelector((state) => state.user.fullName);
   const accessCode = useSelector((state) => state.user.accessCode || []);
   const [approveAccess, setApproveAccess] = useState("");
-  console.log("accessCode:", accessCode);
+  console.log("loginAttempts:", attempts);
+
 
   const activeprojects = useSelector(
     (state) => state.activeprojects.activeProjectsList
@@ -37,14 +38,14 @@ const AdminDashboard = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (loginAttempts === 1) {
+    if (attempts === 0) {
       const timer = setTimeout(() => {
         alert("Please change your password");
       }, 800);
 
       return () => clearTimeout(timer);
     }
-  }, [loginAttempts]);
+  }, [attempts]);
 
   useEffect(() => {
     // getActiveProjects();

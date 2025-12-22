@@ -23,7 +23,7 @@ const uploadRoles = (req, res) => {
     });
 
     const sql = `
-      INSERT INTO SSO_ROLES
+      INSERT INTO GA_ROLES
       (ROLE_NAME, ROLE_STATUS, ROLE_CODE, ROLE_DESCRIPTION, CREATED_BY)
       VALUES ?
     `;

@@ -44,7 +44,6 @@ const handleLogin = async (e) => {
       return;
     }
 
-    // Extract values safely
     const accessCode = res.access || [];  
     const userInfo = res.data?.[0] || {};  
 
@@ -58,12 +57,19 @@ const handleLogin = async (e) => {
     dispatch(getLoginAttempts(res.attempts));
     dispatch(getAccessCode(accessCode));  
 
+
+    console.log("attempts", res.attempts);
+    
   
 
     // REDIRECT BASED ON CATEGORY
-    if (res.categoryId === 1) nav("/SSODashboard");
-    else if (res.categoryId === 2 || res.categoryId === 3)
-       nav("/adminDashboard");
+  if (res.categoryId === 1) {
+  nav("/SSODashboard");
+} else {
+  // For org/employee after password changed
+  nav("/adminDashboard");
+}
+
 
   } catch (error) {
     console.error("Login Error:", error);

@@ -17,7 +17,7 @@ app.use(express.json());
 
 app.use("/PUBLIC/images", express.static(path.join(__dirname, "PUBLIC/images")));
 
-
+// ---------------------------- Login APIs ------------------------------------------------------
 
 // category Login
 
@@ -35,6 +35,13 @@ app.use("/api/login",loginRoute)
 const changePassword = require('./routes/Login/changePassword');
 app.use('/api/changePassword',changePassword);
 
+
+// login lookup
+
+const LoginLookup = require('./routes/Login/loginlookup');
+app.use('/api/LoginLookup',LoginLookup);
+
+//  ------------------------------------------SSO Module ----------------------------------------------------
 
 // sso shows companies list for 
 
@@ -658,6 +665,12 @@ const getSchedule = require('./routes/Project/Schedule/getSchedule');
 app.use('/api/getSchedule',getSchedule);
 
 
+const getSchedulers = require('./routes/Project/Schedule/getSchedulers');
+app.use('/api/getSchedulers',getSchedulers);
+
+
+const getScheduleHours = require('./routes/Project/Schedule/getScheduledHours');
+app.use('/api/getScheduleHours',getScheduleHours);
 
 
 
@@ -682,6 +695,12 @@ app.use('/api/checkHolidays',checkHolidays)
 const getHolidays = require('./routes/Holidays/getHolidays');
 app.use('/api/getHolidays',getHolidays);
 
+
+
+// ====================================Timesheet Customization =========================================
+
+const TimesheetCustomization = require('./routes/Settings/timesheetcustomization');
+app.use('/api/TimesheetCustomization',TimesheetCustomization);
 
 
 

@@ -17,6 +17,8 @@ const SSOLeaves = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [visible, setVisible] = useState(false);
  
+
+
     const [leaveCode,setLeaveCode] = useState('');
   const [newStatus, setNewStatus] = useState(null);
 
@@ -24,6 +26,8 @@ const SSOLeaves = () => {
   
 
   const [refresh, setRefresh] = useState(false);
+
+        console.log("USERiD",userId);
 
   const styles = {
     container: { minHeight: "100vh", fontFamily: "'Inter', sans-serif" },

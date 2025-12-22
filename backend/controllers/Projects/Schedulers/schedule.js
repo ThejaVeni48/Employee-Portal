@@ -13,62 +13,65 @@ const saveSchedule = (req, res) => {
     email
   } = req.body;
 
-  if (!hours || hours.length !== 31) {
-    return res.status(400).json({ message: "Hours array must have 31 values" });
+  console.log("hours",hours);
+  console.log("startDate",startDate);
+  console.log("endDate",endDate);
+  console.log("hours length",hours.length);
+  
+  if (!hours || hours.length > 31) {
+    return res.status(400).json({
+      message: "Schedule must be saved month-wise (max 31 days)"
+    });
   }
 
   const daysData = {};
-  for (let i = 0; i < 31; i++) {
+  for (let i = 0; i < hours.length; i++) {
     daysData[`day${i + 1}`] = hours[i] || 0;
   }
 
+  /* ---------------- STEP 1 :GET ASSIGN ID AND CONTRACT DATE ---------------- */
   const getAssignIdQuery = `
-    SELECT TC_PROJ_ASSIGN_ID 
+    SELECT TC_PROJ_ASSIGN_ID, CONTRACT_STARTDATE, CONTRACT_ENDDATE
     FROM TC_PROJECTS_ASSIGNEES
     WHERE EMP_ID = ? AND ORG_ID = ?
   `;
 
-  db.query(getAssignIdQuery, [emp_id, org_id], (error, result) => {
-    if (error) {
-      console.log("Assign id error:", error);
-      return res.status(500).json({ message: "Database error" });
-    }
-
-    if (result.length === 0) {
-      return res.status(400).json({ message: "Assign ID not found" });
-    }
+  db.query(getAssignIdQuery, [emp_id, org_id], (err, result) => {
+    if (err) return res.status(500).json({ message: "Database error" });
+    if (!result.length) return res.status(400).json({ message: "Assign ID not found" });
 
     const assignId = result[0].TC_PROJ_ASSIGN_ID;
+    const contractStart = new Date(result[0].CONTRACT_STARTDATE);
+    const contractEnd = new Date(result[0].CONTRACT_ENDDATE);
 
-    // Check if schedule exists
+    /* ---------------- STEP 2: CONTRACT VALIDATION ---------------- */
+if (new Date(endDate) < new Date(contractStart) || new Date(startDate) > new Date(contractEnd)) {
+      console.log("startDate",new Date(startDate));
+      console.log("contractStart",new Date(contractStart));
+      console.log("endDate",new Date(endDate));
+      console.log("contractEnd",new Date(contractEnd));
+      
+      return res.status(400).json({ message: "Schedule outside contract period" });
+    }
+
+    /* ---------------- STEP 3:  DUPLICATE CHECK ---------------- */
     const checkExistsQuery = `
-      SELECT schedule_id 
-      FROM proj_schedule
+      SELECT schedule_id FROM proj_schedule
       WHERE assign_id = ? AND month_year = ?
     `;
-
     db.query(checkExistsQuery, [assignId, month_year], (existsErr, existsResult) => {
-      if (existsErr) {
-        console.error("Check schedule error:", existsErr);
-        return res.status(500).json({ message: "Database error" });
-      }
+      if (existsErr) return res.status(500).json({ message: "Database error" });
+      if (existsResult.length)
+        return res.status(409).json({ message: "Schedule already exists for this month" });
 
-      if (existsResult.length > 0) {
-        return res.status(409).json({
-          message: "Schedule already exists for this employee and month",
-        });
-      }
-
-      // INSERT query
+      /* ----------------STEP 4: INSERT ---------------- */
       const sql = `
         INSERT INTO proj_schedule (
           proj_id, assign_id, org_id, month_year, start_date, end_date,
-          ${Object.keys(daysData).join(", ")},
-          total_hours, created_by
+          ${Object.keys(daysData).join(", ")}, total_hours, created_by
         ) VALUES (
           ?, ?, ?, ?, ?, ?,
-          ${Object.keys(daysData).map(() => "?").join(", ")},
-          ?, ?
+          ${Object.keys(daysData).map(() => "?").join(", ")}, ?, ?
         )
       `;
 
@@ -84,13 +87,9 @@ const saveSchedule = (req, res) => {
         email
       ];
 
-      db.query(sql, values, (err, saveResult) => {
-        if (err) {
-          console.error("Insert error:", err);
-          return res.status(500).json({ message: "Error saving schedule" });
-        }
-
-        res.json({ message: "Schedule saved successfully", result: saveResult });
+      db.query(sql, values, (insertErr) => {
+        if (insertErr) return res.status(500).json({ message: "Error saving schedule" });
+        res.json({ message: `Schedule saved for ${month_year}` });
       });
     });
   });

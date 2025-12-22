@@ -1,3 +1,7 @@
+// this api is used for assigning the employees into the projects
+
+
+
 const db = require("../../config/db");
 
 const assignProject = (req, res) => {
@@ -5,6 +9,8 @@ const assignProject = (req, res) => {
     orgId,
     empId,
     startDate,
+    contractStart,
+    contractEnd,
     status,
     role,
     approveAccess,
@@ -33,13 +39,13 @@ const assignProject = (req, res) => {
     // Step 2: Insert assignment
     const insertSql = `
       INSERT INTO TC_PROJECTS_ASSIGNEES 
-      (PROJ_ID, ORG_ID, EMP_ID, START_DATE, STATUS, ROLE_CODE, TS_APPROVE_ACCESS, CREATED_BY, CREATION_DATE, PROJ_ASSIGN_NO)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)
+      (PROJ_ID, ORG_ID, EMP_ID, START_DATE,CONTRACT_STARTDATE,CONTRACT_ENDDATE,STATUS, ROLE_CODE, TS_APPROVE_ACCESS, CREATED_BY, CREATION_DATE, PROJ_ASSIGN_NO)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?,?,?, NOW(), ?)
     `;
 
     db.query(
       insertSql,
-      [projId, orgId, empId, startDate, status, role, approveAccess, email, nextAssignNo],
+      [projId, orgId, empId, startDate, contractStart,contractEnd,status, role, approveAccess, email, nextAssignNo],
       (error, resultInsert) => {
         if (error) {
           console.log("Error inserting assignment", error);

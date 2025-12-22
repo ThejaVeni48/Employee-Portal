@@ -60,7 +60,7 @@ export default function Settings() {
       title: "Timesheets",
       desc: "Timesheet rules, approvals & submission settings.",
       icon: FaClipboardList,
-      path: "timesheets",
+      path: "settingspage",
     },
     {
       key: "projects",

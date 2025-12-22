@@ -16,6 +16,7 @@ import Approvals from "./Approvals";
 import ProjectHolidays from "./ProjectHolidays";
 import ProjectScheduler from "./ProjectScheduler";
 import PHolidays from "./ProjectHolidays/PHolidays";
+import ViewScheduledHours from "./ViewScheduledHours";
 
 const ProjectAssignmnet = () => {
   const location = useLocation();
@@ -31,6 +32,8 @@ const ProjectAssignmnet = () => {
   const [isActive, setIsActive] = useState("Yes");
   const [approveAccess, setApproveAccess] = useState(false);
   const [startDate, setStartDate] = useState(null);
+  const [contractStartDate, setContractStartDate] = useState(null);
+  const [contractEndDate, setContractEndDate] = useState(null);
   const roles = useSelector((state) => state.roles.roleList);
   const [selectedRoleId, setSelectedRoleId] = useState("");
   const [selectedRoleCode, setSelectedRoleCode] = useState("");
@@ -189,6 +192,8 @@ const ProjectAssignmnet = () => {
           role: selectedRoleCode,
           status: isActive,
           startDate: moment(startDate).format("YYYY-MM-DD"),
+          contractStart: moment(contractStartDate).format("YYYY-MM-DD"),
+          contractEnd: moment(contractEndDate).format("YYYY-MM-DD"),
           approveAccess,
           email,
           orgId: companyId,
@@ -445,11 +450,34 @@ const ProjectAssignmnet = () => {
                   />
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center" }}>
+                {/* CONTRACT START DATE */}
+                <div>
+                  <label style={{ fontWeight: "500" }}> Contract Start Date *</label>
+                  <DatePicker
+                    selected={contractStartDate}
+                    onChange={(date) => setContractStartDate(date)}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="Select start date"
+                  />
+                </div>
+
+                     {/* CONTRACT END DATE */}
+                <div>
+                  <label style={{ fontWeight: "500" }}>Contract End Date *</label>
+                  <DatePicker
+                    selected={contractEndDate}
+                    onChange={(date) => setContractEndDate(date)}
+                    dateFormat="yyyy-MM-dd"
+                    placeholderText="Select start date"
+                  />
+                </div>
+
+{
+!Hierachy &&  <div style={{ display: "flex", alignItems: "center" }}>
                   <input
                     type="checkbox"
                     checked={approveAccess}
-                    disabled={Hierachy}
+                    // disabled={Hierachy}
                     onChange={(e) => {
                       setApproveAccess(e.target.checked);
                       // console.log("checked value",e.target.checked);
@@ -458,6 +486,8 @@ const ProjectAssignmnet = () => {
                   />
                   <label>Approval Access</label>
                 </div>
+}
+               
 
                 {/* SUBMIT BUTTON */}
                 <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -504,6 +534,11 @@ const ProjectAssignmnet = () => {
 <TabPanel header="Holidays">
 <PHolidays projectId={projectId} />
 </TabPanel>
+
+        <TabPanel header="View Scheduled Hours">
+
+<ViewScheduledHours employees={projectId} />
+        </TabPanel>
 
         <TabPanel header="Scheduler">
 

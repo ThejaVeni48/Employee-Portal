@@ -7,7 +7,7 @@ const getSSOLeaves = (req,res)=>{
 
 
 
-const getSql = `SELECT *  FROM  SSO_LEAVES`;
+const getSql = `SELECT *  FROM  GA_LEAVES`;
 
 db.query(getSql,(error,result)=>{
     if(error)

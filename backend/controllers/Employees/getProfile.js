@@ -1,4 +1,7 @@
 // controllers/empProfile.js
+
+
+// this api is used for getting the employee profile
 const db = require('../../config/db');
 
 const empProfile = (req, res) => {

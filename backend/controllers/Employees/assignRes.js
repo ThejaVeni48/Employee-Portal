@@ -1,3 +1,5 @@
+// this is api is used for assigning role, desgn,access
+
 const db = require('../../config/db');
 const moment = require('moment');
 
@@ -31,7 +33,7 @@ const assignRes = (req, res) => {
       return res.status(500).json({ success: false, message: "Transaction start failed" });
     }
 
-    // 1️⃣ Deactivate previous assignments
+    //  Deactivate previous assignments
     const deactivateSql = `
       UPDATE TC_ORG_USER_ASSIGNMENT
       SET STATUS = ?, END_DATE = ?, LAST_UPDATED_BY = ?, LAST_UPDATED_DATE = NOW()
@@ -49,7 +51,7 @@ const assignRes = (req, res) => {
           });
         }
 
-        // 2️⃣ Insert New Assignments
+        // //Insert New Assignments
         const insertSql = `
           INSERT INTO TC_ORG_USER_ASSIGNMENT
           (ORG_ID, EMP_ID, ROLE_CODE, DESGN_CODE, ACCESS_CODE, START_DATE, STATUS, CREATED_BY, CREATION_DATE)

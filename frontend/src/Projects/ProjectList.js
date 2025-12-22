@@ -166,7 +166,7 @@ const accessCode = useSelector((state) => state.user.accessCode);
               
     
               <Column
-                field="STATUS"
+                field="CURRENT_STATUS"
                 header="Status"
                 headerStyle={styles.headerStyle}
                 bodyStyle={styles.cellStyle}

@@ -7,7 +7,7 @@ const getDefaultRoles = (req,res)=>{
 
 
 
-const getSql = `SELECT *  FROM  SSO_ROLES`;
+const getSql = `SELECT *  FROM  GA_ROLES`;
 
 db.query(getSql,(error,result)=>{
     if(error)

@@ -1,7 +1,6 @@
 const db = require("../config/db");
 
 
-// Generate unique Company ID
 function generateCompanyId(companyName) {
   return new Promise((resolve, reject) => {
     const prefix = companyName.slice(0, 2).toUpperCase();
@@ -22,7 +21,6 @@ function generateCompanyId(companyName) {
 
 
 
-// Generate Timesheet Code
 function generateTimesheetCode(companyName) {
   const name = companyName.slice(0, 3).toUpperCase();
   const num = Math.floor(10 + Math.random() * 90);
@@ -31,29 +29,16 @@ function generateTimesheetCode(companyName) {
   return `${name}-${num}`;
 }
 
-// Company Registration Controller
 const companyRegister = async (req, res) => {
-  const { firstName, lastName, companyName, email, role, address,domain,branch } = req.body;
+  const { fullName, companyName, email,address1,country,city,sector,timezone,contactno } = req.body;
 
-   const adminName = firstName+lastName;
-  // const tempPassword = generatePassword();
   const companyId = await generateCompanyId(companyName);
   const timesheetCode = generateTimesheetCode(companyName);
 
-  console.log("Received Registration Data:", {
-    firstName,
-    lastName,
-    companyName,
-    email,
-    role,
-    address,
-    companyId,
-    timesheetCode,
-  });
+ 
 
   
 
-  // Check if company already exists
   const checkCompanyExists = `
     SELECT * FROM TC_ORG_REGISTRATIONS 
     WHERE ORG_NAME = ?`;
@@ -72,23 +57,27 @@ const companyRegister = async (req, res) => {
     }
     const status = 'P';
 
-    // Insert new company record
     const insertSql = `
       INSERT INTO TC_ORG_REGISTRATIONS 
-      (ORG_ID,STATUS,ADMIN_NAME,ORG_NAME, ADDRESS, EMAIL,BRANCH,CREATION_DATE)
-      VALUES (?, ?,?, ?, ?, ?,?,NOW())
-    `;
+      (ORG_ID,STATUS,ADMIN_NAME,ORG_NAME,SECTOR, ADDRESS1,COUNTRY,CITY,TIMEZONE, ORG_PHONE_NUMBER,ORG_EMAIL,CREATED_BY)
+      VALUES (?, ?,?, ?, ?, ?,?,?,?,?,?,?)`;
 
     db.query(
       insertSql,
       [
         companyId,
         status,
-        adminName,
+        fullName,
         companyName,
-        address,
+        sector,
+        address1,
+        country,
+        city,
+        timezone,
+        contactno,
         email,
-        branch
+        email
+        
       ],
       (error, result) => {
         if (error) {

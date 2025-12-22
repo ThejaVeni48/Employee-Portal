@@ -14,7 +14,7 @@ const ApproveRejectOrg = (req, res) => {
     const updateSql = `
       UPDATE TC_ORG_REGISTRATIONS
       SET STATUS = ?, START_DATE = ?, END_DATE = ?, PASSWORD = ?,
-          APPROVER_DATE = ?, A_R_BY = ?, ATTEMPTS_LOGIN = ?
+          APPROVED_DATE = ?, AUTHORIZED_BY = ?, ATTEMPTS_LOGIN = ?
       WHERE ORG_ID = ?
     `;
 
@@ -23,6 +23,8 @@ const ApproveRejectOrg = (req, res) => {
       [status, today, endDate, password, today, userId, logins, companyId],
       (approveError, approveResult) => {
         if (approveError) {
+          console.log("error Aprove",approveError);
+          
           return res.status(500).json({ data: approveError });
         }
 
@@ -33,7 +35,7 @@ const ApproveRejectOrg = (req, res) => {
           INSERT INTO TC_ORG_ROLES 
           (ROLE_NAME, ROLE_STATUS, ROLE_CODE, ROLE_DESCRIPTION, CREATED_BY, CREATION_DATE, ORG_ID)
           SELECT ROLE_NAME, ROLE_STATUS, ROLE_CODE, ROLE_DESCRIPTION, ?, ?, ?
-          FROM SSO_ROLES
+          FROM GA_ROLES
         `;
 
         db.query(
@@ -49,7 +51,7 @@ const ApproveRejectOrg = (req, res) => {
               INSERT INTO TC_ORG_DESIGNATIONS
               (DESGN_NAME, DESGN_DESC, DESGN_CODE, DESGN_STATUS, ROLE_ID, CREATED_BY, CREATION_DATE, ORG_ID)
               SELECT DESGN_NAME, DESGN_DESC, DESGN_CODE, DESGN_STATUS, ROLE_ID, ?, ?, ?
-              FROM SSO_DESIGNATIONS
+              FROM GA_Designations
             `;
 
             db.query(
@@ -65,7 +67,7 @@ const ApproveRejectOrg = (req, res) => {
                   INSERT INTO TC_ORG_ACCESS
                   (ACCESS_NAME, ACCESS_DESC, ACCESS_CODE, STATUS, CREATED_BY, CREATION_DATE, ORG_ID)
                   SELECT ACCESS_NAME, ACCESS_DESC, ACCESS_CODE, STATUS, ?, ?, ?
-                  FROM SSO_ACCESS_CONTROL
+                  FROM GA_Access_Control
                 `;
 
                 db.query(
@@ -81,7 +83,7 @@ const ApproveRejectOrg = (req, res) => {
                       INSERT INTO TC_ORG_LEAVES
                       (LEAVE_TYPE, LEAVE_CODE, LEAVE_DESC, LEAVE_STATUS, CREATED_BY, CREATION_DATE, ORG_ID)
                       SELECT LEAVE_TYPE, LEAVE_CODE, LEAVE_DESC, LEAVE_STATUS, ?, ?, ?
-                      FROM SSO_LEAVES
+                      FROM GA_LEAVES
                     `;
 
                     db.query(

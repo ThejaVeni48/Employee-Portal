@@ -222,7 +222,7 @@ const handleFileChange = async (e) => {
                    <Card style={styles.card}>
         <div style={styles.title}>Access Control Management</div>
 
-        <div style={styles.toolbar}>
+        {/* <div style={styles.toolbar}>
           <div style={styles.buttonGroup}>
             <div style={{ display: "flex", gap: "10px" }}>
               <button onClick={() => setVisible(true)} style={styles.button}>
@@ -245,7 +245,7 @@ const handleFileChange = async (e) => {
 
             </div>
           </div>
-        </div>
+        </div> */}
 
         <DataTable
           value={filteredData}

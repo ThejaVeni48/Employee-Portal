@@ -1,3 +1,5 @@
+// THIS API IS USED FOR CREATING A NEW PROJECT
+
 const db = require('../../config/db');
 const moment = require('moment');
 
@@ -11,9 +13,14 @@ const addProject = (req, res) => {
   console.log("req.body", req.body);
 
   const billableValue = billable || 'NO';
-  const hierarchyValue = hierarchy || 'NO';
+const hierarchyValue = hierarchy || req.body.hierachy || 'NO';
   const notesValue = notes || 'NO';
   const now = moment().format('YYYY-MM-DD HH:mm:ss');
+
+  console.log("HEIRARCHYVALUE",hierarchyValue);
+  console.log("notesValue",notesValue);
+  console.log("billableValue",billableValue);
+  
 
   //Check duplicates
   const checkSql = `
@@ -86,7 +93,8 @@ const addProject = (req, res) => {
           return res.status(201).json({
             message: "Project created successfully",
             proj_no: nextProjNo,
-            project_id: result.insertId
+            project_id: result.insertId,
+          status:200
           });
         }
       );

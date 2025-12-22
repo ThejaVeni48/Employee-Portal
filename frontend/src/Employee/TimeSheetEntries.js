@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import gstsLogo from "../Assests/GSTS.png";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { IoMdSave } from "react-icons/io";
 import moment from "moment";
@@ -561,7 +560,6 @@ const PendingTimeSheets = () => {
         <div className="header">
           <div className="logos">
             <img
-              src={gstsLogo}
               alt="GSTS"
               style={{ width: 200, height: "auto" }}
             />

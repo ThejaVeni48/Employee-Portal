@@ -59,7 +59,7 @@ const Approvals = ({ employees = {} }) => {
   const [levels, setLevels] = useState([
     { name: "L1", selectedApprover: [], search: "" },
     { name: "L2", selectedApprover: [], search: "" },
-    { name: "L3", selectedApprover: [], search: "" },
+   
   ]);
 
   useEffect(() => {

@@ -90,15 +90,23 @@ const [projectName, setProjectName] = useState("");
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [notes,setNotes] = useState('');
+  const [managerId,setManagerId] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
 
-    // ---------- Create Project ----------
+  
+
+
     const handleCreateProject = async () => {
       if (!projectName || !startDate || !endDate ) {
         alert("Please fill required details");
         return;
       }
   
+      console.log("billable",billable);
+      console.log("hierachy",hierachy);
+      console.log("notes",notes);
+      
       try {
         const res = await fetch
         ("http://localhost:3001/api/addProject", {
@@ -124,6 +132,12 @@ const [projectName, setProjectName] = useState("");
   
         const data = await res.json();
         console.log("DATA",data);
+        if(data.status ===200)
+        {
+          alert("Project created successfully");
+          setVisible(false);
+          resetForm();
+        }
         
       
       } catch (err) {
@@ -135,6 +149,16 @@ const [projectName, setProjectName] = useState("");
         setProjectName("");
         setStartDate(null);
         setEndDate(null);
+        setBillable('');
+        setClientName('');
+        setClientId('');
+        setHierachy('');setNotes('');
+        setProjDesc('');
+        setProjectCode('');
+        setProjectName('');
+        setStatus('');
+        setSupportId('');
+      
         // setSelectedPM("");
       };
     

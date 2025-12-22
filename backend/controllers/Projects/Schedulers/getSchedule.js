@@ -19,7 +19,8 @@ const formattedData = (result) => {
             empData[empId] = {
                 EMP_ID: empId,
                 DISPLAY_NAME: row.DISPLAY_NAME,
-                PROJECT_ALLOCATIONDATE: row.ASSIGNED_DATE,
+                 CONTRACT_START_DATE: row.START_DATE,
+                CONTRACT_END_DATE: row.END_DATE,
                 SCHEDULES: []
             };
         }
@@ -33,7 +34,7 @@ const formattedData = (result) => {
         }
     });
 
-    return Object.values(empData);  // this is used for taking only values and converting them from object to array
+    return Object.values(empData);  
 
 };
 
@@ -46,7 +47,8 @@ const getSchedulers = (req, res) => {
         SELECT 
             PA.EMP_ID,
             U.DISPLAY_NAME,
-            PA.START_DATE AS ASSIGNED_DATE,
+             PA.CONTRACT_STARTDATE AS START_DATE,
+             PA.CONTRACT_ENDDATE AS END_DATE,
             COALESCE(PS.MONTH_YEAR, '-') AS MONTH,
             COALESCE(PS.START_DATE, '-') AS PSEDATE,
             COALESCE(PS.END_DATE, '-') AS PSDATE

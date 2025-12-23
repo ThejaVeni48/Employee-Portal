@@ -1,12 +1,46 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {  useSelector } from "react-redux";
-
+import { InputSwitch } from 'primereact/inputswitch';
+        
 
 const SettingsPage = () => {
   const [selectedDay, setSelectedDay] = useState("");
 
   const companyId = useSelector((state) => state.user.companyId);
   const email = useSelector((state) => state.user.email);
+    const [checked, setChecked] = useState(false);
+
+    const [toggle,setToggle] = useState(false);
+
+
+    useEffect(()=>{
+       getUsersCount();
+    },[]);
+
+
+
+   const getUsersCount = async () => {
+  try {
+    const data = await fetch(
+      `http://localhost:3001/api/getCount?orgId=${companyId}`
+    );
+
+    if (!data.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const res = await data.json();
+
+
+    console.log("res fro users",res);
+    
+
+    setToggle(res.employeeCount === 0);
+
+  } catch (error) {
+    console.error("Error occurred", error);
+  }
+};
 
 
 
@@ -57,6 +91,11 @@ const SettingsPage = () => {
         <option value="0">Sunday</option>
       </select>
                 <button onClick={handleSave}>Save</button>
+
+                 <InputSwitch checked={checked} onChange={(e) => setChecked(e.value)}  disabled={toggle}/> Generate TimesheetCustomization
+
+               <p>Note:</p>  
+                <p>This button is enabled only if user present.</p> 
     </div>
   );
 };

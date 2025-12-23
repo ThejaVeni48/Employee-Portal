@@ -94,45 +94,45 @@ const ApproveRejectOrg = (req, res) => {
                           return res.status(500).json({ data: insertLeaveError });
                         }
 
-                        // Generate 10 weeks
-                        const startOfWeek = moment()
-                          .startOf("week")
-                          .add(1, "days")
-                          .subtract(2, "weeks");
+                        // // Generate 10 weeks
+                        // const startOfWeek = moment()
+                        //   .startOf("week")
+                        //   .add(1, "days")
+                        //   .subtract(2, "weeks");
 
-                        let weekInsertSql = `
-                          INSERT INTO TC_MASTER (ORG_ID, WEEK_START, WEEK_END, CREATION_DATE, CREATED_BY)
-                          VALUES (?, ?, ?, ?, ?)
-                        `;
+                        // let weekInsertSql = `
+                        //   INSERT INTO TC_MASTER (ORG_ID, WEEK_START, WEEK_END, CREATION_DATE, CREATED_BY)
+                        //   VALUES (?, ?, ?, ?, ?)
+                        // `;
 
-                        for (let i = 0; i < 10; i++) {
-                          let weekStart = moment(startOfWeek)
-                            .add(i, "weeks")
-                            .format("YYYY-MM-DD");
-                          let weekEnd = moment(weekStart)
-                            .add(6, "days")
-                            .format("YYYY-MM-DD");
+                        // for (let i = 0; i < 10; i++) {
+                        //   let weekStart = moment(startOfWeek)
+                        //     .add(i, "weeks")
+                        //     .format("YYYY-MM-DD");
+                        //   let weekEnd = moment(weekStart)
+                        //     .add(6, "days")
+                        //     .format("YYYY-MM-DD");
 
-                          db.query(
-                            weekInsertSql,
-                            [companyId, weekStart, weekEnd, today, system],
-                            (weekErr) => {
-                              if (weekErr) console.log("Week Insert Error", weekErr);
-                            }
-                          );
-                        }
+                        //   db.query(
+                        //     weekInsertSql,
+                        //     [companyId, weekStart, weekEnd, today, system],
+                        //     (weekErr) => {
+                        //       if (weekErr) console.log("Week Insert Error", weekErr);
+                        //     }
+                        //   );
+                        // }
 
-                        return res.status(200).json({
-                          message:
-                            "Organization approved successfully. Roles, designations, jobs, leaves, and weeks inserted.",
-                          details: {
-                            approveResult,
-                            insertRolesResult,
-                            insertDesgnResult,
-                            insertJobResult,
-                            insertLeaveResult,
-                          },
-                        });
+                        // return res.status(200).json({
+                        //   message:
+                        //     "Organization approved successfully. Roles, designations, jobs, leaves, and weeks inserted.",
+                        //   details: {
+                        //     approveResult,
+                        //     insertRolesResult,
+                        //     insertDesgnResult,
+                        //     insertJobResult,
+                        //     insertLeaveResult,
+                        //   },
+                        // });
                       }
                     );
                   }

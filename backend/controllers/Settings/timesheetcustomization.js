@@ -40,10 +40,26 @@ const TimesheetCustomization = (req, res) => {
   const duration  = generatedDays.length;
 
   const status = 'A';
-  
 
- 
-      const insertSql = `
+
+  const checkOrg = `SELECT * FROM TC_ORG_SETTINGS
+  WHERE ORG_ID = ? `;
+
+
+  db.query(checkOrg,[orgId],(checkError,checkResult)=>{
+    if(checkError)
+    {
+      console.log("CheckError",checkError);
+      return res.status(500).json({data:checkError})
+      
+    }
+    if(checkResult.length > 0)
+    {
+      return res.status(400).json({data:"Organization already existed"})
+    }
+    if(checkResult.length ===0)
+    {
+   const insertSql = `
         INSERT INTO TC_ORG_SETTINGS
         (ORG_ID, START_DAY, END_DAY,STATUS,DURATION,CREATED_BY)
         VALUES (?, ?, ?, ?, ?,?)
@@ -100,23 +116,22 @@ console.log("getDay",getDay);
 
 
 
-// Calculate start date based on selectedDay in the current week
 function getDateOfWeekday(selectedDay) {
   const today = new Date();
-  const currentDay = today.getDay(); // 0-6
-  const diff = (selectedDay - currentDay + 7) % 7; // days to add to reach selectedDay
+  const currentDay = today.getDay(); 
+  const diff = (selectedDay - currentDay + 7) % 7; 
   const startDate = new Date(today);
   startDate.setDate(today.getDate() + diff);
   return startDate;
 }
 
-const startDate = getDateOfWeekday(selectedDay); // selectedDay = 0..6
+const startDate = getDateOfWeekday(selectedDay);
 const weeks = [];
 
 for (let i = 0; i < 7; i++) {
   const tempDate = new Date(startDate);
   tempDate.setDate(startDate.getDate() + i);
-  weeks.push(tempDate.toISOString().split("T")[0]); // YYYY-MM-DD
+  weeks.push(tempDate.toISOString().split("T")[0]); 
 }
 
 console.log("Generated week dates:", weeks);
@@ -161,6 +176,12 @@ db.query(sql,[orgId,weekStart,weekEnd,email],(insert,error)=>{
         }
       );
     
+    }
+  })
+  
+
+ 
+   
   
 };
 

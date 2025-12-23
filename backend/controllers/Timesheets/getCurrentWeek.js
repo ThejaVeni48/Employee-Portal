@@ -10,15 +10,19 @@ const db = require('../../config/db');
 const currentWeek = (req,res)=>{
 
 
-    const {currentDate,orgId} = req.query;
+    const {orgId} = req.query;
 
 
-    const sql = `SELECT * FROM TC_MASTER
-                WHERE ? BETWEEN WEEK_START AND WEEK_END
+    
+
+
+    const sql = `SELECT *
+FROM TC_MASTER
+WHERE CURDATE() <= WEEK_START
                 AND ORG_ID = ? `;
 
 
-  db.query(sql,[currentDate,orgId],(error,result)=>{
+  db.query(sql,[orgId],(error,result)=>{
     if(error)
     {
         console.log("Error occured",error);
@@ -26,7 +30,7 @@ const currentWeek = (req,res)=>{
         
     }
 
-    // console.log("result for weeks",result);
+    console.log("result for weeks",result);
     return res.status(200).json({data:result})
     
   })

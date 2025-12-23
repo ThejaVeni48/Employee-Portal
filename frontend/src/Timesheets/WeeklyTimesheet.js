@@ -70,25 +70,44 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
   }, [levels]);
 
   useEffect(() => {
-    generateWeekDays(currentDate);
+    // generateWeekDays(currentDate);
 
     getWeeks();
     fetchActiveProjects(currentDate);
   }, [currentDate]);
 
   const generateWeekDays = (dateString) => {
-    const start = moment(dateString).day(1); 
+
+    console.log("dateString",dateString);
+    
+    const start = moment(dateString); 
+    console.log("start",start);
+    
     const arr = [];
     for (let i = 0; i < 7; i++) {
+ console.log("i",i);
       const day = start.clone().add(i, "day");
+      console.log("day",day);
+      
       arr.push({
         label: day.format("ddd, MMM D"),
         date: day.format("YYYY-MM-DD"),
       });
+     
+      
     }
     setDaysList(arr);
+    console.log("arr",arr);
+    
   };
 
+
+  console.log("daysList",daysList);
+  
+
+
+  console.log("days",days);
+  
 
   console.log("CURRENTapprover",currentApprover);
   console.log("finalapprover",finalApprover);
@@ -102,6 +121,19 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
       );
       if (!res.ok) throw new Error("Failed");
       const json = await res.json();
+      console.log("json for weeks", json.data);
+
+
+      const date = json.data[0].WEEK_START;
+
+
+      console.log("date",date);
+
+      generateWeekDays(date)
+
+      
+
+      
       setDays(json.data || []);
     } catch (err) {
       console.error("getWeeks error:", err);

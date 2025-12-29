@@ -538,6 +538,12 @@ const addEmp = require('./routes/Employees/addEmp');
 app.use('/api/addEmp',addEmp)
 
 
+// updating user details
+
+const updateDetails = require('./routes/Employees/updateDetails');
+app.use('/api/updateDetails',updateDetails);
+
+
 
 const uploadOrgRoles = require('./routes/Roles/uploadRoles');
 app.use('/api/uploadOrgRoles',uploadOrgRoles)

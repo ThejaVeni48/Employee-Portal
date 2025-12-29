@@ -1,3 +1,7 @@
+
+
+// not in use
+
 const db = require('../../config/db');
 
 const loginApi = (req, res) => {

@@ -46,9 +46,6 @@ import PMTimesheets from "./PM/PMTimesheets";
 import PMTeam from "./PM/PMTeam";
 import PMTasks from "./PM/Projects/PMTasks";
 import PMProjectsDashboard from "./PM/Projects/PMProjectsDashboard";
-import EmpMainDashboard from "./Employee/EmpMainDashboard";
-// import Tasks from "./Employee/Tasks";
-import TimesheetEntries from "./Employee/TimeSheetEntries";
 import TimesheetSummary from "./Employee/TimesheetSummary";
 import LeaveSummary from "./Leaves/Leavesummary";
 import MngMainDashboard from "./Manager/MngMainDashboard";
@@ -56,7 +53,6 @@ import EmpTimesheet from "./Timesheets/EmpTimesheet";
 import LeavesRequest from "./Leaves/LeavesRequest";
 import Approvals from "./Timesheets/Approvals";
 import ApprovedTimesheet from "./Timesheets/ApprovedTimesheet";
-// import DeptDashboard from "./DeptHead/DeptDashoard";
 import WeekTimesheet from "./Timesheets/WeeklyTimesheet";
 import EmpLogin from "./Login/EmpLogin";
 import WelcomePage from "./Login/WelcomePage";
@@ -79,13 +75,15 @@ import TaskList from "./Tasks/TaskList";
 import ProjectProfile from "./Projects/ProjectProfile";
 import TimesheetWeeks from "./Timesheets/TimesheetWeeks";
 import SSOLeaves from "./SSO/SSOLeaves";
-import ProjectHolidays from "./Projects/ProjectHolidays";
 import Holiday from "./Holidays/Holiday";
 import PHolidays from "./Projects/ProjectHolidays/PHolidays";
 import CompaniesList from "./SSO/Company/Company";
 import ChangePassword from "./Login/ChangePassword/ChangePwd";
+import {  useSelector } from "react-redux";
 
 function AppRoutes() {
+    const role = useSelector((state) => state.user.Role);
+
   return (
     <Router>
       <Routes>
@@ -149,9 +147,18 @@ function AppRoutes() {
         <Route path="/LeavesDashboard" element={<LeavesDashboard />} />
         <Route path="/AssignmentsPage" element={<AssignmentPage />} />
 
-        {/*------------------------------------------ Admin ---------------------------------------------------*/}
+   {/*------------------------------------------ Admin ---------------------------------------------------*/}
 
+
+    {/* --------------------------- Dashboard ------------------------------------------- */}
+
+        
+      
         <Route path="/adminDashboard" element={<AdminDashboard />}>
+
+
+
+        {/* ------------------------Projects ------------------------------------------------------------------ */}
           <Route
             path="projects"
             element={
@@ -206,29 +213,9 @@ function AppRoutes() {
             }
           />
 
-          {/* <Route path="weektimesheet" element={
-          <ProtectedRoute accessCode={['ALL_R', 'TS_A']}>
-            <WeekTimesheet />
-          </ProtectedRoute>
-        } 
-        
-        /> */}
-          {/* <Route path="timesheetsummary" element={
-          <ProtectedRoute accessCode={['ALL_R', 'TS_VW']}>
-            <TimesheetSummary />
-          </ProtectedRoute>
-        } 
-        
-        /> */}
+         
 
-          {/* <Route path="timesheetsummary" element={
-          <ProtectedRoute accessCode={['ALL_R', 'LEAVE_VW']}>
-            <LeavesDashboard />
-          </ProtectedRoute>
-        } 
-        /> */}
 
-          <Route path="timesheetsummary" element={<TimesheetSummary />} />
       
           <Route
             path="holidays"
@@ -239,7 +226,6 @@ function AppRoutes() {
             }
           />
 
-          <Route path="weektimesheet" element={<WeekTimesheet />} />
 
           <Route path="projectholidays" element={<PHolidays />} />
 
@@ -253,7 +239,7 @@ function AppRoutes() {
           <Route path="leavescreation" element={<LeavesCreation />} />
           <Route path="leavesmanagement" element={<LeaveManagement />} />
           {/* <Route path="projects" element={<Projects />} /> */}
-          <Route path="settings" element={<Settings />} />
+      
           <Route path="timesheet" element={<Timesheets />} />
           <Route path="adminleaves" element={<AdminLeaves />} />
           <Route path="roles" element={<Roles />} />
@@ -261,12 +247,68 @@ function AppRoutes() {
           <Route path="orgacess" element={<OrgAccess />} />
           <Route path="profile" element={<Profile />} />
           <Route path="settingspage" element={<SettingsPage/>}/>
+
+
+
+            {/*------------------------------- timesheets ---------------------------------------------- */}
+
+         
+          <Route path="weektimesheet"
+
+          element = {
+            <ProtectedRoute      
+             accessCode={role === "Admin" ? [] : ["ALL_R", "TS_WEEK"]}>
+
+              <WeekTimesheet/>
+            </ProtectedRoute>
+          }
+          />
+
+            <Route path="timesheetsummary"
+
+          element = {
+            <ProtectedRoute accessCode={['ALL_R','TS_HISTORY']}>
+              <TimesheetSummary/>
+            </ProtectedRoute>
+          }
+          />
+
+
+        {/*---------------------------------------------- Settings ----------------------------- */}
+
+
+    <Route path="settings" element={<Settings />} />
+
+    <Route path="settings"
+
+          element = {
+            <ProtectedRoute accessCode={['ALL_R','SETTING_VW']}>
+<Settings />            </ProtectedRoute>
+          }
+          />
+
+
+
+
+
+          {/*--------------------------------- ChangePassword ---------------------------------------*/}
+
+ <Route path="changePassword"
+
+          element = {
+            <ProtectedRoute accessCode={['ALL_R','CHANGEPWD_MD']}>
+<ChangePassword />            </ProtectedRoute>
+          }
+          />
+
+
+
         </Route>
         <Route path="/addEmp" element={<AddEmp />} />
         <Route path="/assignleaves" element={<AssignLeaves />} />
         <Route path="/projectsemployee" element={<ProjectsEmployee />} />
 
-        {/* HR Module */}
+  
 
         <Route path="/hrDashboard" element={<HRDashboard />}>
           <Route path="maindashboard" element={<MainDashboard />} />

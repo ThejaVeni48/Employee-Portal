@@ -11,7 +11,8 @@ const draftTimesheet = (req,res)=>{
 
 
 
-    const sql = `SELECT * FROM TC_MASTER`
+
+    const sql = `SELECT * FROM TC_MASTER `
 
 
 

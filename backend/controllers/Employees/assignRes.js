@@ -1,4 +1,4 @@
-// this is api is used for assigning role, desgn,access
+// API to assign Role, Designation and Access
 
 const db = require('../../config/db');
 const moment = require('moment');
@@ -26,83 +26,160 @@ const assignRes = (req, res) => {
 
   const accessList = Array.isArray(selectedAccess) ? selectedAccess : [];
 
-  // START transaction
   db.beginTransaction((txErr) => {
     if (txErr) {
-      console.error("Transaction error:", txErr);
-      return res.status(500).json({ success: false, message: "Transaction start failed" });
+      console.error("Transaction start error:", txErr);
+      return res.status(500).json({
+        success: false,
+        message: "Transaction start failed"
+      });
     }
 
-    //  Deactivate previous assignments
-    const deactivateSql = `
+      //===========================  STEP 1:  DEACTIVATE OLD ROLE / DESIGNATION ======================================================
+
+    const deactivateAssignSql = `
       UPDATE TC_ORG_USER_ASSIGNMENT
       SET STATUS = ?, END_DATE = ?, LAST_UPDATED_BY = ?, LAST_UPDATED_DATE = NOW()
-      WHERE ORG_ID = ? AND EMP_ID = ? AND STATUS = ?
-    `;
+      WHERE ORG_ID = ? AND EMP_ID = ? AND STATUS = ? `;
 
     db.query(
-      deactivateSql,
+      deactivateAssignSql,
       [INACTIVE, today, email, companyId, empId, ACTIVE],
       (deactErr) => {
         if (deactErr) {
           return db.rollback(() => {
-            console.error("Deactivate error:", deactErr);
-            return res.status(500).json({ success: false, message: "Failed to deactivate old assignments" });
+            console.error("Deactivate assignment error:", deactErr);
+            return res.status(500).json({
+              success: false,
+              message: "Failed to deactivate old assignments"
+            });
           });
         }
 
-        // //Insert New Assignments
-        const insertSql = `
-          INSERT INTO TC_ORG_USER_ASSIGNMENT
-          (ORG_ID, EMP_ID, ROLE_CODE, DESGN_CODE, ACCESS_CODE, START_DATE, STATUS, CREATED_BY, CREATION_DATE)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        const deactivateAccessSql = `
+          UPDATE TC_ACCESS_CONTROLS
+          SET STATUS = ?, END_DATE = ?
+          WHERE ORG_ID = ? AND EMP_ID = ? AND STATUS = ?
         `;
 
-        const finalAccess = accessList.length > 0 ? accessList : [null];
-
-        let idx = 0;
-        const insertedIds = [];
-
-        const insertNext = () => {
-          if (idx >= finalAccess.length) {
-            return db.commit((commitErr) => {
-              if (commitErr) {
-                return db.rollback(() => {
-                  console.error("Commit error:", commitErr);
-                  return res.status(500).json({ success: false, message: "Commit failed" });
+        db.query(
+          deactivateAccessSql,
+          [INACTIVE, today, companyId, empId, ACTIVE],
+          (accDeactErr) => {
+            if (accDeactErr) {
+              return db.rollback(() => {
+                console.error("Deactivate access error:", accDeactErr);
+                return res.status(500).json({
+                  success: false,
+                  message: "Failed to deactivate old access"
                 });
-              }
-
-              return res.status(200).json({
-                success: true,
-                message: "Responsibilities updated successfully",
-                insertedRows: insertedIds.length,
-                insertedIds
               });
-            });
-          }
+            }
 
-          const acc = finalAccess[idx];
+   // =======================  2. INSERT NEW ASSIGNMENTS & ACCESS ========================================
 
-          db.query(
-            insertSql,
-            [companyId, empId, selectedRoleCode, selectedDesgn || null, acc, today, ACTIVE, email],
-            (insErr, insRes) => {
-              if (insErr) {
-                return db.rollback(() => {
-                  console.error("Insert error:", insErr);
-                  return res.status(500).json({ success: false, message: "Insert failed" });
+            const insertAssignSql = `
+              INSERT INTO TC_ORG_USER_ASSIGNMENT
+              (ORG_ID, EMP_ID, ROLE_CODE, DESGN_CODE, START_DATE, STATUS, CREATED_BY)
+              VALUES (?, ?, ?, ?, ?, ?, ?)
+            `;
+
+            const insertAccessSql = `
+              INSERT INTO TC_ACCESS_CONTROLS
+              (ACCESS_CODE, EMP_ID, ORG_ID, START_DATE, END_DATE, STATUS, CREATED_BY)
+              VALUES (?, ?, ?, ?, ?, ?, ?)
+            `;
+
+            const finalAccess = accessList.length > 0 ? accessList : [null];
+            let idx = 0;
+            const insertedIds = [];
+
+            const insertNext = () => {
+              if (idx >= finalAccess.length) {
+                return db.commit((commitErr) => {
+                  if (commitErr) {
+                    return db.rollback(() => {
+                      console.error("Commit error:", commitErr);
+                      return res.status(500).json({
+                        success: false,
+                        message: "Commit failed"
+                      });
+                    });
+                  }
+
+                  return res.status(200).json({
+                    success: true,
+                    message: "Responsibilities updated successfully",
+                    insertedRows: insertedIds.length,
+                    insertedIds
+                  });
                 });
               }
 
-              insertedIds.push(insRes.insertId);
-              idx++;
-              insertNext();
-            }
-          );
-        };
+              const acc = finalAccess[idx];
 
-        insertNext();
+              // INSERT INTO ORG USER ASSIGNMENT
+              db.query(
+                insertAssignSql,
+                [
+                  companyId,
+                  empId,
+                  selectedRoleCode,
+                  selectedDesgn || null,
+                  today,
+                  ACTIVE,
+                  email
+                ],
+                (insErr, insRes) => {
+                  if (insErr) {
+                    return db.rollback(() => {
+                      console.error("Assignment insert error:", insErr);
+                      return res.status(500).json({
+                        success: false,
+                        message: "Assignment insert failed"
+                      });
+                    });
+                  }
+
+                  // INSERT INTO ACCESS CONTROLS
+                  db.query(
+                    insertAccessSql,
+                    [
+                      acc,
+                      empId,
+                      companyId,
+                      today,
+                      null,
+                      ACTIVE,
+                      email
+                    ],
+                    (accErr, accRes) => {
+                      if (accErr) {
+                        return db.rollback(() => {
+                          console.error("Access insert error:", accErr);
+                          return res.status(500).json({
+                            success: false,
+                            message: "Access control insert failed"
+                          });
+                        });
+                      }
+
+                      insertedIds.push({
+                        assignmentId: insRes.insertId,
+                        accessControlId: accRes.insertId
+                      });
+
+                      idx++;
+                      insertNext();
+                    }
+                  );
+                }
+              );
+            };
+
+            insertNext();
+          }
+        );
       }
     );
   });

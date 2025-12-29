@@ -11,9 +11,7 @@ import { IoIosAdd } from "react-icons/io";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import * as XLSX from "xlsx";
 
-// 9820027072
 
-//6355822749
 
 
 const Employees = () => {

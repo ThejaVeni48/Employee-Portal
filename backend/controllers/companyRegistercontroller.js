@@ -57,6 +57,8 @@ const companyRegister = async (req, res) => {
     }
     const status = 'P';
 
+    const attemptsLogins = 0;
+
     const insertSql = `
       INSERT INTO TC_ORG_REGISTRATIONS 
       (ORG_ID,STATUS,ADMIN_NAME,ORG_NAME,SECTOR, ADDRESS1,COUNTRY,CITY,TIMEZONE, ORG_PHONE_NUMBER,ORG_EMAIL,CREATED_BY)

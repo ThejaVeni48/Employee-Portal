@@ -20,10 +20,9 @@ const AdminDashboard = () => {
   const role = useSelector((state) => state.user.Role);
   const attempts = useSelector((state) => state.user.attempts);
   const fullName = useSelector((state) => state.user.fullName);
-  const accessCode = useSelector((state) => state.user.accessCode || []);
+  const accessCode = useSelector((state) => state.user.accessCode);
   const [approveAccess, setApproveAccess] = useState("");
-  console.log("loginAttempts:", attempts);
-
+  console.log("accessCode:", accessCode);
 
   const activeprojects = useSelector(
     (state) => state.activeprojects.activeProjectsList
@@ -95,19 +94,16 @@ const AdminDashboard = () => {
       name: "Dashboard",
       icon: <MdDashboard />,
       path: "dashboard",
+
     },
     {
       section: "Organization",
       name: "Employees",
       icon: <MdPeople />,
       path: "employees",
+      requiredAccess: ["ALL_R", "EMP_T"],
     },
-    {
-      section: "Organization",
-      name: "Departments",
-      icon: <MdPeople />,
-      path: "departments",
-    },
+
     {
       section: "Organization",
       name: "Projects",
@@ -120,6 +116,7 @@ const AdminDashboard = () => {
       name: "Timesheets",
       icon: <GrScorecard />,
       isDropdown: true,
+      requiredAccess: ["ALL_R", "TS_TAB"],
       subItems: [
         { name: "Hour Sheet", path: "weektimesheet" },
         { name: "View Timesheets", path: "timesheetsummary" },
@@ -156,22 +153,31 @@ const AdminDashboard = () => {
       name: "Settings",
       icon: <MdSettings />,
       path: "settings",
+        requiredAccess: ["ALL_R", "SETTING_TAB"],
+      
     },
     {
       section: "Organization",
       name: "Change Password",
       icon: <MdSettings />,
       path: "changePassword",
+      requiredAccess:['ALL_R','PWD_TAB']
     },
   ];
 
   console.log("approveaccess", approveAccess);
 
   const filteredMenu = menuItems.filter((item) => {
-    if (!item.requiredAccess) return true;
+  // ✅ Admin / Org Admin → show everything
+  if (role === "Admin" || role === "Org Admin") return true;
 
-    return item.requiredAccess.some((acc) => accessCode.includes(acc));
-  });
+  // ✅ No access required
+  if (!item.requiredAccess) return true;
+
+  // ✅ Normal user access check
+  return item.requiredAccess.some((acc) => accessCode.includes(acc));
+});
+
   const sections = [...new Set(filteredMenu.map((item) => item.section))];
 
   useEffect(() => {

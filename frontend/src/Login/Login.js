@@ -4,7 +4,16 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { CiUser } from "react-icons/ci";
 import { IoMdEye } from "react-icons/io";
 import { FaRegEyeSlash } from "react-icons/fa6";
-import { getAccessCode, getCompanyId, getEmail, getEmpId, getFullName, getLoginAttempts, getRole, getUserId } from "../Redux/actions/UserActions";
+import {
+  getAccessCode,
+  getCompanyId,
+  getEmail,
+  getEmpId,
+  getFullName,
+  getLoginAttempts,
+  getRole,
+  getUserId,
+} from "../Redux/actions/UserActions";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -14,16 +23,13 @@ const Login = () => {
   const nav = useNavigate();
   const dispatch = useDispatch();
   const handleNav = () => nav("/register");
-  const [username,setUserName] = useState('');
+  const [username, setUserName] = useState("");
 
   const location = useLocation();
 
-
-const id = location.state?.id || "";
+  const id = location.state?.id || "";
 
   // console.log("id",id);
-
-
 
 const handleLogin = async (e) => {
   e.preventDefault();
@@ -33,56 +39,72 @@ const handleLogin = async (e) => {
     const response = await fetch("http://localhost:3001/api/categoryLogin", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email || username, password, id }),
+      body: JSON.stringify({
+        email: email || username,
+        password,
+        id,
+      }),
     });
 
+    const status = response.status;
     const res = await response.json();
+
     console.log("res", res);
 
-    if (res.status === 404) {
+    if (status === 401 || status === 403) {
       alert(res.message);
       return;
     }
 
-    const accessCode = res.access || [];  
-    const userInfo = res.data?.[0] || {};  
+    if (status !== 200) {
+      setError("Something went wrong");
+      return;
+    }
 
-    // DISPATCH INTO REDUX
+    const user = res.data?.[0] || {};
+
     dispatch(getEmail(email || username));
     dispatch(getUserId(res.categoryId));
-    dispatch(getCompanyId(res.companyId));
-    dispatch(getFullName(userInfo.ADMIN_NAME || userInfo.DISPLAY_NAME));
+    dispatch(getCompanyId(res.companyId || ""));
+    dispatch(getFullName(user.ADMIN_NAME || user.DISPLAY_NAME || ""));
     dispatch(getRole(res.role));
-    dispatch(getEmpId(userInfo.EMP_ID || ""));
-    dispatch(getLoginAttempts(res.attempts));
-    dispatch(getAccessCode(accessCode));  
+    dispatch(getEmpId(user.EMP_ID || ""));
+    dispatch(getAccessCode(res.accessCodes))
 
+    // SSO
+    if (res.categoryId === 1) {
+      nav("/SSODashboard");
+      return;
+    }
 
-    console.log("attempts", res.attempts);
-    
-  
+    // ORG ADMIN
+    if (res.categoryId === 2) {
+      if (res.attemptsLogins === 0) {
+        nav("/changePassword");
+        return;
+      }
 
-    // REDIRECT BASED ON CATEGORY
-  if (res.categoryId === 1) {
-  nav("/SSODashboard");
-} else {
-  // For org/employee after password changed
-  nav("/adminDashboard");
-}
+      nav("/adminDashboard");
+      return;
+    }
 
+    // EMPLOYEE
+    if (res.categoryId === 3) {
+      if (res.attemptsLogins === 0) {
+        nav("/changePassword");
+        return;
+      }
 
-  } catch (error) {
-    console.error("Login Error:", error);
-    setError("Something went wrong.");
+      nav("/adminDashboard");
+      return;
+    }
+
+  } catch (err) {
+    console.error("Login error:", err);
+    setError("Server error");
   }
 };
 
-
-
-
-  
-
-  
 
   const containerStyle = {
     minHeight: "100vh",
@@ -181,46 +203,48 @@ const handleLogin = async (e) => {
       <div style={cardStyle}>
         <h2 style={titleStyle}>Login</h2>
         <form onSubmit={handleLogin}>
-          {
-            id === 1 ?  
+          {id === 1 ? (
             <div style={inputContainer}>
+              <input
+                type="user"
+                placeholder="User Name"
+                value={username}
+                onChange={(e) => setUserName(e.target.value)}
+                style={inputStyle}
+                onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
+                onBlur={(e) => Object.assign(e.target.style, inputStyle)}
+                required
+              />
+              <CiUser style={{ ...iconStyle, right: "10px" }} size={20} />
+            </div>
+          ) : (
+            <div style={inputContainer}>
+              <input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  console.log("email");
+                }}
+                style={inputStyle}
+                onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
+                onBlur={(e) => Object.assign(e.target.style, inputStyle)}
+                required
+              />
+              <CiUser style={{ ...iconStyle, right: "10px" }} size={20} />
+            </div>
+          )}
 
-            <input
-              type="user"
-              placeholder="User Name"
-              value={username}
-              onChange={(e) => setUserName(e.target.value)}
-              style={inputStyle}
-              onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
-              onBlur={(e) => Object.assign(e.target.style, inputStyle)}
-              required
-            />
-            <CiUser style={{ ...iconStyle, right: "10px" }} size={20} />
-          </div>
- :
-             <div style={inputContainer}>
-
-            <input
-              type="email"
-              placeholder="Email address"
-              value={email}
-              onChange={(e) =>{ setEmail(e.target.value); console.log("email");}}
-              style={inputStyle}
-              onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
-              onBlur={(e) => Object.assign(e.target.style, inputStyle)}
-              required
-            />
-            <CiUser style={{ ...iconStyle, right: "10px" }} size={20} />
-          </div>
-
-          }
-         
           <div style={inputContainer}>
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={password}
-              onChange={(e) => {setPassword(e.target.value); console.log("password")}}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                console.log("password");
+              }}
               style={inputStyle}
               onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
               onBlur={(e) => Object.assign(e.target.style, inputStyle)}

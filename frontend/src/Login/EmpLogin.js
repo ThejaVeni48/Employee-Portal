@@ -29,70 +29,51 @@ const EmpLogin = () => {
   const dispatch = useDispatch();
   const handleNav = () => nav("/register");
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
+const handleLogin = async (e) => {
+  e.preventDefault();
 
-    try {
-      const response = await fetch("http://localhost:3001/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+  try {
+    const response = await fetch("http://localhost:3001/api/category-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password,
+        id: 3 // 👈 CHANGE THIS BASED ON LOGIN TYPE
+      }),
+    });
 
-      const res = await response.json();
-      console.log("data", res);
+    const res = await response.json();
 
-      // Handle inactive/terminated employees (403)
-      if (response.status === 403) {
-        alert("Access denied. You are not authorized to login.");
-        setEmail("");
-        setPassword("");
-
-        return;
-      }
-
-      // Handle invalid credentials
-      if (response.status === 404 || res.success === false) {
-        alert("Invalid email or password.");
-        return;
-      }
-
-      // Successful login  store data
-      dispatch(getFirstName(res.firstName));
-      dispatch(getLastName(res.lastName));
-      dispatch(getMiddleName(res.middleName));
-      dispatch(getRole(res.role));
-      dispatch(getCompanyId(res.companyId));
-      dispatch(getEmpId(res.empId));
-      dispatch(getCompanyName(res.companyName));
-      dispatch(getTimeSheetCode(res.timesheetCode));
-      dispatch(getDeptId(res.deptId));
-      dispatch(getProjectStatus(res.pStatus));
-      dispatch(getCreatedBy(res.createdBy));
-      dispatch(getDomain(res.domain));
-      dispatch(getProjectId(res.projectId));
-
-      const routes = {
-        Admin: "/adminDashboard",
-        Employee: "/employeedashboard",
-        Manager: "/managerdashboard",
-        "Project Manager": "/pmDashboard",
-        HR: "/hrDashboard",
-        "Team Lead":"/employeedashboard",
-        DeptHead :'/deptDashboard'
-      };
-
-      if (res.role && routes[res.role]) {
-        nav(routes[res.role]);
-      } else {
-        alert("Invalid role configuration.");
-      }
-    } catch (err) {
-      console.error("Login error:", err);
-      alert("Unable to connect to server.");
+    if (response.status === 403) {
+      alert(res.message); // "You are not eligible for this login"
+      return;
     }
-  };
+
+    if (response.status === 401 || response.status === 404) {
+      alert("Invalid email or password");
+      return;
+    }
+
+    // SUCCESS
+    dispatch(getRole(res.role));
+    dispatch(getCompanyId(res.companyId));
+    dispatch(getEmpId(res.empId));
+
+    const routes = {
+      Admin: "/adminDashboard",
+      Employee: "/employeedashboard",
+      Manager: "/managerdashboard",
+      HR: "/hrDashboard",
+    };
+
+    nav(routes[res.role]);
+
+  } catch (err) {
+    alert("Server error");
+  }
+};
+
 
   const containerStyle = {
     minHeight: "100vh",

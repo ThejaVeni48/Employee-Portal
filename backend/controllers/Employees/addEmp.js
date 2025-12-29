@@ -10,19 +10,23 @@ const addEmp = (req, res) => {
     const insertDate = new Date();
     const status = 'A';
 
-    const empId = employees[0].empId;  
+    const empId = employees[0].empId;
+    
+    const attemptsLogins = 0;
 
-    const checkEmp = `SELECT * FROM TC_USERS WHERE EMP_ID = ?`;
+    const checkEmp = `SELECT * FROM TC_USERS WHERE EMP_ID = ? AND ORG_ID = ?`;
 
-    db.query(checkEmp, [empId], (checkError, checkResult) => {
+    db.query(checkEmp, [empId,companyId], (checkError, checkResult) => {
         if (checkError) {
             console.log("Check Error", checkError);
             return res.status(500).json({ data: checkError });
         }
+        console.log("CHECKRESULT",checkResult);
+        
 
         // EMPLOYEE EXISTS
         if (checkResult.length > 0) {
-            return res.status(409).json({ message: "Employee already exists." });
+            return res.status(409).json({ message: "Employee already exists with this employee Id." });
         }
 
         // EMPLOYEE NOT FOUND 
@@ -43,6 +47,7 @@ const addEmp = (req, res) => {
                 emp.hireDate,
                 status,
                 emp.phnNumber,
+                attemptsLogins,
                 password,
                 insertDate,
                 email
@@ -67,7 +72,7 @@ const addEmp = (req, res) => {
         const sqlUsers = `
             INSERT INTO TC_USERS 
             (EMP_ID, FIRST_NAME, LAST_NAME, MIDDLE_NAME, DISPLAY_NAME, GENDER, EMAIL, ORG_ID, START_DATE, STATUS,
-            MOBILE_NUMBER, PASSWORD, CREATION_DATE, CREATED_BY)
+            MOBILE_NUMBER,ATTEMPTS_LOGIN, PASSWORD, CREATION_DATE, CREATED_BY)
             VALUES ?
         `;
 

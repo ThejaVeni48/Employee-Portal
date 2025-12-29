@@ -9,6 +9,13 @@ const {companyId,roleId}= req.query;
 
 
 
+// console.log("COMPANYiD",companyId);
+// console.log("roleId",roleId);
+
+
+
+
+
 
 
 if(roleId)
@@ -43,7 +50,7 @@ db.query(getSql,[companyId],(error,result)=>{
         
     }
 
-    console.log("Result for getDesignation",result);
+    // console.log("Result for getDesignation",result);
             return res.status(200).json({data:result,status:200});
 
     

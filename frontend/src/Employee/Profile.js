@@ -123,11 +123,15 @@ const Profile = () => {
   };
 
   const getDesgn = async () => {
+    console.log("SELECTEDROLE",selectedRole);
+    
     try {
       const res = await fetch(
         `http://localhost:3001/api/getDesignation?companyId=${companyId}&roleId=${selectedRole}`
       );
       const data = await res.json();
+      console.log("data",data);
+      
       setDesgn(data.data || []);
     } catch (err) {
       console.error(err);
@@ -149,15 +153,14 @@ const Profile = () => {
   // ------------------- Save Handlers -------------------
   const saveBasicDetails = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/updateUserDetails", {
-        method: "POST",
+      const res = await fetch("http://localhost:3001/api/updateDetails", {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           empId,
-          companyId,
-          firstName: profile.FIRST_NAME,
-          lastName: profile.LAST_NAME,
+          orgId:companyId,
           mobile: profile.MOBILE_NUMBER,
+          status:profile.STATUS
         }),
       });
       const data = await res.json();
@@ -243,32 +246,24 @@ const Profile = () => {
       <div className="profile-section">
         <h3>Basic Details</h3>
 
+ <button onClick={() => setIsEditing(true)}>Edit</button>
         <div className="profile-row">
           <label>First Name:</label>
-          {isEditing ? (
-            <input
-              value={profile.FIRST_NAME || ""}
-              onChange={(e) => setProfile({ ...profile, FIRST_NAME: e.target.value })}
-            />
-          ) : (
+        
+            
             <span>
-              {profile.FIRST_NAME} <button onClick={() => setIsEditing(true)}>Edit</button>
+              {profile.FIRST_NAME}
             </span>
-          )}
+         
         </div>
 
         <div className="profile-row">
           <label>Last Name:</label>
-          {isEditing ? (
-            <input
-              value={profile.LAST_NAME || ""}
-              onChange={(e) => setProfile({ ...profile, LAST_NAME: e.target.value })}
-            />
-          ) : (
+        
             <span>
-              {profile.LAST_NAME} <button onClick={() => setIsEditing(true)}>Edit</button>
+              {profile.LAST_NAME} 
             </span>
-          )}
+        
         </div>
 
         <div className="profile-row">
@@ -285,10 +280,36 @@ const Profile = () => {
             />
           ) : (
             <span>
-              {profile.MOBILE_NUMBER} <button onClick={() => setIsEditing(true)}>Edit</button>
+              {profile.MOBILE_NUMBER}
             </span>
           )}
         </div>
+
+         <div className="profile-row">
+  <label>Status:</label>
+
+  {isEditing ? (
+    <select
+      value={profile.STATUS || ""}
+      onChange={(e) =>
+        setProfile({ ...profile, STATUS: e.target.value })
+      }
+    >
+      <option value="">Select Status</option>
+      <option value="A">Active</option>
+      <option value="I">Inactive</option>
+    </select>
+  ) : (
+    <span>
+      {profile.STATUS === "A"
+        ? "Active"
+        : profile.STATUS === "I"
+        ? "Inactive"
+        : "-"}
+    </span>
+  )}
+</div>
+
 
         {isEditing && (
           <div className="profile-actions">
@@ -330,7 +351,7 @@ const Profile = () => {
 
         <div className="profile-row">
           <label>Access:</label>
-          <span>{profile.ACCESS_NAME || profile.ACCESS_CODE || "No Access Assigned"}</span>
+          <span>{ profile.ACCESS_CODES || "No Access Assigned"}</span>
         </div>
       </div>
 

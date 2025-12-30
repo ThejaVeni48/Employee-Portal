@@ -69,7 +69,7 @@ const categoryLogin = (req, res) => {
         if (passwordStatus === "TEMP") {
           return res.status(200).json({
             categoryId,
-            role: "Admin",
+            role: "Org Admin",
             companyId: orgId,
             forcePasswordChange: true,
             attemptsLogins: currentAttempts,
@@ -88,7 +88,7 @@ const categoryLogin = (req, res) => {
 
         return res.status(200).json({
           categoryId,
-          role: "Admin",
+          role: "Org Admin",
           companyId: orgId,
           forcePasswordChange: false,
           attemptsLogins: currentAttempts + 1,

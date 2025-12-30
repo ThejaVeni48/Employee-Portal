@@ -49,9 +49,17 @@ function queryAsync(sql, params) {
   });
 }
 
+function generateFutureWeeks(weekEnd)
+{
+
+}
+
+
+
 module.exports = {
   formatDateToLocal,
   generateEmpId,
   generatePassword,
   queryAsync,
+  generateFutureWeeks
 };

@@ -74,6 +74,8 @@ const Projects = () => {
   const [filteredData, setFilteredData] = useState([]);
   const role = useSelector((state) => state.user.Role);
   
+  console.log("");
+  
   const companyId = useSelector((state) => state.user.companyId);
   const empId = useSelector((state) => state.user.empId);
   const searchQuery = useSelector((state) => state.searchQuery);
@@ -119,9 +121,11 @@ const accessCode = useSelector((state) => state.user.accessCode);
     
     <div style={styles.container}>
       
-        <div style={styles.title}>Projects 111 {role}</div>
+        <div style={styles.title}>Projects {role}</div>
 
+{/* <CreateProject />
 
+<ProjectList /> */}
 
 {
   (accessCode.includes('ALL_R') || accessCode.includes('PROJ_CR') || accessCode.includes('PROJ_MD') || role === 'Org Admin') && (

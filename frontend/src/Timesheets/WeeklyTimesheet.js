@@ -70,7 +70,6 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
   }, [levels]);
 
   useEffect(() => {
-    // generateWeekDays(currentDate);
 
     getWeeks();
     fetchActiveProjects(currentDate);

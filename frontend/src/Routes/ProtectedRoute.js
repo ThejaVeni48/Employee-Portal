@@ -1,14 +1,27 @@
 import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
 
-const ProtectedRoute = ({ accessCode, children }) => {
-  const userAccess = useSelector((state) => state.user.accessCode); // ex: ["PROJ_VW"]
+const ProtectedRoute = ({ accessCode: requiredAccess, children }) => {
+  const userRole = useSelector((state) => state.user.Role);
+  const userAccessCode = useSelector((state) => state.user.accessCode);
 
-  const hasAccess = accessCode.some(code => userAccess.includes(code));
+  // Admin / Org Admin → allow everything
+  if (userRole === "Admin" || userRole === "Org Admin") return children;
 
-  return hasAccess ? children : <Navigate to="/adminDashboard/noaccess" />;
+  // Access code ALL_R → allow everything
+  if (userAccessCode?.includes?.("ALL_R")) return children;
+
+  // No requiredAccess → allow
+  if (!requiredAccess || requiredAccess.length === 0) return children;
+
+  const userCodes = Array.isArray(userAccessCode)
+    ? userAccessCode
+    : typeof userAccessCode === "string"
+    ? userAccessCode.split(",")
+    : [];
+
+  const hasAccess = requiredAccess.some((acc) => userCodes.includes(acc));
+
+  return hasAccess ? children : <div>Access Denied</div>;
 };
-
-
 
 export default ProtectedRoute;

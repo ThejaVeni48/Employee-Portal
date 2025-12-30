@@ -710,6 +710,12 @@ app.use('/api/TimesheetCustomization',TimesheetCustomization);
 
 
 
+// schedules
+
+
+require('./controllers/Schedules//timesheetGenerate');
+// require('./controllers/Schedules/dummyApi');
+
 
 // to listen on port
 

@@ -1,15 +1,12 @@
-const db = require('../../config/db');
+const db = require("../../config/db");
 
 const TimesheetCustomization = (req, res) => {
   const { orgId, selectedDay, email } = req.body;
 
-
-  console.log("orgId",orgId);
-  console.log("selectedDay",selectedDay);
-  console.log("email",email);
-
-  
-
+  console.log("orgId", orgId);
+  console.log("selectedDay", selectedDay);
+  console.log("email", email);
+  const empTimesheet = [];
 
   const weekDays = [
     "Sunday",
@@ -21,45 +18,35 @@ const TimesheetCustomization = (req, res) => {
     "Saturday",
   ];
 
- 
-
   const generatedDays = [];
 
   for (let i = 0; i < 7; i++) {
     generatedDays.push(weekDays[(selectedDay + i) % 7]);
   }
 
-  
-
-  console.log("generatedDays",generatedDays);
+  console.log("generatedDays", generatedDays);
 
   const endDay = generatedDays[6];
 
   const startDay = generatedDays[0];
 
-  const duration  = generatedDays.length;
+  const duration = generatedDays.length;
 
-  const status = 'A';
-
+  const status = "A";
 
   const checkOrg = `SELECT * FROM TC_ORG_SETTINGS
   WHERE ORG_ID = ? `;
 
-
-  db.query(checkOrg,[orgId],(checkError,checkResult)=>{
-    if(checkError)
-    {
-      console.log("CheckError",checkError);
-      return res.status(500).json({data:checkError})
-      
+  db.query(checkOrg, [orgId], (checkError, checkResult) => {
+    if (checkError) {
+      console.log("CheckError", checkError);
+      return res.status(500).json({ data: checkError });
     }
-    if(checkResult.length > 0)
-    {
-      return res.status(400).json({data:"Organization already existed"})
+    if (checkResult.length > 0) {
+      return res.status(400).json({ data: "Organization already existed" });
     }
-    if(checkResult.length ===0)
-    {
-   const insertSql = `
+    if (checkResult.length === 0) {
+      const insertSql = `
         INSERT INTO TC_ORG_SETTINGS
         (ORG_ID, START_DAY, END_DAY,STATUS,DURATION,CREATED_BY)
         VALUES (?, ?, ?, ?, ?,?)
@@ -67,122 +54,159 @@ const TimesheetCustomization = (req, res) => {
 
       db.query(
         insertSql,
-        [orgId, startDay, endDay, status,duration,email],
-        (insErr,insRes) => {
+        [orgId, startDay, endDay, status, duration, email],
+        (insErr, insRes) => {
           if (insErr) {
-              console.log("error occured",insErr);
-            return res.status(500).json({ message: "Insert failed", error: insErr });
+            console.log("error occured", insErr);
+            return res
+              .status(500)
+              .json({ message: "Insert failed", error: insErr });
           }
-          
 
-        console.log("result",insRes);
-        
-        if(insRes.affectedRows > 0)
-        {
-             
+          console.log("result", insRes);
 
-
+          if (insRes.affectedRows > 0) {
             const currentDay = new Date();
-            console.log("currentDay",currentDay);
+            console.log("currentDay", currentDay);
 
-            // need to get current monday from current day
-function getCurrentWeekMonday(d) {
-  
-  const date = new Date(d); 
-  const dayOfWeek = date.getDay(); 
+            // need to get curret monday from current day
+            function getCurrentWeekMonday(d) {
+              const date = new Date(d);
+              const dayOfWeek = date.getDay();
 
-  const diff = (dayOfWeek + 6) % 7; 
-  
-  date.setDate(date.getDate() - diff);
-  
+              const diff = (dayOfWeek + 6) % 7;
 
+              date.setDate(date.getDate() - diff);
 
-  return date;
-}
+              return date;
+            }
 
+            const today = new Date();
+            const currentMonday = getCurrentWeekMonday(today);
 
-const today = new Date();
-const currentMonday = getCurrentWeekMonday(today);
+            console.log("Today is:", today.toDateString());
+            console.log(
+              "Monday  week was:",
+              currentMonday.toDateString()
+            );
 
-console.log("Today is:", today.toDateString());
-console.log("Monday of this week was:", currentMonday.toDateString());
+            const getDay = currentMonday.getDay();
 
+            console.log("getDay", getDay);
 
+            function getDateOfWeekday(selectedDay) {
+              const today = new Date();
+              const currentDay = today.getDay();
+              const diff = (selectedDay - currentDay + 7) % 7;
+              const startDate = new Date(today);
+              startDate.setDate(today.getDate() + diff);
+              return startDate;
+            }
 
-const getDay  = currentMonday.getDay();
+            const startDate = getDateOfWeekday(selectedDay);
+            const weeks = [];
 
+            for (let i = 0; i < 7; i++) {
+              const tempDate = new Date(startDate);
+              tempDate.setDate(startDate.getDate() + i);
+              weeks.push(tempDate.toISOString().split("T")[0]);
+            }
 
-console.log("getDay",getDay);
+            console.log("Generated week dates:", weeks);
 
+            const weekStart = weeks[0];
 
+            const weekEnd = weeks[6];
 
-function getDateOfWeekday(selectedDay) {
-  const today = new Date();
-  const currentDay = today.getDay(); 
-  const diff = (selectedDay - currentDay + 7) % 7; 
-  const startDate = new Date(today);
-  startDate.setDate(today.getDate() + diff);
-  return startDate;
-}
-
-const startDate = getDateOfWeekday(selectedDay);
-const weeks = [];
-
-for (let i = 0; i < 7; i++) {
-  const tempDate = new Date(startDate);
-  tempDate.setDate(startDate.getDate() + i);
-  weeks.push(tempDate.toISOString().split("T")[0]); 
-}
-
-console.log("Generated week dates:", weeks);
-
-
-
-const weekStart = weeks[0];
-
-
-const weekEnd = weeks[6];
-
-
-const sql = `INSERT INTO TC_MASTER (ORG_ID,WEEK_START,WEEK_END,CREATED_BY)
+            const sql = `INSERT INTO TC_MASTER (ORG_ID,WEEK_START,WEEK_END,CREATED_BY)
 VALUES(?,?,?,?)`;
 
-
-db.query(sql,[orgId,weekStart,weekEnd,email],(insert,error)=>{
-    if(error)
-    {
-        console.log("Error coccured",error);
-        return res.status(500).json({data:error})
-        
-
-    }
-
-    console.log("insert result",insert);
-    return res.status(200).json({data:insert})
-    
-})
+            db.query(
+              sql,
+              [orgId, weekStart, weekEnd, email],
+              ( weeksError,insertWeek) => {
+                if (weeksError) {
+                  console.log("Error coccured", weeksError);
+                  return res.status(500).json({ data: weeksError });
+                }
+                console.log("insertWeek",insertWeek);
 
 
+                const masterId = insertWeek.insertId;
+                
+
+                if (insertWeek.affectedRows > 0)
+                   {
+
+                    const activeEmp = `SELECT * FROM TC_USERS WHERE ORG_ID =  ? AND STATUS = 'A'`;
+
+                    db.query(activeEmp,[orgId],(fetchEmpError,fetchEmpResult)=>{
+                      if(fetchEmpError)
+                      {
+                        console.log("fetchEmpError",fetchEmpError);
+                        return res.status(500).json()
+                        
+                      }
+
+if (fetchEmpResult.length > 0)                       {
 
 
 
+                      
+                     fetchEmpResult.forEach(emp => {
+                       empTimesheet.push([
+                         masterId,
+                         orgId,
+                         emp.EMP_ID,
+                        'system'
+                       ])
+                     });
+
+
+
+                     console.log("empTimesheet",empTimesheet);
+
+
+                     const insertSql  = `INSERT INTO TC_TIMESHEET (TC_MASTER_ID,ORG_ID,EMP_ID,CREATED_BY)
+                     VALUES ?`;
+
+                     db.query(insertSql,[empTimesheet],(insertError,insertResult)=>{
+                      if(insertError)
+                      {
+                        console.log("insertError",insertError);
+                        return res.status(500).json({data:insertError})
+                        
+                      }
+                      console.log("insertResult",insertResult);
+
+                      // generateFutureWeeks(weekEnd)
+
+
+                      
+                      
+                     })
+                      }
+
+                     
+                     
+         
+
+
+
+                      
+                      
+                    })
+                   }
             
-            
-        }
-        else{
+              }
+            );
+          } else {
             console.log("false");
-            
-        }
+          }
         }
       );
-    
     }
-  })
-  
-
- 
-   
-  
+  });
 };
 
 module.exports = { TimesheetCustomization };

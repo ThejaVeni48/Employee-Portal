@@ -101,6 +101,7 @@ const AdminDashboard = () => {
       name: "Employees",
       icon: <MdPeople />,
       path: "employees",
+      role:role,
       requiredAccess: ["ALL_R", "EMP_T"],
     },
 
@@ -116,7 +117,7 @@ const AdminDashboard = () => {
       name: "Timesheets",
       icon: <GrScorecard />,
       isDropdown: true,
-      requiredAccess: ["ALL_R", "TS_TAB"],
+      // requiredAccess: ["ALL_R", "TS_TAB"],
       subItems: [
         { name: "Hour Sheet", path: "weektimesheet" },
         { name: "View Timesheets", path: "timesheetsummary" },
@@ -167,16 +168,35 @@ const AdminDashboard = () => {
 
   console.log("approveaccess", approveAccess);
 
-  const filteredMenu = menuItems.filter((item) => {
+  console.log("role",role);
+
+  console.log("ROLE VALUE:", `[${role}]`);
+  
+  
+
+const filteredMenu = menuItems.filter((item) => {
   // ✅ Admin / Org Admin → show everything
   if (role === "Admin" || role === "Org Admin") return true;
 
-  // ✅ No access required
-  if (!item.requiredAccess) return true;
+  // ✅ accessCode includes ALL_R → show everything
+  if (accessCode?.includes?.("ALL_R")) return true;
+
+  // ✅ No access required → show item
+  if (!item.requiredAccess || item.requiredAccess.length === 0) return true;
 
   // ✅ Normal user access check
-  return item.requiredAccess.some((acc) => accessCode.includes(acc));
+  if (!accessCode) return false;
+
+  const userCodes = Array.isArray(accessCode)
+    ? accessCode
+    : typeof accessCode === "string"
+    ? accessCode.split(",")
+    : [];
+
+  return item.requiredAccess.some((acc) => userCodes.includes(acc));
 });
+
+
 
   const sections = [...new Set(filteredMenu.map((item) => item.section))];
 

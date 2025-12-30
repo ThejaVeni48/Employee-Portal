@@ -1,10 +1,10 @@
-// src/components/Profile.js
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import "./Profile.css";
 import { MultiSelect } from "primereact/multiselect";
 import { Dialog } from "primereact/dialog";
+import { InputSwitch } from 'primereact/inputswitch';
 
 const Profile = () => {
   const location = useLocation();
@@ -28,6 +28,9 @@ const Profile = () => {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
+      const [toggle,setToggle] = useState(false);
+      const [checked, setChecked] = useState(false);
+  
   // ------------------- Load Data -------------------
   useEffect(() => {
     if (empId && companyId) {
@@ -60,12 +63,21 @@ const Profile = () => {
       setSelectedRoleCode(profile.ROLE_CODE || "");
       setSelectedDesgn(profile.DESGN_CODE || "");
 
-      const accessCodes = profile.ACCESS_CODE
-        ? profile.ACCESS_CODE.split(",").map((c) => c.trim()).filter(Boolean)
+      const accessCodes = profile.ACCESS_CODES
+
+        ? profile.ACCESS_CODES.split(",").map((c) => c.trim()).filter(Boolean)
         : [];
       setSelectedAccess(accessCodes);
     }
   }, [profile]);
+
+
+  console.log("selectedAccess",selectedAccess);
+
+
+  console.log("profle",profile);
+  
+  
 
   // ------------------- API Calls -------------------
   const getProfile = async () => {
@@ -103,6 +115,11 @@ const Profile = () => {
 
 
       setProfile(grouped);
+
+      const xy = rows[0].TIMESHEET_EXIST ;
+      setToggle(xy===1)
+     console.log("rows",rows);
+     
       setLoading(false);
     } catch (err) {
       console.error(err);
@@ -207,6 +224,16 @@ const Profile = () => {
     }
   };
 
+  useEffect(() => {
+  if (dialogVisible && profile && access.length > 0) {
+    const accessCodes = profile.ACCESS_CODES
+      ? profile.ACCESS_CODES.split(",").map(c => c.trim())
+      : [];
+
+    setSelectedAccess(accessCodes);
+  }
+}, [dialogVisible, access]);
+
   // ------------------- Dialog openers -------------------
   const openAddDialog = () => {
     setIsEditMode(false);
@@ -218,17 +245,24 @@ const Profile = () => {
   };
 
   const openEditDialog = () => {
-    setIsEditMode(true);
-    setSelectedRoleCode(profile.ROLE_CODE || "");
-    setSelectedDesgn(profile.DESGN_CODE || "");
+  setIsEditMode(true);
+  setSelectedRoleCode(profile.ROLE_CODE || "");
+  setSelectedDesgn(profile.DESGN_CODE || "");
+  setDialogVisible(true);
+};
 
-    const accessCodes = profile.ACCESS_CODE
-      ? profile.ACCESS_CODE.split(",").map((c) => c.trim())
-      : [];
-    setSelectedAccess(accessCodes);
+  // const openEditDialog = () => {
+  //   setIsEditMode(true);
+  //   setSelectedRoleCode(profile.ROLE_CODE || "");
+  //   setSelectedDesgn(profile.DESGN_CODE || "");
 
-    setDialogVisible(true);
-  };
+  //   const accessCodes = profile.ACCESS_CODE
+  //     ? profile.ACCESS_CODE.split(",").map((c) => c.trim())
+  //     : [];
+  //   setSelectedAccess(accessCodes);
+
+  //   setDialogVisible(true);
+  // };
 
   if (loading) return <h3>Loading Profile...</h3>;
   if (!profile) return <h3>Profile not found</h3>;
@@ -244,9 +278,12 @@ const Profile = () => {
 
       {/* ========== BASIC DETAILS ========== */}
       <div className="profile-section">
-        <h3>Basic Details</h3>
+        <div>
+
+        <h3>Basic Detailas</h3>
 
  <button onClick={() => setIsEditing(true)}>Edit</button>
+        </div>
         <div className="profile-row">
           <label>First Name:</label>
         
@@ -353,7 +390,13 @@ const Profile = () => {
           <label>Access:</label>
           <span>{ profile.ACCESS_CODES || "No Access Assigned"}</span>
         </div>
+
+         <div className="profile-row">
+          <label>Timesheet Customization:</label>
+                 <InputSwitch checked={checked} onChange={(e) => setChecked(e.value)}  disabled={toggle}/>
+        </div>
       </div>
+      
 
       {/* Manage Dialog */}
       <Dialog

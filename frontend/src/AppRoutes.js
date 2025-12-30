@@ -162,7 +162,8 @@ function AppRoutes() {
           <Route
             path="projects"
             element={
-              <ProtectedRoute accessCode={["PROJ_VW", "ALL_R"]}>
+              <ProtectedRoute   
+              accessCode={["PROJ_VW", "ALL_R"]}>
                 <Projects />
               </ProtectedRoute>
             }
@@ -171,7 +172,7 @@ function AppRoutes() {
           <Route
             path="createproject"
             element={
-              <ProtectedRoute accessCode={["PROJ_CR", "ALL_R", "PROJ_MD"]}>
+              <ProtectedRoute  accessCode={["PROJ_CR", "ALL_R", "PROJ_MD"]}>
                 <CreateProject />
               </ProtectedRoute>
             }
@@ -180,7 +181,7 @@ function AppRoutes() {
           <Route
             path="projectassignment"
             element={
-              <ProtectedRoute accessCode={["PROJ_ASSIGN", "ALL_R"]}>
+              <ProtectedRoute   accessCode={["PROJ_ASSIGN", "ALL_R"]}>
                 <ProjectAssignmnet />
               </ProtectedRoute>
             }
@@ -189,7 +190,7 @@ function AppRoutes() {
           <Route
             path="tasks"
             element={
-              <ProtectedRoute accessCode={["ALL_R", "PROJ_TASK"]}>
+              <ProtectedRoute  accessCode={["ALL_R", "PROJ_TASK"]}>
                 <Task />
               </ProtectedRoute>
             }
@@ -198,7 +199,7 @@ function AppRoutes() {
           <Route
             path="tasks"
             element={
-              <ProtectedRoute accessCode={["ALL_R", "PROJ_TASK"]}>
+              <ProtectedRoute  accessCode={["ALL_R", "PROJ_TASK"]}>
                 <TaskList />
               </ProtectedRoute>
             }
@@ -207,7 +208,7 @@ function AppRoutes() {
           <Route
             path="projectprofile"
             element={
-              <ProtectedRoute accessCode={["ALL_R", "PROJ_PROF"]}>
+              <ProtectedRoute  accessCode={["ALL_R", "PROJ_PROF"]}>
                 <ProjectProfile />
               </ProtectedRoute>
             }
@@ -220,7 +221,7 @@ function AppRoutes() {
           <Route
             path="holidays"
             element={
-              <ProtectedRoute accessCode={["ALL_R", "HD_TAB"]}>
+              <ProtectedRoute  accessCode={["ALL_R", "HD_TAB"]}>
                 <Holiday />
               </ProtectedRoute>
             }
@@ -256,20 +257,20 @@ function AppRoutes() {
           <Route path="weektimesheet"
 
           element = {
-            <ProtectedRoute      
-             accessCode={role === "Admin" ? [] : ["ALL_R", "TS_WEEK"]}>
+            // <ProtectedRoute      
+            //  accessCode={["ALL_R", "TS_WEEK"]}>
 
               <WeekTimesheet/>
-            </ProtectedRoute>
+          //   </ProtectedRoute>
           }
           />
 
             <Route path="timesheetsummary"
 
           element = {
-            <ProtectedRoute accessCode={['ALL_R','TS_HISTORY']}>
+            // <ProtectedRoute accessCode={['ALL_R','TS_HISTORY']}>
               <TimesheetSummary/>
-            </ProtectedRoute>
+            // </ProtectedRoute>
           }
           />
 
@@ -277,12 +278,13 @@ function AppRoutes() {
         {/*---------------------------------------------- Settings ----------------------------- */}
 
 
-    <Route path="settings" element={<Settings />} />
+    {/* <Route path="settings" element={<Settings />} /> */}
 
     <Route path="settings"
 
           element = {
-            <ProtectedRoute accessCode={['ALL_R','SETTING_VW']}>
+            <ProtectedRoute
+            accessCode={['ALL_R','SETTING_VW']}>
 <Settings />            </ProtectedRoute>
           }
           />
@@ -296,7 +298,7 @@ function AppRoutes() {
  <Route path="changePassword"
 
           element = {
-            <ProtectedRoute accessCode={['ALL_R','CHANGEPWD_MD']}>
+            <ProtectedRoute  accessCode={['ALL_R','CHANGEPWD_MD']}>
 <ChangePassword />            </ProtectedRoute>
           }
           />

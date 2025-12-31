@@ -14,7 +14,7 @@ const Task = ({projectId})=>{
   const companyId = useSelector((state) => state.user.companyId);
   const empId = useSelector((state) => state.user.empId);
   const searchQuery = useSelector((state) => state.searchQuery);
-const accessCode = useSelector((state) => state.user.accessCode);
+const accessCode = useSelector((state) => state.user.accessCode) || [];
 
 const [refresh,setRefresh] = useState(false);
 

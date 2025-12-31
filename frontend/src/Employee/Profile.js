@@ -117,7 +117,7 @@ const Profile = () => {
       setProfile(grouped);
 
       const xy = rows[0].TIMESHEET_EXIST ;
-      setToggle(xy===1)
+      setToggle(xy===1  )
      console.log("rows",rows);
      
       setLoading(false);
@@ -272,6 +272,48 @@ const Profile = () => {
     (!profile.DESGN_CODE || profile.DESGN_CODE.trim() === "") &&
     (!profile.ACCESS_CODE || profile.ACCESS_CODE.trim() === "");
 
+
+    const handleTimesheetToggle = (value) => {
+  setChecked(value);
+
+  if (value === true) {
+    console.log("Toggle turned ON");
+    // 🔥 Call your function here
+    generateTimesheets();
+  }
+};
+
+
+
+ const generateTimesheets = async()=>{
+
+   
+try {
+      const res = await fetch("http://localhost:3001/api/allocateTimesheets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          empId,
+          email,
+          orgId:companyId,
+          startDate:profile.START_DATE,
+        
+        }),
+      });
+      const data = await res.json();
+      console.log("data",data);
+      
+    
+    } catch (err) {
+      console.error(err);
+      alert("Failed to assign responsibilities");
+    }
+    
+  
+ }
+ 
+
+
   return (
     <div className="profile-wrapper">
       <h2>Employee Profile - {profile.EMP_ID}</h2>
@@ -306,6 +348,11 @@ const Profile = () => {
         <div className="profile-row">
           <label>Email:</label>
           <span>{profile.EMAIL}</span>
+        </div>
+
+        <div className="profile-row">
+          <label>Joinig Date:</label>
+          <span>{profile.START_DATE}</span>
         </div>
 
         <div className="profile-row">
@@ -393,7 +440,7 @@ const Profile = () => {
 
          <div className="profile-row">
           <label>Timesheet Customization:</label>
-                 <InputSwitch checked={checked} onChange={(e) => setChecked(e.value)}  disabled={toggle}/>
+                 <InputSwitch checked={checked} onChange={(e) => handleTimesheetToggle(e.value)}  disabled={toggle}/>
         </div>
       </div>
       

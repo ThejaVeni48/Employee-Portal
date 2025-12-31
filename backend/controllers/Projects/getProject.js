@@ -11,8 +11,11 @@ const getProject = (req,res)=>{
     const {companyId,empId,role} = req.query;
 
 
-    if(role ==='Super Admin')
-{
+    if(role ==='Super Admin' || role === 'Org Admin')
+
+        
+        {
+    console.log("org admin");
 const sql = `SELECT * FROM TC_PROJECTS_MASTER WHERE  ORG_ID = ?`;
 
 

@@ -83,7 +83,7 @@ const TaskList = ({projectId,refresh})=>{
   const projId = projectId.projectId;
   const pi = projId.projectId
      const companyId = useSelector((state) => state.user.companyId);
-const accessCode = useSelector((state) => state.user.accessCode);
+const accessCode = useSelector((state) => state.user.accessCode) || [];
   const role = useSelector((state) => state.user.Role);
 
 

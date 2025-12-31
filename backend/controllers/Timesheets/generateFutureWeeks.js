@@ -1,3 +1,6 @@
+
+// this api is used for generating the future weeks and allocating the timesheets to the employee.
+
 const db = require('../../config/db');
 
 const generateFutureWeeks = async () => {
@@ -96,7 +99,7 @@ const generateFutureWeeks = async () => {
               }
 
               if (employees.length === 0) {
-                console.log(`⚠ No active employees for ${orgId}`);
+                console.log(`No active employees for ${orgId}`);
                 return;
               }
 

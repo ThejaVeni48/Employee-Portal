@@ -28,7 +28,7 @@ const ProjectAssignmnet = () => {
   const [visible, setVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmp, setSelectedEmp] = useState(null);
-  const [role, setRole] = useState("");
+  // const [role, setRole] = useState("");
   const [isActive, setIsActive] = useState("Yes");
   const [approveAccess, setApproveAccess] = useState(false);
   const [startDate, setStartDate] = useState(null);
@@ -37,14 +37,20 @@ const ProjectAssignmnet = () => {
   const roles = useSelector((state) => state.roles.roleList);
   const [selectedRoleId, setSelectedRoleId] = useState("");
   const [selectedRoleCode, setSelectedRoleCode] = useState("");
-  const accessCode = useSelector((state) => state.user.accessCode);
+const accessCode = useSelector((state) => state.user.accessCode) || [];
   const [projEmployees, setProjEmployees] = useState([]);
   const email = useSelector((state) => state.user.email);
   const projectId = location.state?.rowData.PROJ_ID || "";
 
+  const role = useSelector((state) => state.user.Role);
 
 
-  const Hierachy = location.state?.rowData.HIERARCHY === "YES";
+  console.log("ROLE",role);
+  console.log("accessCode",accessCode);
+  
+
+
+  const Hierachy = location.state?.rowData.HIERARCHY === "Y";
 
   console.log("hierachy", Hierachy);
 

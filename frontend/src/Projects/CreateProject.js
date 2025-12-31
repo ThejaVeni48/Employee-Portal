@@ -74,7 +74,7 @@ const CreateProject = ()=>{
 
  const email = useSelector((state) => state.user.email);
   const empId = useSelector((state) => state.user.empId);
-const accessCode = useSelector((state) => state.user.accessCode);
+const accessCode = useSelector((state) => state.user.accessCode) || [];
   const companyId = useSelector((state) => state.user.companyId);
   const [visible, setVisible] = useState(false);
 const [projectCode,setProjectCode] = useState('');
@@ -279,9 +279,9 @@ const [projectName, setProjectName] = useState("");
       <Dropdown
         value={status}
         options={[
-          { label: "Active", value: "ACTIVE" },
-          { label: "On Hold", value: "ON_HOLD" },
-          { label: "Completed", value: "COMPLETED" },
+          { label: "Active", value: "A" },
+          { label: "On Hold", value: "H" },
+          { label: "Completed", value: "C" },
         ]}
         onChange={(e) => setStatus(e.value)}
         placeholder="Select status"
@@ -336,10 +336,10 @@ const [projectName, setProjectName] = useState("");
       </label>
 
       <Checkbox
-        checked={billable === "YES"}
-        onChange={(e) => setBillable(e.checked ? "YES" : "NO")}
+        checked={billable === "Y"}
+        onChange={(e) => setBillable(e.checked ? "Y" : "N")}
       />
-      <span style={{ marginLeft: "8px" }}>{billable === "YES" ? "YES" : "NO"}</span>
+      <span style={{ marginLeft: "8px" }}>{billable === "Y" ? "YES" : "NO"}</span>
     </div>
         {/* Notes */}
      <div style={{ display: "flex", alignItems: "center" }}>
@@ -348,10 +348,10 @@ const [projectName, setProjectName] = useState("");
       </label>
 
       <Checkbox
-        checked={notes === "YES"}
-        onChange={(e) => setNotes(e.checked ? "YES" : "NO")}
+        checked={notes === "Y"}
+        onChange={(e) => setNotes(e.checked ? "Y" : "N")}
       />
-      <span style={{ marginLeft: "8px" }}>{notes === "YES" ? "YES" : "NO"}</span>
+      <span style={{ marginLeft: "8px" }}>{notes === "Y" ? "YES" : "NO"}</span>
     </div>
 
     {/* Hierarchy (Checkbox) */}
@@ -361,10 +361,10 @@ const [projectName, setProjectName] = useState("");
       </label>
 
       <Checkbox
-        checked={hierachy === "YES"}
-        onChange={(e) => setHierachy(e.checked ? "YES" : "NO")}
+        checked={hierachy === "Y"}
+        onChange={(e) => setHierachy(e.checked ? "Y" : "N")}
       />
-      <span style={{ marginLeft: "8px" }}>{hierachy === "YES" ? "YES" : "NO"}</span>
+      <span style={{ marginLeft: "8px" }}>{hierachy === "Y" ? "YES" : "NO"}</span>
     </div>
 
     {/* Start Date */}

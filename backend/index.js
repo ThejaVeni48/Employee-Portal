@@ -644,6 +644,10 @@ const empTimesheetSummary = require('./routes/Timesheet/empTimesheetSummary');
 app.use('/api/empTimesheetSummary',empTimesheetSummary);
 
 
+const allocateTimesheets = require('./routes/Timesheet/allocateTimesheet');
+app.use('/api/allocateTimesheets',allocateTimesheets);
+
+
 
 // -----------------------------------Project Holidays --------------------------------------
 

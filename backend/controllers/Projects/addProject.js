@@ -58,7 +58,7 @@ const hierarchyValue = hierarchy || req.body.hierachy || 'NO';
       const insertSql = `
         INSERT INTO TC_PROJECTS_MASTER 
         (ORG_ID, PROJ_NO, PROJ_NAME, PROJ_CODE, PROJ_DESC, START_DATE, END_DATE,
-        SUPPORT_IDENTIFIER, CURRENT_STATUS, CLIENT_ID, CLIENT_NAME,
+        SUPPORT_IDENTIFIER, STATUS, CLIENT_ID, CLIENT_NAME,
         BILLABLE, HIERARCHY, CREATED_BY, CREATION_DATE, NOTES)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;

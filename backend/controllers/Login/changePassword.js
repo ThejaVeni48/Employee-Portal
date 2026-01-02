@@ -3,7 +3,10 @@ const db = require('../../config/db');
 const changePassword = (req, res) => {
   const { companyId, conPwd, email, empId, role } = req.body;
 
-  if (role === 'Admin') {
+  console.log("com");
+  
+
+  if (role === 'Org Admin') {
 
     //  Fetch current + last 3 passwords
     const fetchSql = `
@@ -33,7 +36,7 @@ const changePassword = (req, res) => {
           ATTRIBUTE1 = ?,
           ATTRIBUTE2 = ?,
           ATTRIBUTE3 = ?,
-          PASSWORD_FLAG = 'T'
+          PASSWORD_FLAG = 'T',
           LAST_UPDATED_BY = ?,
           LAST_UPDATED_DATE = NOW()
         WHERE ORG_ID = ?

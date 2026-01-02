@@ -30,7 +30,11 @@ function generateTimesheetCode(companyName) {
 }
 
 const companyRegister = async (req, res) => {
-  const { fullName, companyName, email,address1,country,city,sector,timezone,contactno } = req.body;
+  const { fullName, companyName, email,address1,country,city,sector,timezone,contactno,planId } = req.body;
+
+
+  console.log("planId",planId);
+  
 
   const companyId = await generateCompanyId(companyName);
   const timesheetCode = generateTimesheetCode(companyName);
@@ -89,13 +93,31 @@ const companyRegister = async (req, res) => {
 
         console.log("Company registration successful:", result);
 
-        return res.status(201).json({
-          data: result,
-          companyId,
-          timesheetCode,
-          message: "Your company is registered successfully",
-          status: 201,
-        });
+if(result.affectedRows > 0)         {
+          const insertSubscriptions = `INSERT INTO TC_ORG_SUBSCRIPTIONS (ORG_ID,PLAN_ID,STATUS,CREATED_BY)
+          VALUES (?,?,?,?)`;
+
+          db.query(insertSubscriptions,[companyId,planId,'P',email],(insertError,insertResult)=>{
+            if(insertError)
+            {
+              console.log("Insert Error",insertError);
+              return res.status(500).json({data:insertError})
+              
+            }
+            console.log("insertResult",insertResult);
+            
+return res.status(201).json({
+  data: result,          
+  companyId,              
+  timesheetCode,          
+  message: "Your company is registered successfully",
+  status: 201,
+});
+
+          })
+        }
+
+       
       }
     );
   });

@@ -80,6 +80,7 @@ import PHolidays from "./Projects/ProjectHolidays/PHolidays";
 import CompaniesList from "./SSO/Company/Company";
 import ChangePassword from "./Login/ChangePassword/ChangePwd";
 import {  useSelector } from "react-redux";
+import Plans from './Login/Plans/Plans';
 
 function AppRoutes() {
     const role = useSelector((state) => state.user.Role);
@@ -94,6 +95,7 @@ function AppRoutes() {
         <Route path="/empLogin" element={<EmpLogin />} />
         <Route path="/vieworg" element={<ViewOrg />} />
          <Route path="changePassword" element={<ChangePassword />} />
+         <Route path="/subscriptionplans" element={<Plans/>}/>
 
 
         {/* SSO */}

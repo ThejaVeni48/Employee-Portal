@@ -714,7 +714,15 @@ app.use('/api/TimesheetCustomization',TimesheetCustomization);
 
 
 
-// schedules
+
+//=============================== Subscription =================================================
+
+
+const GetPlans = require('./routes/Subscriptions/Getplans');
+app.use('/api/GetPlans',GetPlans);
+
+//============================================schedules  ==============================================
+
 
 
 require('./controllers/Schedules//timesheetGenerate');

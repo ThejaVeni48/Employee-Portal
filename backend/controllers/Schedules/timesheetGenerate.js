@@ -2,7 +2,7 @@ const schedule = require('node-schedule');
 const { generateFutureWeeks } = require('../../controllers/Timesheets/generateFutureWeeks');
 
 schedule.scheduleJob(
-  {  rule: '*/3 * * * *', tz: 'Asia/Kolkata' } , // runs for every 10 minutes
+  {  rule: '*/1 * * * *', tz: 'Asia/Kolkata' } , // runs for every 10 minutes
   async () => {
     try {
       console.log(' Weekly scheduler triggered');

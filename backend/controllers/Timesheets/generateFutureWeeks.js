@@ -51,16 +51,28 @@ const generateFutureWeeks = async () => {
         const lastWeekEnd = new Date(weekRes[0].WEEK_END);
 
         // STEP 3: Calculate next week
-        const nextWeekStart = new Date(lastWeekEnd);
-        nextWeekStart.setDate(lastWeekEnd.getDate() + 1);
+       // STEP 3: Calculate current week based on today (Monday start)
+// STEP 3: Calculate NEXT week based on LAST generated week
 
-        const nextWeekEnd = new Date(nextWeekStart);
-        nextWeekEnd.setDate(nextWeekStart.getDate() + 6);
+const lastWeekEndDate = new Date(lastWeekEnd);
 
-        const formatDate = (d) => d.toISOString().split('T')[0];
+// Move to next day after last week end
+const nextWeekStart = new Date(lastWeekEndDate);
+nextWeekStart.setDate(lastWeekEndDate.getDate() + 1);
 
-        const nextStart = formatDate(nextWeekStart);
-        const nextEnd = formatDate(nextWeekEnd);
+// Ensure it is Monday
+// const day = nextWeekStart.getDay(); // 0=Sun, 1=Mon
+// const diffToMonday = day === 0 ? 1 : 8 - day;
+// nextWeekStart.setDate(nextWeekStart.getDate() + diffToMonday - 1);
+
+// Week end = Monday + 6 days
+const nextWeekEnd = new Date(nextWeekStart);
+nextWeekEnd.setDate(nextWeekStart.getDate() + 6);
+
+const formatDate = (d) => d.toISOString().split('T')[0];
+
+const nextStart = formatDate(nextWeekStart);
+const nextEnd = formatDate(nextWeekEnd);
 
         console.log(
           `Org ${orgId}: Creating week ${nextStart} → ${nextEnd}`

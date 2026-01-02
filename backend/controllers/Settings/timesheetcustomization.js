@@ -3,9 +3,9 @@ const db = require("../../config/db");
 const TimesheetCustomization = (req, res) => {
   const { orgId, selectedDay, email } = req.body;
 
-  console.log("orgId", orgId);
-  console.log("selectedDay", selectedDay);
-  console.log("email", email);
+  // console.log("orgId", orgId);
+  // console.log("selectedDay", selectedDay);
+  // console.log("email", email);
   const empTimesheet = [];
 
   const weekDays = [
@@ -24,7 +24,7 @@ const TimesheetCustomization = (req, res) => {
     generatedDays.push(weekDays[(selectedDay + i) % 7]);
   }
 
-  console.log("generatedDays", generatedDays);
+  // console.log("generatedDays", generatedDays);
 
   const endDay = generatedDays[6];
 
@@ -63,60 +63,44 @@ const TimesheetCustomization = (req, res) => {
               .json({ message: "Insert failed", error: insErr });
           }
 
-          console.log("result", insRes);
+          // console.log("result", insRes);
 
           if (insRes.affectedRows > 0) {
             const currentDay = new Date();
-            console.log("currentDay", currentDay);
+            // console.log("currentDay", currentDay);
 
             // need to get curret monday from current day
-            function getCurrentWeekMonday(d) {
-              const date = new Date(d);
-              const dayOfWeek = date.getDay();
+           function getCurrentWeekMonday(date) {
+  const d = new Date(date);
+  const day = d.getDay(); // 0=Sun, 1=Mon, ...
+  const diff = day === 0 ? -6 : 1 - day; // adjust to Monday
+  d.setDate(d.getDate() + diff);
+  return d;
+}
 
-              const diff = (dayOfWeek + 6) % 7;
 
-              date.setDate(date.getDate() - diff);
+           const today = new Date();
+const currentMonday = getCurrentWeekMonday(today);
 
-              return date;
-            }
+console.log("Current week Monday:", currentMonday.toDateString());
 
-            const today = new Date();
-            const currentMonday = getCurrentWeekMonday(today);
+const weeks = [];
 
-            console.log("Today is:", today.toDateString());
-            console.log(
-              "Monday  week was:",
-              currentMonday.toDateString()
-            );
+for (let i = 0; i < 7; i++) {
+  const tempDate = new Date(currentMonday);
+  tempDate.setDate(currentMonday.getDate() + i);
+  weeks.push(tempDate.toISOString().split("T")[0]);
+}
 
-            const getDay = currentMonday.getDay();
+console.log("Generated week dates:", weeks);
 
-            console.log("getDay", getDay);
+const weekStart = weeks[0]; // Monday
+const weekEnd = weeks[6];   // Sunday
 
-            function getDateOfWeekday(selectedDay) {
-              const today = new Date();
-              const currentDay = today.getDay();
-              const diff = (selectedDay - currentDay + 7) % 7;
-              const startDate = new Date(today);
-              startDate.setDate(today.getDate() + diff);
-              return startDate;
-            }
+console.log("weekStart:", weekStart);
+console.log("weekEnd:", weekEnd);
 
-            const startDate = getDateOfWeekday(selectedDay);
-            const weeks = [];
-
-            for (let i = 0; i < 7; i++) {
-              const tempDate = new Date(startDate);
-              tempDate.setDate(startDate.getDate() + i);
-              weeks.push(tempDate.toISOString().split("T")[0]);
-            }
-
-            console.log("Generated week dates:", weeks);
-
-            const weekStart = weeks[0];
-
-            const weekEnd = weeks[6];
+            
 
             const sql = `INSERT INTO TC_MASTER (ORG_ID,WEEK_START,WEEK_END,CREATED_BY)
 VALUES(?,?,?,?)`;
@@ -129,10 +113,13 @@ VALUES(?,?,?,?)`;
                   console.log("Error coccured", weeksError);
                   return res.status(500).json({ data: weeksError });
                 }
-                console.log("insertWeek",insertWeek);
+                // console.log("insertWeek",insertWeek);
 
 
                 const masterId = insertWeek.insertId;
+
+                console.log("masterId",masterId);
+                
                 
 
                 if (insertWeek.affectedRows > 0)
@@ -164,7 +151,7 @@ if (fetchEmpResult.length > 0)                       {
 
 
 
-                     console.log("empTimesheet",empTimesheet);
+                    //  console.log("empTimesheet",empTimesheet);
 
 
                      const insertSql  = `INSERT INTO TC_TIMESHEET (TC_MASTER_ID,ORG_ID,EMP_ID,CREATED_BY)

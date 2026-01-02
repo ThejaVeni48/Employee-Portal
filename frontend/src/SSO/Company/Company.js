@@ -65,6 +65,7 @@ const CompaniesList = () => {
     console.log("companyId", selectedCompany.ORG_ID);
     console.log("status", status);
 
+
     try {
       await fetch("http://localhost:3001/api/approveRejectOrg", {
         method: "PUT",
@@ -75,10 +76,12 @@ const CompaniesList = () => {
           remarks,
           userId,
         }),
+        
       });
 
       closeModal();
       getAllCompanies();
+
     } catch (error) {
       console.error("Error occurred", error);
     }
@@ -123,7 +126,7 @@ const CompaniesList = () => {
         className={styles.tableStyle}
       >
         <Column field="ORG_NAME" header="Organization" />
-        <Column field="STATUS" header="Status" />
+        <Column field="ORG_STATUS" header="Status" />
         <Column field="START_DATE" header="Start Date" />
         <Column field="END_DATE" header="End Date" />
         <Column field="A_R_BY" header="Approved / Rejected By" />

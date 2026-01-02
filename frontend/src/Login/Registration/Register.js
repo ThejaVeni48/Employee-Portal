@@ -1,9 +1,16 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./Registration.module.css";
 
 const Register = () => {
   const navigate = useNavigate();
+
+  const location = useLocation();
+
+  const selectedPlan = location?.state?.selectedPlan.PLAN_ID || '';
+
+  console.log("selectedpaln",selectedPlan);
+  
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -62,6 +69,9 @@ const Register = () => {
     getLookUp();
   }, []);
 
+
+
+
 const filteredCities = lookupData.city.filter(c => c.LOOKUP_GROUP === formData.country);
 
 const filteredTimezones = lookupData.timezone.filter(tz => {
@@ -80,11 +90,15 @@ const filteredTimezones = lookupData.timezone.filter(tz => {
     
     e.preventDefault();
 
+    // console.log("formate",formData);
+    const payload = { ...formData, planId: Number(selectedPlan) }
+    
+
     try {
       const res = await fetch("http://localhost:3001/api/registerCompany", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
@@ -101,6 +115,9 @@ const filteredTimezones = lookupData.timezone.filter(tz => {
 
   return (
     <div className={styles["reg-container"]}>
+
+
+
       <div className={styles["reg-card"]}>
         <h2 className={styles["reg-title"]}>Register Your Company</h2>
 

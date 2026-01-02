@@ -49,6 +49,11 @@ const fetchTimesheets = `
 
             console.log("fetchResult",fetchResult);
 
+              
+            if(fetchResult.length>0)
+            {
+
+            
 
             const weekId = fetchResult[0].TC_MASTER_ID;
 
@@ -69,6 +74,7 @@ const fetchTimesheets = `
         console.log("allocate Result",allocateResult);
         
     })
+  }
             
         })
     }

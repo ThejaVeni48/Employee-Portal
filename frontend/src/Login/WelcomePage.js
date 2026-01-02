@@ -8,10 +8,16 @@ const WelcomePage = () => {
     { id: 1, name: "Global Admin Login", desc: "SSO / Super Admin Access" },
     { id: 2, name: "Organization Admin", desc: "Company Level Administration" },
     { id: 3, name: "Employee Login", desc: "Employee Portal Access" },
+    { id:4,name:"Register Your Organization"}
   ];
 
   const handleNav = (item) => {
+    if(item.id!==4)
     navigate("/login", { state: { id: item.id } });
+    if(item.id ===4)
+    {
+      navigate("/subscriptionplans")
+    }
   };
 
 

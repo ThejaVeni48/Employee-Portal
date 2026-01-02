@@ -24,6 +24,8 @@ const Login = () => {
   const dispatch = useDispatch();
   const handleNav = () => nav("/register");
   const [username, setUserName] = useState("");
+ 
+
 
   const location = useLocation();
 
@@ -51,10 +53,30 @@ const handleLogin = async (e) => {
 
     console.log("res", res);
 
-    if (status === 401 || status === 403) {
-      alert(res.message);
-      return;
-    }
+   if (status === 401 || status === 403) {
+
+  switch (res.reason) {
+
+    case "ORG_INACTIVE":
+      alert("Your organization is inactive. Please contact support.");
+      break;
+
+    case "SUB_EXPIRED":
+      alert("Your subscription has expired. Please renew your plan.");
+      break;
+
+    case "USER_INACTIVE":
+      alert("Your account is inactive. Please contact your administrator.");
+      break;
+
+    default:
+      alert(res.message || "Login failed");
+  }
+
+  return;
+}
+
+
 
     if (status !== 200) {
       setError("Something went wrong");
@@ -276,7 +298,7 @@ const handleLogin = async (e) => {
           </button>
         </form>
 
-        <div style={footerStyle}>
+        {/* <div style={footerStyle}>
           <p>
             Don't have an account?{" "}
             <span
@@ -286,7 +308,7 @@ const handleLogin = async (e) => {
               Register
             </span>
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

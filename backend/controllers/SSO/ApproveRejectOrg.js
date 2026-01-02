@@ -8,165 +8,176 @@ const ApproveRejectOrg = (req, res) => {
   const today = moment().format("YYYY-MM-DD");
   const endDate = moment(today).add(30, "days").format("YYYY-MM-DD");
   const password = generatePassword();
-  const logins = 0;
+  const system = "SYSTEM";
 
-  if (status === "A") {
-    const updateSql = `
-      UPDATE TC_ORG_REGISTRATIONS
-      SET STATUS = ?, START_DATE = ?, END_DATE = ?, PASSWORD = ?,
-          APPROVED_DATE = ?, AUTHORIZED_BY = ?, ATTEMPTS_LOGIN = ?
-      WHERE ORG_ID = ?
-    `;
+  db.beginTransaction((txErr) => {
+    if (txErr) {
+      return res.status(500).json({ message: "Transaction error", error: txErr });
+    }
 
-    db.query(
-      updateSql,
-      [status, today, endDate, password, today, userId, logins, companyId],
-      (approveError, approveResult) => {
-        if (approveError) {
-          console.log("error Aprove",approveError);
-          
-          return res.status(500).json({ data: approveError });
-        }
+    /* ===================== APPROVE FLOW ===================== */
+if (status === "A") {
+  const approveOrgSql = `
+    UPDATE TC_ORG_REGISTRATIONS
+    SET STATUS = ?, PASSWORD = ?, APPROVED_DATE = ?, AUTHORIZED_BY = ?, ATTEMPTS_LOGIN = 0
+    WHERE ORG_ID = ?
+  `;
 
-        const system = "SYSTEM";
+  db.query(
+    approveOrgSql,
+    ["A", password, today, userId, companyId],
+    (err) => {
+      if (err) return rollback(err);
 
-        // Insert Roles
-        const insertRolesSql = `
-          INSERT INTO TC_ORG_ROLES 
-          (ROLE_NAME, ROLE_STATUS, ROLE_CODE, ROLE_DESCRIPTION, CREATED_BY, CREATION_DATE, ORG_ID)
-          SELECT ROLE_NAME, ROLE_STATUS, ROLE_CODE, ROLE_DESCRIPTION, ?, ?, ?
-          FROM GA_ROLES
+      // ========================= FETCH PLAN COST =========================
+      const fetchPlanCostSql = `
+        SELECT P.PRICE, S.PLAN_ID,P.MAX_EMPLOYEES, S.ORG_SUBSCRIPTION_ID
+        FROM TC_ORG_SUBSCRIPTIONS S
+        JOIN GA_SUBSCRIPTION_PLANS P ON S.PLAN_ID = P.PLAN_ID
+        WHERE S.ORG_ID = ?
+      `;
+
+      db.query(fetchPlanCostSql, [companyId], (err, planResult) => {
+        if (err || planResult.length === 0)
+          return rollback(err || "Plan not found");
+
+        const { PRICE: planCost, PLAN_ID, ORG_SUBSCRIPTION_ID,MAX_EMPLOYEES:maxEmp } = planResult[0];
+
+        console.log("PLANrESULT",planResult);
+        
+
+        // ========================= UPDATE SUBSCRIPTION WITH PLAN COST  =========================
+        const updateSubscriptionSql = `
+          UPDATE TC_ORG_SUBSCRIPTIONS
+          SET START_DATE = ?, END_DATE = ?, STATUS = ?, PURCHASED_COST = ?, MAX_EMPLOYEES = ?,LAST_UPDATED_BY = ?
+          WHERE ORG_ID = ?
         `;
 
         db.query(
-          insertRolesSql,
-          [system, today, companyId],
-          (insertRolesError, insertRolesResult) => {
-            if (insertRolesError) {
-              return res.status(500).json({ data: insertRolesError });
-            }
+          updateSubscriptionSql,
+          [today, endDate, "A", planCost,maxEmp,  userId, companyId],
+          (err, updateResult) => {
+            if (err || updateResult.affectedRows === 0)
+              return rollback(err || "Subscription update failed");
 
-            // Insert Designations
-            const insertDesgnSql = `
-              INSERT INTO TC_ORG_DESIGNATIONS
-              (DESGN_NAME, DESGN_DESC, DESGN_CODE, DESGN_STATUS, ROLE_ID, CREATED_BY, CREATION_DATE, ORG_ID)
-              SELECT DESGN_NAME, DESGN_DESC, DESGN_CODE, DESGN_STATUS, ROLE_ID, ?, ?, ?
-              FROM GA_Designations
+            // ========================= INSERT SUBSCRIPTION HISTORY =========================
+            const insertHistorySql = `
+              INSERT INTO TC_ORG_SUBSCRIPTION_HISTORY
+              (ORG_SUBSCRIPTION_ID, ORG_ID, PLAN_ID, START_DATE, END_DATE, STATUS, PURCHASED_COST,MAX_EMPLOYEES, CREATED_BY)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)
             `;
 
             db.query(
-              insertDesgnSql,
-              [system, today, companyId],
-              (insertDesgnError, insertDesgnResult) => {
-                if (insertDesgnError) {
-                  return res.status(500).json({ data: insertDesgnError });
-                }
+              insertHistorySql,
+              [
+                ORG_SUBSCRIPTION_ID,
+                companyId,
+                PLAN_ID,
+                today,
+                endDate,
+                "A",
+                planCost,
+                maxEmp,
+                userId,
+              ],
+              (err) => {
+                if (err) return rollback(err);
 
-                // Insert Jobs / Access Controls
-                const insertJobSql = `
-                  INSERT INTO TC_ORG_ACCESS
-                  (ACCESS_NAME, ACCESS_DESC, ACCESS_CODE, STATUS, CREATED_BY, CREATION_DATE, ORG_ID)
-                  SELECT ACCESS_NAME, ACCESS_DESC, ACCESS_CODE, STATUS, ?, ?, ?
-                  FROM GA_Access_Control
-                `;
-
-                db.query(
-                  insertJobSql,
-                  [system, today, companyId],
-                  (insertJobError, insertJobResult) => {
-                    if (insertJobError) {
-                      return res.status(500).json({ data: insertJobError });
-                    }
-
-                    // Insert Leaves
-                    const insertLeavesSql = `
-                      INSERT INTO TC_ORG_LEAVES
-                      (LEAVE_TYPE, LEAVE_CODE, LEAVE_DESC, LEAVE_STATUS, CREATED_BY, CREATION_DATE, ORG_ID)
-                      SELECT LEAVE_TYPE, LEAVE_CODE, LEAVE_DESC, LEAVE_STATUS, ?, ?, ?
-                      FROM GA_LEAVES
-                    `;
-
-                    db.query(
-                      insertLeavesSql,
-                      [system, today, companyId],
-                      (insertLeaveError, insertLeaveResult) => {
-                        if (insertLeaveError) {
-                          return res.status(500).json({ data: insertLeaveError });
-                        }
-
-                        // // Generate 10 weeks
-                        // const startOfWeek = moment()
-                        //   .startOf("week")
-                        //   .add(1, "days")
-                        //   .subtract(2, "weeks");
-
-                        // let weekInsertSql = `
-                        //   INSERT INTO TC_MASTER (ORG_ID, WEEK_START, WEEK_END, CREATION_DATE, CREATED_BY)
-                        //   VALUES (?, ?, ?, ?, ?)
-                        // `;
-
-                        // for (let i = 0; i < 10; i++) {
-                        //   let weekStart = moment(startOfWeek)
-                        //     .add(i, "weeks")
-                        //     .format("YYYY-MM-DD");
-                        //   let weekEnd = moment(weekStart)
-                        //     .add(6, "days")
-                        //     .format("YYYY-MM-DD");
-
-                        //   db.query(
-                        //     weekInsertSql,
-                        //     [companyId, weekStart, weekEnd, today, system],
-                        //     (weekErr) => {
-                        //       if (weekErr) console.log("Week Insert Error", weekErr);
-                        //     }
-                        //   );
-                        // }
-
-                        // return res.status(200).json({
-                        //   message:
-                        //     "Organization approved successfully. Roles, designations, jobs, leaves, and weeks inserted.",
-                        //   details: {
-                        //     approveResult,
-                        //     insertRolesResult,
-                        //     insertDesgnResult,
-                        //     insertJobResult,
-                        //     insertLeaveResult,
-                        //   },
-                        // });
-                      }
-                    );
-                  }
-                );
+                insertOrgMasters(); 
               }
             );
           }
         );
-      }
-    );
-  }
+      });
+    }
+  );
+}
 
-  if (status === "R") {
-    const updateSql = `
-      UPDATE TC_ORG_REGISTRATIONS
-      SET STATUS = ?, APPROVER_DATE = ?, A_R_BY = ?
-      WHERE ORG_ID = ?
-    `;
 
-    db.query(
-      updateSql,
-      [status, today, userId, companyId],
-      (RejectError, RejectResult) => {
-        if (RejectError) {
-          return res.status(500).json({ data: RejectError });
-        }
+    /* ===================== REJECT FLOW ===================== */
+    else if (status === "R") {
+      const rejectSql = `
+        UPDATE TC_ORG_REGISTRATIONS
+        SET STATUS = ?, APPROVED_DATE = ?, AUTHORIZED_BY = ?
+        WHERE ORG_ID = ?
+      `;
 
-        return res.status(200).json({
-          message: "Organization rejected successfully",
-          data: RejectResult,
+      db.query(rejectSql, ["R", today, userId, companyId], (err, result) => {
+        if (err) return rollback(err);
+
+        db.commit(() => {
+          res.status(200).json({
+            message: "Organization rejected successfully",
+            data: result,
+          });
         });
-      }
-    );
-  }
+      });
+    }
+
+    /* ===================== INSERT MASTER DATA ===================== */
+    function insertOrgMasters() {
+      const rolesSql = `
+        INSERT INTO TC_ORG_ROLES
+        (ROLE_NAME, ROLE_STATUS, ROLE_CODE, ROLE_DESCRIPTION, CREATED_BY, CREATION_DATE, ORG_ID)
+        SELECT ROLE_NAME, ROLE_STATUS, ROLE_CODE, ROLE_DESCRIPTION, ?, ?, ?
+        FROM GA_ROLES
+      `;
+
+      db.query(rolesSql, [system, today, companyId], (err) => {
+        if (err) return rollback(err);
+
+        const desgnSql = `
+          INSERT INTO TC_ORG_DESIGNATIONS
+          (DESGN_NAME, DESGN_DESC, DESGN_CODE, DESGN_STATUS, ROLE_ID, CREATED_BY, CREATION_DATE, ORG_ID)
+          SELECT DESGN_NAME, DESGN_DESC, DESGN_CODE, DESGN_STATUS, ROLE_ID, ?, ?, ?
+          FROM GA_DESIGNATIONS
+        `;
+
+        db.query(desgnSql, [system, today, companyId], (err) => {
+          if (err) return rollback(err);
+
+          const accessSql = `
+            INSERT INTO TC_ORG_ACCESS
+            (ACCESS_NAME, ACCESS_DESC, ACCESS_CODE, STATUS, CREATED_BY, CREATION_DATE, ORG_ID)
+            SELECT ACCESS_NAME, ACCESS_DESC, ACCESS_CODE, STATUS, ?, ?, ?
+            FROM GA_ACCESS_CONTROL
+          `;
+
+          db.query(accessSql, [system, today, companyId], (err) => {
+            if (err) return rollback(err);
+
+            const leavesSql = `
+              INSERT INTO TC_ORG_LEAVES
+              (LEAVE_TYPE, LEAVE_CODE, LEAVE_DESC, LEAVE_STATUS, CREATED_BY, CREATION_DATE, ORG_ID)
+              SELECT LEAVE_TYPE, LEAVE_CODE, LEAVE_DESC, LEAVE_STATUS, ?, ?, ?
+              FROM GA_LEAVES
+            `;
+
+            db.query(leavesSql, [system, today, companyId], (err) => {
+              if (err) return rollback(err);
+
+              db.commit(() => {
+                res.status(200).json({
+                  message: "Organization approved and activated successfully",
+                });
+              });
+            });
+          });
+        });
+      });
+    }
+
+    /* ===================== ROLLBACK ===================== */
+    function rollback(error) {
+      db.rollback(() => {
+        console.error("Transaction failed:", error);
+        res.status(500).json({
+          message: "Approval process failed",
+          error,
+        });
+      });
+    }
+  });
 };
 
 module.exports = { ApproveRejectOrg };

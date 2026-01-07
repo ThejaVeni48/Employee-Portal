@@ -1,7 +1,7 @@
 const db = require('../../config/db');
 
 const saveTimesheet = (req, res) => {
-  const { empId, orgId, weekId, totalHours, status, entries, currentApprover, finalApprover } = req.body;
+  const { empId, orgId, weekId, totalHours, status, entries, currentApprover, finalApprover,scheduledHours,variance } = req.body;
 
   if (!empId || !orgId || !weekId || !entries || !Array.isArray(entries)) {
     return res.status(400).json({ error: "Invalid request data" });
@@ -30,22 +30,22 @@ const saveTimesheet = (req, res) => {
     }
 
     // Case 2: f timesheet is saved or pending
-    if (existing && (existing.STATUS === 'S' || existing.STATUS === 'P' || existing.STATUS === 'R')) {
-      return updateTimesheet(req, res, weekId, empId, orgId, totalHours, status, entries, currentApprover, finalApprover);
+    if (existing && (existing.STATUS === 'S' || existing.STATUS === 'P' || existing.STATUS === 'R' || existing.STATUS === 'D')) {
+      return updateTimesheet(req, res, weekId, empId, orgId, totalHours, status, entries, currentApprover, finalApprover,scheduledHours,variance);
     }
 
     // Case 3: if no, insert new timesheet
-    return insertTimesheet(req, res, weekId, empId, orgId, totalHours, status, entries, currentApprover, finalApprover);
+    return insertTimesheet(req, res, weekId, empId, orgId, totalHours, status, entries, currentApprover, finalApprover,scheduledHours,variance);
   });
 };
 
 //  Insert new timesheet entries
-const insertTimesheet = (req, res, weekId, empId, orgId, totalHours, status, entries, currentApprover, finalApprover) => {
+const insertTimesheet = (req, res, weekId, empId, orgId, totalHours, status, entries, currentApprover, finalApprover,scheduledHours,variance) => {
   const insertSql = `
     INSERT INTO TC_TIMESHEET 
     (TC_MASTER_ID, ORG_ID, EMP_ID, PROJ_ID, TASK_ID,
      DAY1, DAY2, DAY3, DAY4, DAY5, DAY6, DAY7,
-     TOTAL_HOURS, STATUS, CURRENT_APPROVER, FINAL_APPROVER, CREATED_BY, CREATION_DATE)
+     TOTAL_HOURS, STATUS, CURRENT_APPROVER, FINAL_APPROVER,scheduled,reported, CREATED_BY, CREATION_DATE)
     VALUES ?`;
 
   const values = entries.map(entry => {
@@ -61,6 +61,8 @@ const insertTimesheet = (req, res, weekId, empId, orgId, totalHours, status, ent
       status,
       currentApprover || null,
       finalApprover || null,
+      scheduledHours || null,
+      variance || null,
       empId,
       new Date()
     ];
@@ -80,7 +82,7 @@ const insertTimesheet = (req, res, weekId, empId, orgId, totalHours, status, ent
 };
 
 //  Updating existing timesheet (status is s means)
-const updateTimesheet = (req, res, weekId, empId, orgId, totalHours, status, entries, currentApprover, finalApprover) => {
+const updateTimesheet = (req, res, weekId, empId, orgId, totalHours, status, entries, currentApprover, finalApprover,scheduledHours,variance) => {
 
 
   const deleteSql = `DELETE FROM TC_TIMESHEET WHERE EMP_ID = ? AND TC_MASTER_ID = ?`;
@@ -91,7 +93,7 @@ const updateTimesheet = (req, res, weekId, empId, orgId, totalHours, status, ent
       return res.status(500).json({ error: "Failed to update timesheet" });
     }
 
-    insertTimesheet(req, res, weekId, empId, orgId, totalHours, status, entries, currentApprover, finalApprover);
+    insertTimesheet(req, res, weekId, empId, orgId, totalHours, status, entries, currentApprover, finalApprover,scheduledHours,variance);
   });
 };
 

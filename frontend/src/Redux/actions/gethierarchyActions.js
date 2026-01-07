@@ -1,4 +1,8 @@
 export const fetchHierarchy = (companyId, projectId, empId) => {
+
+console.log("COMPANYiD get Hierarhcy",companyId);
+  console.log("projectId get Hierarhcy",projectId);
+  console.log("empId get Hierarhcy",empId);  
   return async (dispatch) => {
     try {
       const response = await fetch(
@@ -14,6 +18,8 @@ export const fetchHierarchy = (companyId, projectId, empId) => {
         if (res.levels) {
           // full hierarchy
           levels = res.levels;
+          console.log("levels 21",levels);
+          
         } else if (res.nextApprover) {
           // current approver is in hierarchy, show only next approver
           levels = [{ level: 1, approverId: res.nextApprover }];

@@ -10,7 +10,7 @@ const initialState = {
 export const activeProjectsReducer = (state = initialState, action)=>{
     switch(action.type)
     {
-        case 'GET_ACTIVEPROJECTS' : return {...state, activeProjectsList :action.payload};
+        case 'GET_ACTIVESUBSCRIPTION' : return {...state, activeProjectsList :action.payload};
 
         default : return state;
     }

@@ -1,3 +1,6 @@
+// not in use
+
+
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -39,7 +42,7 @@ const handleLogin = async (e) => {
       body: JSON.stringify({
         email,
         password,
-        id: 3 // 👈 CHANGE THIS BASED ON LOGIN TYPE
+        id: 3 
       }),
     });
 

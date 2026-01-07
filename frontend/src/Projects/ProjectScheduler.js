@@ -39,31 +39,23 @@ export default function ProjectSchedulerUI({ employees = {} }) {
   };
 
   /* ---------------- MONTH DAYS ---------------- */
-  const loadMonthDays = (contractStart, contractEnd, month) => {
-    const start = month.clone().startOf("month");
-    const end = month.clone().endOf("month");
+const loadMonthDays = (contractStart, contractEnd, month) => {
+  const start = month.clone().startOf("month");
+  const end = month.clone().endOf("month");
 
-    const tempDays = [];
-    let d = start.clone();
-    while (d.isSameOrBefore(end)) {
-      tempDays.push(d.clone());
-      d.add(1, "day");
-    }
+  const tempDays = [];
+  let d = start.clone();
+  while (d.isSameOrBefore(end)) {
+    tempDays.push(d.clone());
+    d.add(1, "day");
+  }
 
-    setDays(tempDays);
-    setHours(Array(tempDays.length).fill(""));
+  setDays(tempDays);
+  setHours(Array(tempDays.length).fill(""));
 
-    fetch(
-      `http://localhost:3001/api/checkPHolidays?startDate=${start.format(
-        "YYYY-MM-DD"
-      )}&endDate=${end.format(
-        "YYYY-MM-DD"
-      )}&orgId=${companyId}&projId=${projectId}`
-    )
-      .then((res) => res.json())
-      .then((json) => setBlockedDays(json.data.map((h) => h.START_DATE)))
-      .catch(() => setBlockedDays([]));
-  };
+  return tempDays; // ✅ IMPORTANT
+};
+
 
   /* ---------------- BLOCK LOGIC ---------------- */
   const isDateBlocked = (date) => {
@@ -93,62 +85,72 @@ export default function ProjectSchedulerUI({ employees = {} }) {
   };
 
   /* ---------------- FETCH SAVED SCHEDULE ---------------- */
-  const fetchMonthSchedules = async (empId, month) => {
-    try {
-      const res = await fetch(
-        `http://localhost:3001/api/getSchedulers?orgId=${companyId}&empId=${empId}&projId=${projectId}&month=${month}`
+const fetchMonthSchedules = async (empId, month, monthDays = days) => {
+  try {
+    const res = await fetch(
+      `http://localhost:3001/api/getSchedulers?orgId=${companyId}&empId=${empId}&projId=${projectId}&month=${month}`
+    );
+
+    const json = await res.json();
+
+    console.log("josn",json);
+    
+    const scheduleArr = json?.data?.schedule || [];
+
+    const filledHours = Array(monthDays.length).fill("");
+
+    scheduleArr.forEach((item) => {
+      const idx = monthDays.findIndex(
+        (d) => d.format("YYYY-MM-DD") === item.date
       );
+      if (idx !== -1) filledHours[idx] = item.hours;
+    });
 
-      if (!res.ok) throw new Error("Network error");
+    setHours(filledHours);
+  } catch (error) {
+    console.error("Error fetching scheduler", error);
+  }
+};
 
-      const json = await res.json();
-      const scheduleArr = json?.data?.schedule || [];
-
-      const filledHours = Array(days.length).fill("");
-
-      scheduleArr.forEach((item) => {
-        const idx = days.findIndex(
-          (d) => d.format("YYYY-MM-DD") === item.date
-        );
-        if (idx !== -1) filledHours[idx] = item.hours;
-      });
-
-      setHours(filledHours);
-    } catch (error) {
-      console.error("Error fetching scheduler", error);
-    }
-  };
 
   const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   /* ---------------- EMPLOYEE SELECT ---------------- */
-  const handleSelect = (emp) => {
-    setSelectedEmployee(emp);
+const handleSelect = (emp) => {
+  setSelectedEmployee(emp);
 
-    const start = moment(emp.CONTRACT_START_DATE);
-    const end = moment(emp.CONTRACT_END_DATE);
+  const start = moment(emp.CONTRACT_START_DATE);
+  const end = moment(emp.CONTRACT_END_DATE);
 
-    const months = generateContractMonths(start, end);
-    setContractMonths(months);
+  const months = generateContractMonths(start, end);
+  setContractMonths(months);
 
-    const firstMonth = months[0];
-    setCurrentMonth(firstMonth);
+  const firstMonth = months[0];
+  setCurrentMonth(firstMonth);
 
-    loadMonthDays(start, end, firstMonth);
+  const generatedDays = loadMonthDays(start, end, firstMonth);
 
-    // ✅ AUTO-LOAD SAVED MONTH DATA
-    fetchMonthSchedules(emp.EMP_ID, firstMonth.format("YYYY-MM"));
-  };
+  fetchMonthSchedules(
+    emp.EMP_ID,
+    firstMonth.format("YYYY-MM"),
+    generatedDays
+  );
+};
+
 
   /* ---------------- CALENDAR MATRIX ---------------- */
   const getCalendarMatrix = () => {
     const start = currentMonth.clone().startOf("month").startOf("isoWeek"); // Monday
     const end = currentMonth.clone().endOf("month").endOf("isoWeek");
 
+    // console.log("START",start);
+    // console.log("end",end);
+    
+
     const matrix = [];
     let day = start.clone();
 
-    while (day.isBefore(end)) {
+while (day.isSameOrBefore(end)) {
       const week = [];
       for (let i = 0; i < 7; i++) {
         week.push(day.clone());
@@ -156,6 +158,8 @@ export default function ProjectSchedulerUI({ employees = {} }) {
       }
       matrix.push(week);
     }
+    // console.log("matrix",matrix);
+    
     return matrix;
   };
 
@@ -286,6 +290,7 @@ export default function ProjectSchedulerUI({ employees = {} }) {
                         }}
                       >
                         <b>{day.date()}</b>
+                        <p>{i}</p>
                         {!blocked && idx !== -1 && (
                           <input
                             type="number"

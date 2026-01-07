@@ -18,7 +18,7 @@ const currentWeek = (req,res)=>{
 
     const sql = `SELECT *
 FROM TC_MASTER
-WHERE CURDATE() <= WEEK_START
+WHERE CURDATE() BETWEEN WEEK_START AND WEEK_END
                 AND ORG_ID = ? `;
 
 

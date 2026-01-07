@@ -85,12 +85,15 @@ const handleLogin = async (e) => {
 
     const user = res.data?.[0] || {};
 
+    console.log("user",user);
+    
+
     dispatch(getEmail(email || username));
     dispatch(getUserId(res.categoryId));
     dispatch(getCompanyId(res.companyId || ""));
-    dispatch(getFullName(user.ADMIN_NAME || user.DISPLAY_NAME || ""));
+    dispatch(getFullName(res.ADMIN_NAME || user.DISPLAY_NAME || ""));
     dispatch(getRole(res.role));
-    dispatch(getEmpId(user.EMP_ID || ""));
+    dispatch(getEmpId(res.empId|| ""));
     dispatch(getAccessCode(res.accessCodes))
 
     // SSO

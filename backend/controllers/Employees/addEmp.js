@@ -4,15 +4,25 @@ const { generatePassword } = require("../../helpers/functions");
 const addEmp = (req, res) => {
     const { employees, companyId, email } = req.body;
 
+    if (!employees || employees.length === 0) {
+        return res.status(400).json({ message: "No employee data provided." });
+    }
+
     const insertDetails = [];
+    const educationDetails = [];
     const password = generatePassword();
     const insertDate = new Date();
     const status = 'A';
-
-    const empId = employees[0].empId;
     const attemptsLogins = 0;
 
-    const checkEmp = `SELECT * FROM TC_USERS WHERE EMP_ID = ? AND ORG_ID = ?`;
+    const empId = employees[0].empId;
+
+    // ===================== CHECK EMPLOYEE EXISTS =====================
+    const checkEmp = `
+        SELECT 1 
+        FROM TC_USERS 
+        WHERE EMP_ID = ? AND ORG_ID = ?
+    `;
 
     db.query(checkEmp, [empId, companyId], (checkError, checkResult) => {
         if (checkError) {
@@ -20,12 +30,13 @@ const addEmp = (req, res) => {
             return res.status(500).json({ data: checkError });
         }
 
-        // EMPLOYEE EXISTS
         if (checkResult.length > 0) {
-            return res.status(409).json({ message: "Employee already exists with this employee Id." });
+            return res.status(409).json({
+                message: "Employee already exists with this employee Id."
+            });
         }
 
-        // ===================== CHECK MAX EMPLOYEES & SUBSCRIPTION =====================
+        // ===================== FETCH ACTIVE SUBSCRIPTIONS =====================
         const getOrgSubSql = `
             SELECT MAX_EMPLOYEES, START_DATE, END_DATE, STATUS
             FROM TC_ORG_SUBSCRIPTIONS
@@ -38,21 +49,22 @@ const addEmp = (req, res) => {
                 return res.status(500).json({ data: subErr });
             }
 
+            console.log("subResult",subResult);
+            
+
             if (subResult.length === 0) {
-                return res.status(403).json({ message: "No active subscription found for this organization." });
+                return res.status(403).json({
+                    message: "No active subscription found for this organization."
+                });
             }
 
-            const { MAX_EMPLOYEES, START_DATE, END_DATE, STATUS: subStatus } = subResult[0];
-
-            const today = new Date();
-
-            // Check subscription status
-            if (subStatus !== 'A' || today < new Date(START_DATE) || today > new Date(END_DATE)) {
-                return res.status(403).json({ message: "Your subscription has ended. Please renew to add employees." });
-            }
-
-            // Check max employees
-            const countEmpSql = `SELECT COUNT(*) AS currentCount FROM TC_USERS WHERE ORG_ID = ?`;
+            // ===================== COUNT ONLY ACTIVE EMPLOYEES =====================
+            const countEmpSql = `
+                SELECT COUNT(*) AS currentCount 
+                FROM TC_USERS 
+                WHERE ORG_ID = ? 
+                  AND EMP_ID IS NOT NULL
+            `;
 
             db.query(countEmpSql, [companyId], (countErr, countResult) => {
                 if (countErr) {
@@ -62,50 +74,67 @@ const addEmp = (req, res) => {
 
                 const currentEmpCount = countResult[0].currentCount;
 
-                if (currentEmpCount + employees.length > MAX_EMPLOYEES) {
-                    return res.status(403).json({ message: "Maximum employee limit reached for your plan." });
+                // ===================== CALCULATE TOTAL ALLOWED EMPLOYEES =====================
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                let totalAllowedEmployees = 0;
+                subResult.forEach(sub => {
+    if (sub.STATUS === 'A' || sub.STATUS === 'I') { // A = active, E = expired
+        totalAllowedEmployees += Number(sub.MAX_EMPLOYEES);
+    }
+});
+
+                console.log("Allowed employees:", totalAllowedEmployees);
+                console.log("Current employees:", currentEmpCount);
+                console.log("New employees trying to add:", employees.length);
+
+                if (currentEmpCount + employees.length > totalAllowedEmployees) {
+                    return res.status(403).json({
+                        message: `Maximum employee limit reached. Allowed: ${totalAllowedEmployees}, Current: ${currentEmpCount}`
+                    });
                 }
 
-                // ===================== PREPARE INSERT =====================
-                const educationDetails = [];
-
+                // ===================== PREPARE INSERT DATA =====================
                 employees.forEach(emp => {
                     insertDetails.push([
                         emp.empId,
                         emp.firstName,
                         emp.lastName,
-                        emp.middleName,
-                        emp.displayName,
-                        emp.gender,
-                        emp.emailID,
+                        emp.middleName || '',
+                        emp.displayName || '',
+                        emp.gender || '',
+                        emp.emailID || '',
                         companyId,
-                        emp.hireDate,
+                        emp.hireDate || insertDate,
                         status,
-                        emp.phnNumber,
+                        emp.phnNumber || '',
                         attemptsLogins,
                         password,
                         insertDate,
                         email
                     ]);
 
-                    emp.education.forEach(ed => {
-                        educationDetails.push([
-                            emp.empId,
-                            ed.degree,
-                            ed.university,
-                            ed.year,
-                            companyId,
-                            email,
-                            insertDate
-                        ]);
-                    });
+                    if (emp.education && emp.education.length) {
+                        emp.education.forEach(ed => {
+                            educationDetails.push([
+                                emp.empId,
+                                ed.degree || '',
+                                ed.university || '',
+                                ed.year || '',
+                                companyId,
+                                email,
+                                insertDate
+                            ]);
+                        });
+                    }
                 });
 
                 // ===================== INSERT USERS =====================
                 const sqlUsers = `
                     INSERT INTO TC_USERS 
                     (EMP_ID, FIRST_NAME, LAST_NAME, MIDDLE_NAME, DISPLAY_NAME, GENDER, EMAIL, ORG_ID, START_DATE, STATUS,
-                    MOBILE_NUMBER, ATTEMPTS_LOGIN, PASSWORD, CREATION_DATE, CREATED_BY)
+                     MOBILE_NUMBER, ATTEMPTS_LOGIN, PASSWORD, CREATION_DATE, CREATED_BY)
                     VALUES ?
                 `;
 
@@ -115,6 +144,14 @@ const addEmp = (req, res) => {
                         return res.status(500).json({ error });
                     }
 
+                    if (educationDetails.length === 0) {
+                        return res.status(201).json({
+                            message: "Employee inserted successfully.",
+                            usersInserted: result.affectedRows
+                        });
+                    }
+
+                    // ===================== INSERT EDUCATION =====================
                     const sqlEducation = `
                         INSERT INTO TC_USER_DETAILS 
                         (EMP_ID, DEGREE, UNIVERSITY, YOP, ORG_ID, CREATED_BY, CREATION_DATE)
@@ -134,10 +171,8 @@ const addEmp = (req, res) => {
                         });
                     });
                 });
-
             });
         });
-
     });
 };
 

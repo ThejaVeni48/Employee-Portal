@@ -138,6 +138,7 @@ VALUES(?,?,?,?)`;
 if (fetchEmpResult.length > 0)                       {
 
 
+  const status = 'D'
 
                       
                      fetchEmpResult.forEach(emp => {
@@ -145,6 +146,7 @@ if (fetchEmpResult.length > 0)                       {
                          masterId,
                          orgId,
                          emp.EMP_ID,
+                         status,
                         'system'
                        ])
                      });
@@ -154,7 +156,7 @@ if (fetchEmpResult.length > 0)                       {
                     //  console.log("empTimesheet",empTimesheet);
 
 
-                     const insertSql  = `INSERT INTO TC_TIMESHEET (TC_MASTER_ID,ORG_ID,EMP_ID,CREATED_BY)
+                     const insertSql  = `INSERT INTO TC_TIMESHEET (TC_MASTER_ID,ORG_ID,EMP_ID,STATUS,CREATED_BY)
                      VALUES ?`;
 
                      db.query(insertSql,[empTimesheet],(insertError,insertResult)=>{

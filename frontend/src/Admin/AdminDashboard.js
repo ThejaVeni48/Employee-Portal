@@ -24,15 +24,20 @@ const AdminDashboard = () => {
   const [approveAccess, setApproveAccess] = useState("");
   console.log("accessCode:", accessCode);
 
+  console.log("EMPiD",empId);
+  
+
+
   const activeprojects = useSelector(
-    (state) => state.activeprojects.activeProjectsList
-  );
+    (state) => state.activeprojects.activeProjectsList 
+  ) || [];
 
-  const projectsId = activeprojects.map((item) => item.PROJ_ID);
+  // const projectsId = activeprojects.map((item) => item.PROJ_ID);
+  const projectsId = 1;
 
-  console.log("Received projectIds in Approvals:", projectsId);
+  // console.log("Received projectIds in Approvals:", projectsId);
 
-  console.log("activeProjects", activeprojects);
+  // console.log("activeProjects", activeprojects);
 
   const dispatch = useDispatch();
 
@@ -52,7 +57,7 @@ const AdminDashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (companyId && empId) {
+    if (companyId ) {
       dispatch(ActiveProjects(companyId, empId));
     }
   }, [companyId, empId]);

@@ -10,6 +10,12 @@ const ChangePassword = () => {
   const empId = useSelector((state) => state.user.empId);
   const attempts = useSelector((state) => state.user.attempts);
 
+
+  console.log("empId",empId);
+  console.log("companyId",companyId);
+  console.log("role",role);
+  
+
   const [pwd, setPwd] = useState("");
   const [conPwd, setConPwd] = useState("");
   const [errors, setErrors] = useState([]);

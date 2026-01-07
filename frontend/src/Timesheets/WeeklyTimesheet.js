@@ -16,9 +16,16 @@ const WeekTimesheet = () => {
   const empId = useSelector((s) => s.user.empId);
   const tasks = useSelector((s) => s.tasks.tasksList);
 const { levels = [] } = useSelector((s) => s.Hierarchy || {});
-// console.log("levels", levels);
 
-  console.log("levels",levels);
+const [Schedulers,setSchedulers]= useState([
+  {scheduledHours:'',
+  }
+])
+
+const [variance, setVariance] = useState({});
+
+
+  // console.log("levels",levels);
   
 
   const passedWeekStart = (() => {
@@ -77,16 +84,16 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
 
   const generateWeekDays = (dateString) => {
 
-    console.log("dateString",dateString);
+    // console.log("dateString",dateString);
     
     const start = moment(dateString); 
-    console.log("start",start);
+    // console.log("start",start);
     
     const arr = [];
     for (let i = 0; i < 7; i++) {
- console.log("i",i);
+//  console.log("i",i);
       const day = start.clone().add(i, "day");
-      console.log("day",day);
+      // console.log("day",day);
       
       arr.push({
         label: day.format("ddd, MMM D"),
@@ -96,20 +103,20 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
       
     }
     setDaysList(arr);
-    console.log("arr",arr);
+    // console.log("arr",arr);
     
   };
 
 
-  console.log("daysList",daysList);
+  // console.log("daysList",daysList);
   
 
 
-  console.log("days",days);
+  // console.log("days",days);
   
 
-  console.log("CURRENTapprover",currentApprover);
-  console.log("finalapprover",finalApprover);
+  // console.log("CURRENTapprover",currentApprover);
+  // console.log("finalapprover",finalApprover);
   
 
   // Fetching current week 
@@ -120,16 +127,17 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
       );
       if (!res.ok) throw new Error("Failed");
       const json = await res.json();
-      console.log("json for weeks", json.data);
+      // console.log("json for weeks", json.data);
 
 
       const date = json.data[0].WEEK_START;
 
 
-      console.log("date",date);
+      // console.log("date",date);
 
-      generateWeekDays(date)
+      generateWeekDays(date);
 
+    
       
 
       
@@ -139,6 +147,8 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
     }
   };
 
+
+  
   // Fetch projects
   const fetchActiveProjects = async (date = currentDate) => {
     try {
@@ -174,7 +184,7 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
       );
       if (!res.ok) throw new Error("Failed");
       const json = await res.json();
-       console.log("json",json);
+      //  console.log("json",json);
        if(json.data.length >0)
        {
 
@@ -192,7 +202,7 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
 
 
 
-  console.log("STATUS",status);
+  // console.log("STATUS",status);
   
 
   const mapTimesheetToUI = (data) => {
@@ -265,6 +275,7 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
       setTotalHours((prev) => ({ ...prev, [rowId]: total.toFixed(2) }));
       return { ...prev, [rowId]: updatedRow };
     });
+    // calculateVariance();
   };
 
   const handleAddRow = () => {
@@ -306,6 +317,9 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
   const weekId = days[0]?.TC_MASTER_ID;
 
   const handleSave = async () => {
+
+    console.log("handlesave");
+    
     if (!weekId) return;
     const payload = {
       empId,
@@ -315,22 +329,29 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
         (a, b) => a + Number(b || 0),
         0
       ),
+      variance:Number(Object.values(variance)),
       status: "S",
       entries: buildEntriesPayload(),
       currentApprover,
       finalApprover,
+      scheduledHours:Schedulers[0].scheduledHours
     };
 
-    try {
-      await fetch("http://localhost:3001/api/saveTimesheet", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      getLatestTimeSheet(weekId);
-    } catch (err) {
-      console.error("Save error:", err);
-    }
+    console.log("payload",payload);
+    
+
+    
+    
+    // try {
+    //   await fetch("http://localhost:3001/api/saveTimesheet", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify(payload),
+    //   });
+    //   getLatestTimeSheet(weekId);
+    // } catch (err) {
+    //   console.error("Save error:", err);
+    // }
   };
 
   const handleSubmit = async () => {
@@ -347,22 +368,102 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
       entries: buildEntriesPayload(),
       currentApprover,
       finalApprover,
+      scheduledHours:Schedulers[0].scheduledHours,
+       variance:Number(Object.values(variance)),
     };
 
     console.log("payload",payload);
     
 
-    try {
-      await fetch("http://localhost:3001/api/saveTimesheet", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      getLatestTimeSheet(weekId);
-    } catch (err) {
-      console.error("Submit error:", err);
-    }
+    // try {
+    //   await fetch("http://localhost:3001/api/saveTimesheet", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify(payload),
+    //   });
+    //   getLatestTimeSheet(weekId);
+    // } catch (err) {
+    //   console.error("Submit error:", err);
+    // }
   };
+
+
+   useEffect(()=>{
+    if(projects?.length&& days?.length)
+    {
+       const projectId = projects[0].PROJ_NO;
+
+    const weekStart = days[0].WEEK_START;
+
+    const weekEnd = days[0].WEEK_END;
+      fetchScheduledHours(projectId,weekStart,weekEnd);
+    }
+   },[projects,days])
+
+
+   const fetchScheduledHours = async (projectId, weekStart, weekEnd) =>{
+    // console.log("fetch schedulers");
+
+    // console.log("projects",projects);
+    // console.log("days",days);
+
+    console.log("weekStart",weekStart);
+    console.log("weekEnd",weekEnd);
+    
+
+   
+    
+    try {
+
+      const data = await fetch(`http://localhost:3001/api/getScheduledHours?orgId=${companyId}&empId=${empId}&projId=${projectId}&weekStart=${weekStart}&weekEnd=${weekEnd}`);
+
+
+      if(!data)
+      {
+        throw new Error("Network response was not ok");
+        
+      }
+
+      const res = await data.json();
+      
+      
+      console.log("res",res);
+
+
+      setSchedulers([
+        {
+
+          scheduledHours:res.totalScheduledHours
+        }
+      ])
+
+      
+      
+    } catch (error) {
+      console.error("Error occured",error);
+      
+    }
+    
+  }
+
+
+useEffect(() => {
+  if (!Schedulers.length) return;
+
+  const scheduledHours = Number(Schedulers[0].scheduledHours) || 0;
+
+  const newVariance = {};
+  Object.keys(totalHours).forEach((rowId) => {
+    const entered = Number(totalHours[rowId]) || 0;
+    newVariance[rowId] = Math.abs(scheduledHours - entered).toFixed(2);
+  });
+
+  setVariance(newVariance);
+}, [Schedulers, totalHours]);
+
+
+console.log("variance",variance);
+
 
   return (
     
@@ -380,9 +481,10 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
             <button
               style={styles.todayBtn}
               onClick={() => setCurrentDate(moment().format("YYYY-MM-DD"))}
-            >
+              >
               Today
             </button>
+              <span>ScheduledHours:{Schedulers[0].scheduledHours}</span>
           </div>
         </div>
         <div>
@@ -405,6 +507,7 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
               </th>
             ))}
             <th style={styles.dayHeader}>Total</th>
+            <th style={styles.dayHeader}>Variance</th>
             <th style={styles.dayHeader}>Action</th>
           </tr>
         </thead>
@@ -471,6 +574,7 @@ const { levels = [] } = useSelector((s) => s.Hierarchy || {});
                 </td>
               ))}
               <td style={styles.totalCell}>{totalHours[row.id] || "0.00"}</td>
+              <td style={styles.totalCell}>{variance[row.id] || "0.00"}</td>
               <td>
                 <button
                   style={styles.deleteBtn}

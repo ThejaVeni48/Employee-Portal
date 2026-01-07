@@ -56,7 +56,7 @@ const accessCode = useSelector((state) => state.user.accessCode) || [];
 
   useEffect(() => {
     getEmployees();
-  }, []);
+  }, [companyId]);
 
   const handleRoleChange = (e) => {
     const roleId = e.target.value;
@@ -119,10 +119,16 @@ const accessCode = useSelector((state) => state.user.accessCode) || [];
       const data = await res.json();
       //   console.log("data of employees",data);
       setEmployees(data.data);
+
+      console.log("get all employees",data.data);
+      
     } catch (err) {
       console.error(err);
     }
   };
+
+  // console.log("employees");
+  
 
   const filteredEmployees = employees.filter((emp) =>
     emp.DISPLAY_NAME.toLowerCase().includes(searchTerm.toLowerCase())

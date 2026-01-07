@@ -14,7 +14,7 @@ const getProjectEmployee = (req,res)=>{
     
 
 
-    const sql = `SELECT U.DISPLAY_NAME, PA.*,R.ROLE_NAME
+    const sql = `SELECT DISTINCT U.DISPLAY_NAME, PA.*, R.ROLE_NAME
 FROM TC_PROJECTS_ASSIGNEES PA
 JOIN TC_USERS U
   ON U.EMP_ID = PA.EMP_ID

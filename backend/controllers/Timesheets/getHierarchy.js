@@ -3,6 +3,14 @@ const db = require('../../config/db');
 const getHierarchy = (req, res) => {
   const { companyId, projectId, empId } = req.query;
 
+
+  console.log("COMPANYiD get Hierarhcy",companyId);
+  console.log("projectId get Hierarhcy",projectId);
+  console.log("empId get Hierarhcy",empId);
+  
+  console.log("empId type",typeof(empId));
+  
+
   // 1. Check if hierarchy is enabled
   const checkHierarchy = `
     SELECT HIERARCHY 
@@ -15,8 +23,13 @@ const getHierarchy = (req, res) => {
 
     const hierarchyFlag = result[0].HIERARCHY;
 
+    console.log("hierarchyFlag",hierarchyFlag);
+    
+
+
+
     // CASE 1: HIERARCHY = YES
-    if (hierarchyFlag === "YES") {
+    if (hierarchyFlag === "Y") {
 
       const sql = `
         SELECT APPROVER_ID, LINE_NO
@@ -27,6 +40,9 @@ const getHierarchy = (req, res) => {
 
       db.query(sql, [projectId, companyId, empId], (err, rows) => {
         if (err) return res.status(500).json({ error: err });
+
+        console.log("ROWS",rows);
+        
 
         if (rows.length === 0) {
           return res.status(200).json({
@@ -73,3 +89,18 @@ const getHierarchy = (req, res) => {
 };
 
 module.exports = { getHierarchy };
+
+
+
+// hasHierarchy
+// : 
+// true
+// isCurrentApproverInHierarchy
+// : 
+// true
+// levels
+// : 
+// Array(1)
+// 0
+// : 
+// {level: '2', approverId: '2'}

@@ -3,8 +3,11 @@ const db = require('../../config/db');
 const changePassword = (req, res) => {
   const { companyId, conPwd, email, empId, role } = req.body;
 
-  console.log("com");
+  console.log("companyId",companyId);
+  console.log("empId",empId);
   
+  const empIdNormalized = String(empId).trim();
+
 
   if (role === 'Org Admin') {
 
@@ -73,9 +76,13 @@ const changePassword = (req, res) => {
       WHERE ORG_ID = ? AND EMP_ID = ?
     `;
 
-    db.query(fetchSql, [companyId, empId], (err, rows = []) => {
-      if (err) return res.status(500).json({ message: "DB error" });
-      if (!rows.length) return res.status(404).json({ message: "User not found" });
+    db.query(fetchSql, [companyId, empIdNormalized], (err, rows = []) => {
+      if (err)
+      return res.status(500).json({ message: "DB error" });
+      console.log("ROWS",rows);
+      
+      if (rows.length ===0) 
+        return res.status(404).json({ message: "User not found" });
 
       const { PASSWORD, ATTRIBUTE1, ATTRIBUTE2, ATTRIBUTE3 } = rows[0];
 
@@ -101,14 +108,14 @@ const changePassword = (req, res) => {
 
       db.query(
         updateSql,
-        [conPwd, PASSWORD, ATTRIBUTE1, ATTRIBUTE2, email, companyId, empId],
+        [conPwd, PASSWORD, ATTRIBUTE1, ATTRIBUTE2, email, companyId, empIdNormalized],
         (updErr, result) => {
           if (updErr) return res.status(500).json({ message: "Password update failed" });
 
           // 4️⃣ Increment attempts
           db.query(
             `UPDATE TC_USERS SET ATTEMPTS_LOGIN = ATTEMPTS_LOGIN + 1 WHERE ORG_ID = ? AND EMP_ID = ?`,
-            [companyId, empId]
+            [companyId, empIdNormalized]
           );
 
           return res.status(200).json({

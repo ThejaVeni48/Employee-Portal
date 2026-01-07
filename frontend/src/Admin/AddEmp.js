@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Button } from "primereact/button";
 import { SlCalender } from "react-icons/sl";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./AddEmpStyles.css";
 import moment from 'moment';
-
+import { ActiveSubscription } from "../Redux/actions/subscriptionAction";
 const AddEmp = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -22,9 +22,17 @@ const AddEmp = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [depts, setDepts] = useState([]);
   const [empId,setEmpId] = useState('');
+  const navigate = useNavigate();
   const [education, setEducation] = useState([{ degree: "", university: "", year: "" }]);
 ;
  const email = useSelector((state) => state.user.email);
+
+ const dispatch = useDispatch();
+
+// console.log("activeSubscription",activeSubscription);
+
+
+const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
 
   const [roles, setRoles] = useState([]);
@@ -35,7 +43,25 @@ const AddEmp = () => {
 
   console.log("companyId",companyId);
 
+
   
+
+
+  const activeSubscription = useSelector(
+    (state) => state.activeSubscription.activeSubscription
+  );
+
+  console.log("Active Subscription:", activeSubscription);
+
+      useEffect(() => {
+    dispatch(ActiveSubscription(companyId));
+  }, [dispatch, companyId]);
+
+  if (!activeSubscription) {
+    return null; // or loader
+  }
+
+
 
   const handleDateChange = (date) => setHireDate(date);
 
@@ -56,8 +82,7 @@ const handleCreateEmployee = async () => {
             empId,
             empStatus,
             companyId,
-            hireDate:moment(hireDate).format('YYYY-MM-DD'),
-            // selectedRole,
+            hireDate: moment(hireDate).format("YYYY-MM-DD"),
             middleName,
             phnNumber,
             displayName,
@@ -70,14 +95,18 @@ const handleCreateEmployee = async () => {
       }),
     });
 
-    
-
     const data = await res.json();
 
-    if (res.status === 201) { // check HTTP status code, not data.status
-      alert(data.message); // show message from backend
+    // EMPLOYEE LIMIT EXCEEDED
+    if (res.status === 403) {
+      setShowUpgradeModal(true);
+      return;
+    }
 
-      // Reset all fields
+    // 2. SUCCESS
+    if (res.status === 201) {
+      alert(data.message);
+
       setFirstName("");
       setLastName("");
       setMiddleName("");
@@ -90,19 +119,20 @@ const handleCreateEmployee = async () => {
       setSelectedRole("");
       setDept("");
       setHireDate(null);
-      setEducation({ degree: "", university: "", year: "" });
-
-      // Reset to first tab if using multi-step form
+      setEducation([{ degree: "", university: "", year: "" }]);
       setActiveIndex(0);
-    } else {
-      // Show backend error message
-      alert(data.message || "Failed to create employee");
+      return;
     }
+
+    // 3. OTHER ERRORS
+    alert(data.message || "Failed to create employee");
+
   } catch (err) {
     console.error(err);
     alert("Something went wrong while creating employee.");
   }
 };
+
 
 
  
@@ -331,7 +361,40 @@ onChange={(e) => {
           </button>
         )}
       </div>
+      {showUpgradeModal && (
+  <div className="upgrade-modal-overlay">
+    <div className="upgrade-modal">
+      <h3>Employee Limit Reached</h3>
+      <p>
+        You have reached the maximum employee limit for your current plan.
+        Please upgrade your subscription to add more employees.
+      </p>
+
+      <div className="upgrade-modal-actions">
+        <button
+          className="upgrade-btn"
+          onClick={() => {
+            setShowUpgradeModal(false);
+            // navigate to subscription page
+           navigate('/subscriptionplans',{state: {activeSubscription:activeSubscription}})
+          }}
+        >
+          Upgrade Plan
+        </button>
+
+        <button
+          className="cancel-btn"
+          onClick={() => setShowUpgradeModal(false)}
+        >
+          Cancel
+        </button>
+      </div>
     </div>
+  </div>
+)}
+
+    </div>
+    
   );
 };
 

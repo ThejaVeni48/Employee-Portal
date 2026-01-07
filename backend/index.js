@@ -41,6 +41,12 @@ app.use('/api/changePassword',changePassword);
 const LoginLookup = require('./routes/Login/loginlookup');
 app.use('/api/LoginLookup',LoginLookup);
 
+
+// check status
+
+// const checkStatus = require('./routes/Login/checkStatus');
+// app.use('/api/checkStatus',checkStatus)
+
 //  ------------------------------------------SSO Module ----------------------------------------------------
 
 // sso shows companies list for 
@@ -648,6 +654,10 @@ const allocateTimesheets = require('./routes/Timesheet/allocateTimesheet');
 app.use('/api/allocateTimesheets',allocateTimesheets);
 
 
+const getScheduledHours = require('./routes/Timesheet/getScheduledHours');
+app.use('/api/getScheduledHours',getScheduledHours)
+
+
 
 // -----------------------------------Project Holidays --------------------------------------
 
@@ -721,12 +731,22 @@ app.use('/api/TimesheetCustomization',TimesheetCustomization);
 const GetPlans = require('./routes/Subscriptions/Getplans');
 app.use('/api/GetPlans',GetPlans);
 
+
+const activeSubscription = require('./routes/Subscriptions/ActiveSubscription');
+app.use('/api/activeSubscription',activeSubscription);
+
+
+const upgradeSubscription = require('./routes/Subscriptions/upgradeSubscription');
+app.use('/api/upgradeSubscription',upgradeSubscription)
+
 //============================================schedules  ==============================================
 
 
 
 require('./controllers/Schedules//timesheetGenerate');
 // require('./controllers/Schedules/dummyApi');
+
+require('./controllers/Schedules/changeStatus');
 
 
 // to listen on port

@@ -1,3 +1,7 @@
+// THIS API IS USED FOR SAVING THE  PROJECT SCHEDULES
+
+
+
 const db = require('../../../config/db');
 
 const saveSchedule = (req, res) => {
@@ -16,7 +20,7 @@ const saveSchedule = (req, res) => {
   console.log("hours",hours);
   console.log("startDate",startDate);
   console.log("endDate",endDate);
-  console.log("hours length",hours.length);
+  // console.log("hours length",hours.length);
   
   if (!hours || hours.length > 31) {
     return res.status(400).json({

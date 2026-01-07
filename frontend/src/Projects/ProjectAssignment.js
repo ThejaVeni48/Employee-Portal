@@ -13,10 +13,11 @@ import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import Task from "../Tasks/Task";
 import ProjectProfile from "./ProjectProfile";
 import Approvals from "./Approvals";
-import ProjectHolidays from "./ProjectHolidays";
 import ProjectScheduler from "./ProjectScheduler";
 import PHolidays from "./ProjectHolidays/PHolidays";
 import ViewScheduledHours from "./ViewScheduledHours";
+import './ProjectAssignmentStyles.css';
+
 
 const ProjectAssignmnet = () => {
   const location = useLocation();
@@ -37,18 +38,34 @@ const ProjectAssignmnet = () => {
   const roles = useSelector((state) => state.roles.roleList);
   const [selectedRoleId, setSelectedRoleId] = useState("");
   const [selectedRoleCode, setSelectedRoleCode] = useState("");
-const accessCode = useSelector((state) => state.user.accessCode) || [];
+  const accessCode = useSelector((state) => state.user.accessCode) || [];
   const [projEmployees, setProjEmployees] = useState([]);
   const email = useSelector((state) => state.user.email);
   const projectId = location.state?.rowData.PROJ_ID || "";
-
+  const [modalVisible,setModalVisible] = useState(false);
+const [selectedActionRow, setSelectedActionRow] = useState(null);
   const role = useSelector((state) => state.user.Role);
+  const [inputs, setInputs] = useState({});
+const [actionType, setActionType] = useState(""); // 'I' | 'E'
+
+  const handleChange = (e) => {
+    // const target = e.target;
+    // const value = target.type === 'checkbox' ? target.checked : target.value;
+    // const name = target.name;
+    // setInputs(values => ({...values, [name]: value}))
 
 
-  console.log("ROLE",role);
-  console.log("accessCode",accessCode);
-  
+    const target = e.target;
 
+    const value = target.type ==='checkbox' ? target.checked : target.value;
+
+    const name = target.name;
+
+    setInputs(values=>({...values,[name]:value}))
+  }
+
+  console.log("ROLE", role);
+  console.log("accessCode", accessCode);
 
   const Hierachy = location.state?.rowData.HIERARCHY === "Y";
 
@@ -120,15 +137,13 @@ const accessCode = useSelector((state) => state.user.accessCode) || [];
       //   console.log("data of employees",data);
       setEmployees(data.data);
 
-      console.log("get all employees",data.data);
-      
+      console.log("get all employees", data.data);
     } catch (err) {
       console.error(err);
     }
   };
 
   // console.log("employees");
-  
 
   const filteredEmployees = employees.filter((emp) =>
     emp.DISPLAY_NAME.toLowerCase().includes(searchTerm.toLowerCase())
@@ -229,7 +244,7 @@ const accessCode = useSelector((state) => state.user.accessCode) || [];
 
   const actionTemplate = (rowData) => (
     <button
-      // onClick={() => handleActionClick(rowData)}
+      onClick={() => handleActionClick(rowData)}
       style={{
         border: "none",
         outline: "none",
@@ -241,19 +256,71 @@ const accessCode = useSelector((state) => state.user.accessCode) || [];
     </button>
   );
 
+
+ 
+const handleActionClick = (rowData) => {
+  setSelectedActionRow(rowData);
+  setModalVisible(true);
+};
+
   const handleSelectEmp = (emp) => {
     // console.log("Selected Employee:", emp);
     setSelectedEmp(emp);
   };
 
-  // console.log("approveaccess",approveAccess);
+
+  const handleSave = async()=>{
+    console.log("clciked saved",selectedActionRow.EMP_ID);
+    console.log("inputs.value saved",Object.keys(inputs).toString());
 
 
-  console.log("employees",employees);
+    
+
+   try {
+      const response = await fetch("http://localhost:3001/api/changeStatus", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          empId: selectedActionRow.EMP_ID,
+          role: selectedRoleCode,
+          status: isActive,
+          contractStart: moment(contractStartDate).format("YYYY-MM-DD"),
+          contractEnd: moment(contractEndDate).format("YYYY-MM-DD"),
+          // approveAccess,
+          email,
+          orgId: companyId,
+          projId: selectedActionRow.PROJ_ID,
+          checkedValue:actionType,
+
+          // checkedValue:Object.keys(inputs).toString()
+        }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Network response was not ok: ${errText}`);
+      }
+
+      const res = await response.json();
+      console.log("res",res);
+      
+      if(res.status === 200)
+      {
+alert(res.message)
+        getProjectEmployee();
+        // console.log("Assign project response:", res);
+        setVisible(false);
+      }
+    }catch (error) {
+      console.error("Error occured",error);
+      
+    }
+
+
+    
+  }
   
 
-  console.log("project EMployee",projEmployees);
-  
   return (
     <>
       <p>ProjectAssignmnet</p>
@@ -311,22 +378,17 @@ const accessCode = useSelector((state) => state.user.accessCode) || [];
                 headerStyle={styles.headerStyle}
                 bodyStyle={styles.cellStyle}
               />
+
+              {!Hierachy && (
+                <Column
+                  field="TS_APPROVE_ACCESS"
+                  header="Approval Access"
+                  headerStyle={styles.headerStyle}
+                  bodyStyle={styles.cellStyle}
+                />
+              )}
+
               
-
-              {
-                !Hierachy && 
-                 <Column
-                field="TS_APPROVE_ACCESS"
-                header="Approval Access"
-                headerStyle={styles.headerStyle}
-                bodyStyle={styles.cellStyle}
-              />
-              }
-
-
-             
-
-              {}
               <Column
                 header="Action"
                 body={actionTemplate}
@@ -464,7 +526,10 @@ const accessCode = useSelector((state) => state.user.accessCode) || [];
 
                 {/* CONTRACT START DATE */}
                 <div>
-                  <label style={{ fontWeight: "500" }}> Contract Start Date *</label>
+                  <label style={{ fontWeight: "500" }}>
+                    {" "}
+                    Contract Start Date *
+                  </label>
                   <DatePicker
                     selected={contractStartDate}
                     onChange={(date) => setContractStartDate(date)}
@@ -473,9 +538,11 @@ const accessCode = useSelector((state) => state.user.accessCode) || [];
                   />
                 </div>
 
-                     {/* CONTRACT END DATE */}
+                {/* CONTRACT END DATE */}
                 <div>
-                  <label style={{ fontWeight: "500" }}>Contract End Date *</label>
+                  <label style={{ fontWeight: "500" }}>
+                    Contract End Date *
+                  </label>
                   <DatePicker
                     selected={contractEndDate}
                     onChange={(date) => setContractEndDate(date)}
@@ -484,22 +551,21 @@ const accessCode = useSelector((state) => state.user.accessCode) || [];
                   />
                 </div>
 
-{
-!Hierachy &&  <div style={{ display: "flex", alignItems: "center" }}>
-                  <input
-                    type="checkbox"
-                    checked={approveAccess}
-                    // disabled={Hierachy}
-                    onChange={(e) => {
-                      setApproveAccess(e.target.checked);
-                      // console.log("checked value",e.target.checked);
-                    }}
-                    style={{ marginRight: "10px" }}
-                  />
-                  <label>Approval Access</label>
-                </div>
-}
-               
+                {!Hierachy && (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <input
+                      type="checkbox"
+                      checked={approveAccess}
+                      // disabled={Hierachy}
+                      onChange={(e) => {
+                        setApproveAccess(e.target.checked);
+                        // console.log("checked value",e.target.checked);
+                      }}
+                      style={{ marginRight: "10px" }}
+                    />
+                    <label>Approval Access</label>
+                  </div>
+                )}
 
                 {/* SUBMIT BUTTON */}
                 <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -524,7 +590,176 @@ const accessCode = useSelector((state) => state.user.accessCode) || [];
                   </button>
                 </div>
               </div>
-            </Dialog>
+               {/* {setModalVisible && (
+  <div className="upgrade-modal-overlay">
+    <div className="upgrade-modal">
+      <h3>Employee Limit Reached</h3>
+      <p>
+        You have reached the maximum employee limit for your current plan.
+        Please upgrade your subscription to add more employees.
+      </p>
+
+      <div className="upgrade-modal-actions">
+        <button
+          className="upgrade-btn"
+
+        >
+          Upgrade Plan
+        </button>
+
+        <button
+          className="cancel-btn"
+          onClick={() => setModalVisible(false)}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)} */}
+ </Dialog>
+{modalVisible && selectedActionRow && (
+  <div
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      background: "rgba(0,0,0,0.5)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 9999,
+    }}
+  >
+    <div
+      style={{
+        background: "#fff",
+        padding: "25px",
+        borderRadius: "10px",
+        width: "420px",
+        textAlign: "center",
+      }}
+    >
+      <h3 style={{ marginBottom: "10px" }}>Employee Status</h3>
+     
+    <p>Name:{selectedActionRow.DISPLAY_NAME}</p>
+    <p>Role:{selectedActionRow.ROLE_NAME}</p>
+
+   <div>
+  <input
+    type="radio"
+    name="action"
+    value="I"
+    checked={actionType === "I"}
+    onChange={(e) => setActionType(e.target.value)}
+  />
+  <label style={{ marginLeft: "6px" }}>Exit</label>
+</div>
+
+<div>
+  <input
+    type="radio"
+    name="action"
+    value="E"
+    checked={actionType === "E"}
+    onChange={(e) => setActionType(e.target.value)}
+  />
+  <label style={{ marginLeft: "6px" }}>Extend Period</label>
+</div>
+
+
+
+
+{actionType === "E" && (
+  <>
+    <div>
+      <label style={{ fontWeight: "500" }}>Role *</label>
+      <select
+        value={selectedRoleId}
+        onChange={handleRoleChange}
+        style={{
+          width: "100%",
+          padding: "10px",
+          borderRadius: "5px",
+          border: "1px solid #ccc",
+          marginTop: "6px",
+        }}
+      >
+        <option value="">Select Role</option>
+        {roles?.map((r) => (
+          <option key={r.ROLE_ID} value={r.ROLE_ID}>
+            {r.ROLE_NAME}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <div>
+      <label style={{ fontWeight: "500" }}>Contract Start Date *</label>
+      <DatePicker
+        selected={contractStartDate}
+        onChange={(date) => setContractStartDate(date)}
+        dateFormat="yyyy-MM-dd"
+        placeholderText="Select start date"
+      />
+    </div>
+
+    <div>
+      <label style={{ fontWeight: "500" }}>Contract End Date *</label>
+      <DatePicker
+        selected={contractEndDate}
+        onChange={(date) => setContractEndDate(date)}
+        dateFormat="yyyy-MM-dd"
+        placeholderText="Select end date"
+      />
+    </div>
+  </>
+)}
+
+
+    
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "15px",
+          marginTop: "20px",
+        }}
+      >
+        <button
+          style={{
+            background: "#e65100",
+            color: "#fff",
+            border: "none",
+            padding: "10px 18px",
+            borderRadius: "6px",
+            cursor: "pointer",
+          }}
+          onClick={handleSave}
+        >
+          Save
+        </button>
+
+        <button
+          style={{
+            background: "#ccc",
+            border: "none",
+            padding: "10px 18px",
+            borderRadius: "6px",
+            cursor: "pointer",
+          }}
+          onClick={() => setModalVisible(false)}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+           
           </TabPanel>
         )}
 
@@ -538,23 +773,20 @@ const accessCode = useSelector((state) => state.user.accessCode) || [];
 
         {Hierachy && (
           <TabPanel header="Approvals">
-            <Approvals employees={{ employees, projectId,projEmployees }} />
+            <Approvals employees={{ employees, projectId, projEmployees }} />
           </TabPanel>
         )}
-        
-        
-<TabPanel header="Holidays">
-<PHolidays projectId={projectId} />
-</TabPanel>
+
+        <TabPanel header="Holidays">
+          <PHolidays projectId={projectId} />
+        </TabPanel>
 
         <TabPanel header="View Scheduled Hours">
-
-<ViewScheduledHours employees={projectId} />
+          <ViewScheduledHours employees={projectId} />
         </TabPanel>
 
         <TabPanel header="Scheduler">
-
-<ProjectScheduler employees={projectId} />
+          <ProjectScheduler employees={projectId} />
         </TabPanel>
       </TabView>
     </>

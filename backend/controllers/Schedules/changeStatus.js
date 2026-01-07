@@ -2,7 +2,7 @@ const schedule = require('node-schedule');
 const { checkStatus } = require('../Login/checkStatus');
 
 schedule.scheduleJob(
-  { rule: '*/5 * * * * *', tz: 'Asia/Kolkata' }, // runs AT 11:59
+  { rule: '59 23 * * *', tz: 'Asia/Kolkata' }, // runs AT 11:59
 
   async () => {
     try {

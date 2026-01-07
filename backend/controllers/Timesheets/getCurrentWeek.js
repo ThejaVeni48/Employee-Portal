@@ -1,46 +1,47 @@
-// this api is used for getting the current week from the table 
+const db = require("../../config/db");
 
+const currentWeek = (req, res) => {
+  const { orgId } = req.query;
 
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  const formattedDate = `${yyyy}-${mm}-${dd}`;
 
-const db = require('../../config/db');
+  const sql = `
+    SELECT *
+    FROM TC_MASTER
+    WHERE ORG_ID = ?
+      AND (
+            ? BETWEEN WEEK_START AND WEEK_END
+         OR (
+              WEEK_START > ?
+              AND WEEK_START = (
+                  SELECT MIN(WEEK_START)
+                  FROM TC_MASTER
+                  WHERE WEEK_START >= ?
+                    AND ORG_ID = ?
+              )
+         )
+      )
+  `;
 
+  db.query(
+    sql,
+    [orgId, formattedDate, formattedDate, formattedDate, orgId],
+    (error, result) => {
+      if (error) {
+        console.log("Error occurred", error);
+        return res.status(500).json({ error });
+      }
 
-
-
-const currentWeek = (req,res)=>{
-
-
-    const {orgId} = req.query;
-
-
-    
-
-
-    const sql = `SELECT *
-FROM TC_MASTER
-WHERE CURDATE() BETWEEN WEEK_START AND WEEK_END
-                AND ORG_ID = ? `;
-
-
-  db.query(sql,[orgId],(error,result)=>{
-    if(error)
-    {
-        console.log("Error occured",error);
-        return res.status(500).json({data:error})
-        
+      return res.status(200).json({
+        today: formattedDate,
+        data: result,
+      });
     }
+  );
+};
 
-    console.log("result for weeks",result);
-    return res.status(200).json({data:result})
-    
-  })
-
-
-
-
-
-
-}
-
-
-module.exports = {currentWeek}
+module.exports = { currentWeek };

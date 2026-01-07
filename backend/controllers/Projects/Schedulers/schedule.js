@@ -1,7 +1,3 @@
-// THIS API IS USED FOR SAVING THE  PROJECT SCHEDULES
-
-
-
 const db = require('../../../config/db');
 
 const saveSchedule = (req, res) => {
@@ -17,23 +13,20 @@ const saveSchedule = (req, res) => {
     email
   } = req.body;
 
-  console.log("hours",hours);
-  console.log("startDate",startDate);
-  console.log("endDate",endDate);
-  // console.log("hours length",hours.length);
-  
   if (!hours || hours.length > 31) {
     return res.status(400).json({
       message: "Schedule must be saved month-wise (max 31 days)"
     });
   }
 
-  const daysData = {};
-  for (let i = 0; i < hours.length; i++) {
-    daysData[`day${i + 1}`] = hours[i] || 0;
-  }
+ /* ---------- PREPARE DAY DATA ---------- */
+const daysData = {};
+for (let i = 0; i < hours.length; i++) {
+  daysData[`day${i + 1}`] = parseInt(hours[i]) || 0;
+}
 
-  /* ---------------- STEP 1 :GET ASSIGN ID AND CONTRACT DATE ---------------- */
+
+  /* ---------- GET ASSIGN ID ---------- */
   const getAssignIdQuery = `
     SELECT TC_PROJ_ASSIGN_ID, CONTRACT_STARTDATE, CONTRACT_ENDDATE
     FROM TC_PROJECTS_ASSIGNEES
@@ -41,45 +34,93 @@ const saveSchedule = (req, res) => {
   `;
 
   db.query(getAssignIdQuery, [emp_id, org_id], (err, result) => {
-    if (err) return res.status(500).json({ message: "Database error" });
-    if (!result.length) return res.status(400).json({ message: "Assign ID not found" });
+    if (err) return res.status(500).json({ message: err.sqlMessage });
+    if (!result.length)
+      return res.status(400).json({ message: "Assign ID not found" });
 
     const assignId = result[0].TC_PROJ_ASSIGN_ID;
     const contractStart = new Date(result[0].CONTRACT_STARTDATE);
     const contractEnd = new Date(result[0].CONTRACT_ENDDATE);
 
-    /* ---------------- STEP 2: CONTRACT VALIDATION ---------------- */
-if (new Date(endDate) < new Date(contractStart) || new Date(startDate) > new Date(contractEnd)) {
-      console.log("startDate",new Date(startDate));
-      console.log("contractStart",new Date(contractStart));
-      console.log("endDate",new Date(endDate));
-      console.log("contractEnd",new Date(contractEnd));
-      
-      return res.status(400).json({ message: "Schedule outside contract period" });
+    /* ---------- CONTRACT VALIDATION ---------- */
+    if (
+      new Date(endDate) < contractStart ||
+      new Date(startDate) > contractEnd
+    ) {
+      return res.status(400).json({
+        message: "Schedule outside contract period"
+      });
     }
 
-    /* ---------------- STEP 3:  DUPLICATE CHECK ---------------- */
+    /* ---------- CHECK EXISTING MONTH ---------- */
     const checkExistsQuery = `
-      SELECT schedule_id FROM proj_schedule
+      SELECT schedule_id
+      FROM proj_schedule
       WHERE assign_id = ? AND month_year = ?
     `;
-    db.query(checkExistsQuery, [assignId, month_year], (existsErr, existsResult) => {
-      if (existsErr) return res.status(500).json({ message: "Database error" });
-      if (existsResult.length)
-        return res.status(409).json({ message: "Schedule already exists for this month" });
 
-      /* ----------------STEP 4: INSERT ---------------- */
-      const sql = `
+    db.query(checkExistsQuery, [assignId, month_year], (err2, exists) => {
+      if (err2) return res.status(500).json({ message: err2.sqlMessage });
+
+      /* ===================================================== UPDATE EXISTING SCHEDULEE ===================================================== */
+      if (exists.length > 0) {
+        const updateSql = `
+          UPDATE proj_schedule
+          SET
+            proj_id = ?,
+            org_id = ?,
+            start_date = ?,
+            end_date = ?,
+            ${Object.keys(daysData).map(d => `${d} = ?`).join(", ")},
+            total_hours = ?,
+            last_updated_by = ?,
+            last_update_date = CURDATE()
+          WHERE assign_id = ? AND month_year = ?
+        `;
+
+        const updateValues = [
+          proj_id,
+          org_id,
+          startDate,
+          endDate,
+          ...Object.values(daysData),
+          total_hours,
+          email,
+          assignId,
+          month_year
+        ];
+
+        return db.query(updateSql, updateValues, (uErr) => {
+          if (uErr)
+            return res.status(500).json({ message: uErr.sqlMessage });
+
+          return res.json({
+            message: `Schedule updated for ${month_year}`,
+            mode: "UPDATE"
+          });
+        });
+      }
+
+      /* =====================================================INSERT NEW SCHEDULE ===================================================== */
+      const insertSql = `
         INSERT INTO proj_schedule (
-          proj_id, assign_id, org_id, month_year, start_date, end_date,
-          ${Object.keys(daysData).join(", ")}, total_hours, created_by
+          proj_id,
+          assign_id,
+          org_id,
+          month_year,
+          start_date,
+          end_date,
+          ${Object.keys(daysData).join(", ")},
+          total_hours,
+          created_by
         ) VALUES (
           ?, ?, ?, ?, ?, ?,
-          ${Object.keys(daysData).map(() => "?").join(", ")}, ?, ?
+          ${Object.keys(daysData).map(() => "?").join(", ")},
+          ?, ?
         )
       `;
 
-      const values = [
+      const insertValues = [
         proj_id,
         assignId,
         org_id,
@@ -91,9 +132,14 @@ if (new Date(endDate) < new Date(contractStart) || new Date(startDate) > new Dat
         email
       ];
 
-      db.query(sql, values, (insertErr) => {
-        if (insertErr) return res.status(500).json({ message: "Error saving schedule" });
-        res.json({ message: `Schedule saved for ${month_year}` });
+      db.query(insertSql, insertValues, (iErr) => {
+        if (iErr)
+          return res.status(500).json({ message: iErr.sqlMessage });
+
+        return res.json({
+          message: `Schedule saved for ${month_year}`,
+          mode: "INSERT"
+        });
       });
     });
   });

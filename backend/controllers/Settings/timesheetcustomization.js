@@ -3,11 +3,6 @@ const db = require("../../config/db");
 const TimesheetCustomization = (req, res) => {
   const { orgId, selectedDay, email } = req.body;
 
-  // console.log("orgId", orgId);
-  // console.log("selectedDay", selectedDay);
-  // console.log("email", email);
-  const empTimesheet = [];
-
   const weekDays = [
     "Sunday",
     "Monday",
@@ -18,183 +13,150 @@ const TimesheetCustomization = (req, res) => {
     "Saturday",
   ];
 
+  /* -------------------------------
+     STEP 1: Generate week days (names)
+  -------------------------------- */
   const generatedDays = [];
-
   for (let i = 0; i < 7; i++) {
     generatedDays.push(weekDays[(selectedDay + i) % 7]);
   }
 
-  // console.log("generatedDays", generatedDays);
-
-  const endDay = generatedDays[6];
-
   const startDay = generatedDays[0];
-
-  const duration = generatedDays.length;
-
+  const endDay = generatedDays[6];
+  const duration = 7;
   const status = "A";
 
-  const checkOrg = `SELECT * FROM TC_ORG_SETTINGS
-  WHERE ORG_ID = ? `;
+  /* -------------------------------
+     STEP 2: Check org settings
+  -------------------------------- */
+  const checkOrgSql = `
+    SELECT 1 FROM TC_ORG_SETTINGS WHERE ORG_ID = ?
+  `;
 
-  db.query(checkOrg, [orgId], (checkError, checkResult) => {
-    if (checkError) {
-      console.log("CheckError", checkError);
-      return res.status(500).json({ data: checkError });
+  db.query(checkOrgSql, [orgId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "DB error" });
     }
-    if (checkResult.length > 0) {
-      return res.status(400).json({ data: "Organization already existed" });
+
+    if (result.length > 0) {
+      return res.status(400).json({ message: "Settings already exist" });
     }
-    if (checkResult.length === 0) {
-      const insertSql = `
-        INSERT INTO TC_ORG_SETTINGS
-        (ORG_ID, START_DAY, END_DAY,STATUS,DURATION,CREATED_BY)
-        VALUES (?, ?, ?, ?, ?,?)
-      `;
 
-      db.query(
-        insertSql,
-        [orgId, startDay, endDay, status, duration, email],
-        (insErr, insRes) => {
-          if (insErr) {
-            console.log("error occured", insErr);
-            return res
-              .status(500)
-              .json({ message: "Insert failed", error: insErr });
-          }
+    /* -------------------------------
+       STEP 3: Insert org settings
+    -------------------------------- */
+    const insertOrgSql = `
+      INSERT INTO TC_ORG_SETTINGS
+      (ORG_ID, START_DAY, END_DAY, STATUS, DURATION, CREATED_BY)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
 
-          // console.log("result", insRes);
-
-          if (insRes.affectedRows > 0) {
-            const currentDay = new Date();
-            // console.log("currentDay", currentDay);
-
-            // need to get curret monday from current day
-           function getCurrentWeekMonday(date) {
-  const d = new Date(date);
-  const day = d.getDay(); // 0=Sun, 1=Mon, ...
-  const diff = day === 0 ? -6 : 1 - day; // adjust to Monday
-  d.setDate(d.getDate() + diff);
-  return d;
-}
-
-
-           const today = new Date();
-const currentMonday = getCurrentWeekMonday(today);
-
-console.log("Current week Monday:", currentMonday.toDateString());
-
-const weeks = [];
-
-for (let i = 0; i < 7; i++) {
-  const tempDate = new Date(currentMonday);
-  tempDate.setDate(currentMonday.getDate() + i);
-  weeks.push(tempDate.toISOString().split("T")[0]);
-}
-
-console.log("Generated week dates:", weeks);
-
-const weekStart = weeks[0]; // Monday
-const weekEnd = weeks[6];   // Sunday
-
-console.log("weekStart:", weekStart);
-console.log("weekEnd:", weekEnd);
-
-            
-
-            const sql = `INSERT INTO TC_MASTER (ORG_ID,WEEK_START,WEEK_END,CREATED_BY)
-VALUES(?,?,?,?)`;
-
-            db.query(
-              sql,
-              [orgId, weekStart, weekEnd, email],
-              ( weeksError,insertWeek) => {
-                if (weeksError) {
-                  console.log("Error coccured", weeksError);
-                  return res.status(500).json({ data: weeksError });
-                }
-                // console.log("insertWeek",insertWeek);
-
-
-                const masterId = insertWeek.insertId;
-
-                console.log("masterId",masterId);
-                
-                
-
-                if (insertWeek.affectedRows > 0)
-                   {
-
-                    const activeEmp = `SELECT * FROM TC_USERS WHERE ORG_ID =  ? AND STATUS = 'A'`;
-
-                    db.query(activeEmp,[orgId],(fetchEmpError,fetchEmpResult)=>{
-                      if(fetchEmpError)
-                      {
-                        console.log("fetchEmpError",fetchEmpError);
-                        return res.status(500).json()
-                        
-                      }
-
-if (fetchEmpResult.length > 0)                       {
-
-
-  const status = 'D'
-
-                      
-                     fetchEmpResult.forEach(emp => {
-                       empTimesheet.push([
-                         masterId,
-                         orgId,
-                         emp.EMP_ID,
-                         status,
-                        'system'
-                       ])
-                     });
-
-
-
-                    //  console.log("empTimesheet",empTimesheet);
-
-
-                     const insertSql  = `INSERT INTO TC_TIMESHEET (TC_MASTER_ID,ORG_ID,EMP_ID,STATUS,CREATED_BY)
-                     VALUES ?`;
-
-                     db.query(insertSql,[empTimesheet],(insertError,insertResult)=>{
-                      if(insertError)
-                      {
-                        console.log("insertError",insertError);
-                        return res.status(500).json({data:insertError})
-                        
-                      }
-                      console.log("insertResult",insertResult);
-
-                      // generateFutureWeeks(weekEnd)
-
-
-                      
-                      
-                     })
-                      }
-
-                     
-                     
-         
-
-
-
-                      
-                      
-                    })
-                   }
-            
-              }
-            );
-          } else {
-            console.log("false");
-          }
+    db.query(
+      insertOrgSql,
+      [orgId, startDay, endDay, status, duration, email],
+      (orgErr) => {
+        if (orgErr) {
+          console.error(orgErr);
+          return res.status(500).json({ message: "Insert failed" });
         }
-      );
-    }
+
+        /* -------------------------------
+           STEP 4: Calculate week start DATE
+        -------------------------------- */
+        const today = new Date();
+        const todayDay = today.getDay(); // 0–6
+        const diff = selectedDay - todayDay;
+        const weekStartDate = new Date(today);
+        weekStartDate.setDate(today.getDate() + diff);
+
+        const weekDates = [];
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(weekStartDate);
+          d.setDate(weekStartDate.getDate() + i);
+          weekDates.push(d.toISOString().split("T")[0]);
+        }
+
+        const weekStart = weekDates[0];
+        const weekEnd = weekDates[6];
+
+        /* -------------------------------
+           STEP 5: Insert TC_MASTER
+        -------------------------------- */
+        const insertMasterSql = `
+          INSERT INTO TC_MASTER (ORG_ID, WEEK_START, WEEK_END, CREATED_BY)
+          VALUES (?, ?, ?, ?)
+        `;
+
+        db.query(
+          insertMasterSql,
+          [orgId, weekStart, weekEnd, email],
+          (masterErr, masterRes) => {
+            if (masterErr) {
+              console.error(masterErr);
+              return res.status(500).json({ message: "Master insert failed" });
+            }
+
+            const masterId = masterRes.insertId;
+
+            /* -------------------------------
+               STEP 6: Fetch active employees
+            -------------------------------- */
+            const empSql = `
+              SELECT EMP_ID FROM TC_USERS
+              WHERE ORG_ID = ? AND STATUS = 'A'
+            `;
+
+            db.query(empSql, [orgId], (empErr, empRes) => {
+              if (empErr) {
+                console.error(empErr);
+                return res.status(500).json({ message: "Employee fetch failed" });
+              }
+
+              if (!empRes.length) {
+                return res.status(200).json({ message: "No active employees" });
+              }
+
+              const timesheetData = empRes.map(emp => [
+                masterId,
+                orgId,
+                emp.EMP_ID,
+                "D",
+                "system"
+              ]);
+
+              /* -------------------------------
+                 STEP 7: Insert TC_TIMESHEET
+              -------------------------------- */
+              const insertTimesheetSql = `
+                INSERT INTO TC_TIMESHEET
+                (TC_MASTER_ID, ORG_ID, EMP_ID, STATUS, CREATED_BY)
+                VALUES ?
+              `;
+
+              db.query(
+                insertTimesheetSql,
+                [timesheetData],
+                (tsErr) => {
+                  if (tsErr) {
+                    console.error(tsErr);
+                    return res.status(500).json({ message: "Timesheet insert failed" });
+                  }
+
+                  return res.status(200).json({
+                    message: "Timesheet customization completed successfully",
+                    startDay,
+                    endDay,
+                    weekStart,
+                    weekEnd
+                  });
+                }
+              );
+            });
+          }
+        );
+      }
+    );
   });
 };
 

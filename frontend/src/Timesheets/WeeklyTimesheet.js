@@ -342,16 +342,16 @@ const [variance, setVariance] = useState({});
 
     
     
-    // try {
-    //   await fetch("http://localhost:3001/api/saveTimesheet", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify(payload),
-    //   });
-    //   getLatestTimeSheet(weekId);
-    // } catch (err) {
-    //   console.error("Save error:", err);
-    // }
+    try {
+      await fetch("http://localhost:3001/api/saveTimesheet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      getLatestTimeSheet(weekId);
+    } catch (err) {
+      console.error("Save error:", err);
+    }
   };
 
   const handleSubmit = async () => {
@@ -375,16 +375,16 @@ const [variance, setVariance] = useState({});
     console.log("payload",payload);
     
 
-    // try {
-    //   await fetch("http://localhost:3001/api/saveTimesheet", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify(payload),
-    //   });
-    //   getLatestTimeSheet(weekId);
-    // } catch (err) {
-    //   console.error("Submit error:", err);
-    // }
+    try {
+      await fetch("http://localhost:3001/api/saveTimesheet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      getLatestTimeSheet(weekId);
+    } catch (err) {
+      console.error("Submit error:", err);
+    }
   };
 
 

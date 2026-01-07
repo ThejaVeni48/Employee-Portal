@@ -42,10 +42,7 @@ const LoginLookup = require('./routes/Login/loginlookup');
 app.use('/api/LoginLookup',LoginLookup);
 
 
-// check status
 
-// const checkStatus = require('./routes/Login/checkStatus');
-// app.use('/api/checkStatus',checkStatus)
 
 //  ------------------------------------------SSO Module ----------------------------------------------------
 
@@ -111,6 +108,8 @@ const getSSOLeaves = require('./routes/SSO/getLeaves');
 app.use("/api/getSSOLeaves",getSSOLeaves);
 
 
+
+// ===================================================================================
 // api for posting the timesheets into timesheet table
 
 const postTimeSheet = require('./routes/postTimeSheetRoute');
@@ -550,7 +549,7 @@ const updateDetails = require('./routes/Employees/updateDetails');
 app.use('/api/updateDetails',updateDetails);
 
 
-
+// =============================organization level ===============================
 const uploadOrgRoles = require('./routes/Roles/uploadRoles');
 app.use('/api/uploadOrgRoles',uploadOrgRoles)
 
@@ -621,7 +620,14 @@ app.use('/api/getApproveHierarchy',getApproveHierarchy);
 
 
 const hierarchyforAll = require('./routes/Project/HierarchyForAll');
-app.use('/api/hierarchyforAll',hierarchyforAll)
+app.use('/api/hierarchyforAll',hierarchyforAll);
+
+
+//  api is used for making the employees inactive/exit or extend the contract (project).
+
+const changeStatus = require('./routes/Project/ChangeStatus');
+app.use('/api/changeStatus',changeStatus);
+
 
 // ------------------------------Timesheets------------------------------------------ 
 

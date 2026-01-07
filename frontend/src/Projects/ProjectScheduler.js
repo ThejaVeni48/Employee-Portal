@@ -15,6 +15,10 @@ export default function ProjectSchedulerUI({ employees = {} }) {
   const [blockedDays, setBlockedDays] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(null);
   const [contractMonths, setContractMonths] = useState([]);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  const [searchEmp, setSearchEmp] = useState("");
+  const [selectedEmp, setSelectedEmp] = useState(null);
 
   /* ---------------- PROJECT ID ---------------- */
   useEffect(() => {
@@ -39,23 +43,22 @@ export default function ProjectSchedulerUI({ employees = {} }) {
   };
 
   /* ---------------- MONTH DAYS ---------------- */
-const loadMonthDays = (contractStart, contractEnd, month) => {
-  const start = month.clone().startOf("month");
-  const end = month.clone().endOf("month");
+  const loadMonthDays = (contractStart, contractEnd, month) => {
+    const start = month.clone().startOf("month");
+    const end = month.clone().endOf("month");
 
-  const tempDays = [];
-  let d = start.clone();
-  while (d.isSameOrBefore(end)) {
-    tempDays.push(d.clone());
-    d.add(1, "day");
-  }
+    const tempDays = [];
+    let d = start.clone();
+    while (d.isSameOrBefore(end)) {
+      tempDays.push(d.clone());
+      d.add(1, "day");
+    }
 
-  setDays(tempDays);
-  setHours(Array(tempDays.length).fill(""));
+    setDays(tempDays);
+    setHours(Array(tempDays.length).fill(""));
 
-  return tempDays; // ✅ IMPORTANT
-};
-
+    return tempDays;
+  };
 
   /* ---------------- BLOCK LOGIC ---------------- */
   const isDateBlocked = (date) => {
@@ -85,72 +88,47 @@ const loadMonthDays = (contractStart, contractEnd, month) => {
   };
 
   /* ---------------- FETCH SAVED SCHEDULE ---------------- */
-const fetchMonthSchedules = async (empId, month, monthDays = days) => {
-  try {
-    const res = await fetch(
-      `http://localhost:3001/api/getSchedulers?orgId=${companyId}&empId=${empId}&projId=${projectId}&month=${month}`
-    );
-
-    const json = await res.json();
-
-    console.log("josn",json);
-    
-    const scheduleArr = json?.data?.schedule || [];
-
-    const filledHours = Array(monthDays.length).fill("");
-
-    scheduleArr.forEach((item) => {
-      const idx = monthDays.findIndex(
-        (d) => d.format("YYYY-MM-DD") === item.date
+  const fetchMonthSchedules = async (empId, month, monthDays = days) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3001/api/getSchedulers?orgId=${companyId}&empId=${empId}&projId=${projectId}&month=${month}`
       );
-      if (idx !== -1) filledHours[idx] = item.hours;
-    });
 
-    setHours(filledHours);
-  } catch (error) {
-    console.error("Error fetching scheduler", error);
-  }
-};
+      const json = await res.json();
 
+      const scheduleArr = json?.data?.schedule || [];
 
-  const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      if (scheduleArr.length > 0) {
+        setIsEditMode(false); // disable fields if schedule exists
+      } else {
+        setIsEditMode(true); // enable fields if schedule empty
+      }
 
-  /* ---------------- EMPLOYEE SELECT ---------------- */
-const handleSelect = (emp) => {
-  setSelectedEmployee(emp);
+      const filledHours = Array(monthDays.length).fill("");
 
-  const start = moment(emp.CONTRACT_START_DATE);
-  const end = moment(emp.CONTRACT_END_DATE);
+      scheduleArr.forEach((item) => {
+        const idx = monthDays.findIndex(
+          (d) => d.format("YYYY-MM-DD") === item.date
+        );
+        if (idx !== -1) filledHours[idx] = item.hours;
+      });
 
-  const months = generateContractMonths(start, end);
-  setContractMonths(months);
-
-  const firstMonth = months[0];
-  setCurrentMonth(firstMonth);
-
-  const generatedDays = loadMonthDays(start, end, firstMonth);
-
-  fetchMonthSchedules(
-    emp.EMP_ID,
-    firstMonth.format("YYYY-MM"),
-    generatedDays
-  );
-};
-
+      setHours(filledHours);
+    } catch (error) {
+      console.error("Error fetching scheduler", error);
+    }
+  };
 
   /* ---------------- CALENDAR MATRIX ---------------- */
   const getCalendarMatrix = () => {
+    if (!currentMonth) return [];
     const start = currentMonth.clone().startOf("month").startOf("isoWeek"); // Monday
     const end = currentMonth.clone().endOf("month").endOf("isoWeek");
-
-    // console.log("START",start);
-    // console.log("end",end);
-    
 
     const matrix = [];
     let day = start.clone();
 
-while (day.isSameOrBefore(end)) {
+    while (day.isSameOrBefore(end)) {
       const week = [];
       for (let i = 0; i < 7; i++) {
         week.push(day.clone());
@@ -158,8 +136,7 @@ while (day.isSameOrBefore(end)) {
       }
       matrix.push(week);
     }
-    // console.log("matrix",matrix);
-    
+
     return matrix;
   };
 
@@ -185,10 +162,44 @@ while (day.isSameOrBefore(end)) {
       });
       const json = await res.json();
       alert(json.message);
+      setIsEditMode(false);
+       setIsEditMode(false);
+    setSelectedEmp(null);
+    setSelectedEmployee(null);
+    setHours([]);
+    setDays([]);
+    setCurrentMonth(null);
     } catch {
       alert("Save failed");
     }
   };
+
+  /* ---------------- SEARCH + SINGLE SELECT ---------------- */
+  const filteredEmployees = projEmployee.filter(
+    (emp) =>
+      emp.DISPLAY_NAME.toLowerCase().includes(searchEmp.toLowerCase()) ||
+      emp.EMP_ID.toString().includes(searchEmp)
+  );
+
+  const handleCheckboxSelect = (emp) => {
+    setSelectedEmployee(emp);
+    setSelectedEmp(emp);
+    setSearchEmp("");
+
+    const start = moment(emp.CONTRACT_START_DATE);
+    const end = moment(emp.CONTRACT_END_DATE);
+
+    const months = generateContractMonths(start, end);
+    setContractMonths(months);
+
+    const firstMonth = months[0];
+    setCurrentMonth(firstMonth);
+
+    const generatedDays = loadMonthDays(start, end, firstMonth);
+    fetchMonthSchedules(emp.EMP_ID, firstMonth.format("YYYY-MM"), generatedDays);
+  };
+
+  const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   /* ---------------- UI ---------------- */
   return (
@@ -196,22 +207,65 @@ while (day.isSameOrBefore(end)) {
       <div style={{ display: "flex", background: "#fff", borderRadius: 10 }}>
         <div style={{ width: "25%", padding: 20, borderRight: "1px solid #ddd" }}>
           <h3>Project Employees</h3>
-          {projEmployee.map((emp) => (
+          <input
+            type="text"
+            placeholder="Search employee..."
+            value={searchEmp}
+            onChange={(e) => setSearchEmp(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "10px",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+              marginTop: "6px",
+            }}
+          />
+
+          {searchEmp && filteredEmployees.length > 0 && (
             <div
-              key={emp.EMP_ID}
               style={{
-                padding: 10,
-                borderRadius: 6,
-                cursor: "pointer",
-                marginBottom: 8,
-                background: "#f5f7fa",
+                border: "1px solid #ddd",
+                borderRadius: "5px",
+                maxHeight: "150px",
+                overflowY: "auto",
               }}
-              onClick={() => handleSelect(emp)}
             >
-              <b>{emp.EMP_ID}</b>
-              <div>{emp.DISPLAY_NAME}</div>
+              {filteredEmployees.map((emp) => (
+                <label
+                  key={emp.EMP_ID}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "8px 10px",
+                    borderBottom: "1px solid #eee",
+                    cursor: "pointer",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedEmp?.EMP_ID === emp.EMP_ID}
+                    onChange={() => handleCheckboxSelect(emp)}
+                    style={{ marginRight: "10px" }}
+                  />
+                  {emp.DISPLAY_NAME}
+                </label>
+              ))}
             </div>
-          ))}
+          )}
+
+          {selectedEmp && (
+            <div
+              style={{
+                background: "#f1f5ff",
+                padding: "10px",
+                borderRadius: "6px",
+                fontWeight: "500",
+                marginTop: "6px",
+              }}
+            >
+              Selected: {selectedEmp.DISPLAY_NAME}
+            </div>
+          )}
         </div>
 
         <div style={{ width: "75%", padding: 20 }}>
@@ -253,17 +307,21 @@ while (day.isSameOrBefore(end)) {
                   </button>
                 ))}
               </div>
-      <div  style={{
+
+              {/* Week Days */}
+              <div
+                style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(7,1fr)",
-                  textAlign:'center'
-                }}>
-  {weekDays.map((day) => (
-    <div key={day} className="day-name">
-      {day}
-    </div>
-  ))}
-</div>
+                  textAlign: "center",
+                }}
+              >
+                {weekDays.map((day) => (
+                  <div key={day}>{day}</div>
+                ))}
+              </div>
+
+              {/* Calendar */}
               <div
                 style={{
                   display: "grid",
@@ -290,19 +348,31 @@ while (day.isSameOrBefore(end)) {
                         }}
                       >
                         <b>{day.date()}</b>
-                        <p>{i}</p>
+
                         {!blocked && idx !== -1 && (
                           <input
                             type="number"
                             min="0"
                             max="24"
-                            value={hours[idx] || ""}
+                            disabled={!isEditMode}
+                            value={
+                              hours[idx] !== undefined && hours[idx] !== null
+                                ? hours[idx]
+                                : ""
+                            }
                             onChange={(e) => {
+                              if (!isEditMode) return;
                               const copy = [...hours];
-                              copy[idx] = e.target.value;
+                              copy[idx] =
+                                e.target.value === "" ? "" : Number(e.target.value);
                               setHours(copy);
                             }}
-                            style={{ width: 45, marginTop: 5 }}
+                            style={{
+                              width: 45,
+                              marginTop: 5,
+                              background: !isEditMode ? "#eee" : "#fff",
+                              cursor: !isEditMode ? "not-allowed" : "text",
+                            }}
                           />
                         )}
                       </div>
@@ -310,19 +380,37 @@ while (day.isSameOrBefore(end)) {
                   })}
               </div>
 
-              <button
-                onClick={handleSave}
-                style={{
-                  marginTop: 15,
-                  padding: "10px 25px",
-                  background: "#1c3681",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 6,
-                }}
-              >
-                Save Schedule
-              </button>
+              {/* Edit / Save Button */}
+              <div style={{ marginTop: 15 }}>
+                {!isEditMode ? (
+                  <button
+                    onClick={() => setIsEditMode(true)}
+                    style={{
+                      padding: "10px 25px",
+                      background: "#777",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 6,
+                      marginRight: 10,
+                    }}
+                  >
+                    Edit
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSave}
+                    style={{
+                      padding: "10px 25px",
+                      background: "#1c3681",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 6,
+                    }}
+                  >
+                    Save
+                  </button>
+                )}
+              </div>
             </>
           ) : (
             <h3>Select Employee</h3>

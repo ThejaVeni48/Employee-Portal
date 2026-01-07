@@ -1,3 +1,6 @@
+// THIS API IS USED FOR GETTING THE PROJ SCHEDULERS.
+
+
 const db = require("../../../config/db");
 
 
@@ -82,23 +85,77 @@ const getSchedulers = async (req, res) => {
     const startDate = new Date(row.start_date);
     const year = startDate.getFullYear();
     const monthIndex = startDate.getMonth(); 
+    const monthStart = new Date(year, monthIndex, 1);
+const monthEnd   = new Date(year, monthIndex + 1, 0);
+
 
     const schedule = [];
 
-    for (let day = 1; day <= 31; day++) {
-      const hours = row[`day${day}`];
+    // for (let day = 1; day <= 31; day++) {
+    //   const hours = row[`day${day}`];
+    //   console.log("hours",hours);
+      
 
-      if (hours !== null && hours !== undefined) {
-        const date = new Date(year, monthIndex, day);
+    //   if (hours !== null && hours !== undefined) {
+    //     const date = new Date(year, monthIndex, day);
 
-        if (date.getMonth() === monthIndex) {
-          schedule.push({
-            date: date.toISOString().split("T")[0], 
-            hours: hours,
-          });
-        }
-      }
-    }
+    //     if (date.getMonth() === monthIndex) {
+    //       schedule.push({
+    //         date: date.toISOString().split("T")[0], 
+    //         hours: hours,
+    //       });
+    //     }
+    //   }
+    // }
+
+    const daysInMonth = monthEnd.getDate();
+    const daysStart = monthEnd.getDate();
+
+    console.log("daysStart",daysStart);
+    
+
+
+
+
+    console.log("daysInMonth",daysInMonth);
+    
+
+for (let day = 1; day <= daysInMonth; day++) {
+  const hours = row[`day${day}`];
+
+  if (hours !== null && hours !== undefined) {
+    console.log("day",day);
+    console.log("year",year);
+    console.log("monthIndex",monthIndex);
+    
+    
+    
+    const date = new Date(year, monthIndex, day);
+    console.log("date",date);
+    
+const yyyy = date.getFullYear();
+const mm = String(date.getMonth() + 1).padStart(2, "0");
+const dd = String(date.getDate()).padStart(2, "0");
+
+const formattedDate = `${yyyy}-${mm}-${dd}`;
+
+    schedule.push({
+      // date: date.toISOString().split("T")[0],
+      date:formattedDate,
+      hours
+    });
+  }
+}
+
+// console.log("schedule",schedule);
+
+
+    console.log("totalhours",row.total_hours);
+    console.log("schedule_id",row.schedule_id);
+    console.log("month_year",row.month_year);
+    console.log("status",row.status);
+    console.log("schedule",schedule);
+    
 
     return res.json({
       data: {

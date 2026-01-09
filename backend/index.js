@@ -529,7 +529,6 @@ app.use('/api/getDesignation',getDesignation)
 
 
 
-
 // COMPANIES ACCEPT /REJECT API
 
 const ApproveRejectOrg = require('./routes/SSO/ApproveRejectOrg');
@@ -745,8 +744,33 @@ app.use('/api/activeSubscription',activeSubscription);
 const upgradeSubscription = require('./routes/Subscriptions/upgradeSubscription');
 app.use('/api/upgradeSubscription',upgradeSubscription)
 
+
+
+
+// ==========================   Shifts =============================================================
+
+
+const getShifts = require('./routes/Shifts/getShifts');
+app.use('/api/getShifts',getShifts);
+
+
+const createShifts = require('./routes/Shifts/createShifts');
+app.use('/api/createShifts',createShifts);
+
+
+const updateShift = require('./routes/Shifts/updateShift');
+app.use('/api/updateShift',updateShift);
+
+
+const assignShift = require('./routes/Shifts/assignShift');
+app.use('/api/assignShift',assignShift)
+
 //============================================schedules  ==============================================
 
+
+
+const orderLines = require('./routes/orderLines');
+app.use('/api/orderLines',orderLines)
 
 
 require('./controllers/Schedules//timesheetGenerate');

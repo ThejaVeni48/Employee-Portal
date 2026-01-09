@@ -19,6 +19,8 @@ const Roles = () => {
   const [visible, setVisible] = useState(false);
   const companyId = useSelector((state) => state.user.companyId);
  const email = useSelector((state) => state.user.email);
+   const [selectedRow, setSelectedRow] = useState(null);
+ 
   console.log("companyId",companyId);
   
    const navigate = useNavigate();
@@ -30,6 +32,9 @@ const Roles = () => {
   
 
   const [refresh, setRefresh] = useState(false);
+
+    const isEditMode = !!selectedRow?.ROLE_CODE;
+
 
   const styles = {
     container: { minHeight: "100vh", fontFamily: "'Inter', sans-serif" },
@@ -179,10 +184,18 @@ const Roles = () => {
         backgroundColor: "transparent",
         cursor: "pointer",
       }}
+       onClick={() => handleEdit(rowData)}
     >
       <HiOutlineDotsHorizontal />
     </button>
   );
+
+
+  const handleEdit = (row)=>{
+
+    setSelectedRow(row);
+
+  }
 
 // Inside your Roles component
 

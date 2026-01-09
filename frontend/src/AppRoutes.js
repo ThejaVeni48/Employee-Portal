@@ -81,6 +81,7 @@ import CompaniesList from "./SSO/Company/Company";
 import ChangePassword from "./Login/ChangePassword/ChangePwd";
 import {  useSelector } from "react-redux";
 import Plans from './Login/Plans/Plans';
+import Shifts from "./Shifts/Shifts";
 
 function AppRoutes() {
     const role = useSelector((state) => state.user.Role);
@@ -88,7 +89,7 @@ function AppRoutes() {
   return (
     <Router>
       <Routes>
-        {/* Login Routes */}
+        {/*================================ Login Routes =================================================*/}
         <Route path="/" element={<WelcomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -98,7 +99,7 @@ function AppRoutes() {
          <Route path="/subscriptionplans" element={<Plans/>}/>
 
 
-        {/* SSO */}
+        {/* =================================SSO  ===============================================*/}
 
         <Route path="/SSODashboard" element={<SSODashboard />}>
           <Route path="companies" element = {<CompaniesList/>}/>
@@ -129,20 +130,7 @@ function AppRoutes() {
         <Route path="/emp" element={<AllEmployees />} />
 
         {/*----------------------------------- Employee ---------------------------------------------------------- */}
-        {/* <Route path="/employeedashboard" element={<EmpDashboard />}>
-          <Route path="empMainDashboard" element={<EmpMainDashboard />} />
-          <Route path="TimeSheetsInfo" element={<TimeSheetsInfo />} />
-          <Route path="myprojects" element={<MyProjects />} />
-          <Route path="emptask" element={<EmpTask />} />
-          <Route path="weektimesheet" element={<WeekTimesheet />} />
-          <Route path="timesheetsummary" element={<TimesheetSummary />}>
-          </Route>
-
-          <Route path="timesheetentries" element={<TimesheetEntries />} />
-          <Route path="holiday" element={<Holiday />} />
-          <Route path="empleavesummary" element={<LeaveSummary />} />
-        </Route> */}
-        {/* <Route path="/settingspage" element={<SettingsPage />} /> */}
+       
         <Route path="/profilepage" element={<ProfilePage />} />
         <Route path="/TimeSheetEntries" element={<TimeSheetEntries />} />
 
@@ -250,6 +238,7 @@ function AppRoutes() {
           <Route path="orgacess" element={<OrgAccess />} />
           <Route path="profile" element={<Profile />} />
           <Route path="settingspage" element={<SettingsPage/>}/>
+          <Route path="shifts" element={<Shifts/>}/>
 
 
 
@@ -337,7 +326,6 @@ function AppRoutes() {
           <Route path="empleavesummary" element={<LeaveSummary />} />
           <Route path="timesheetsummary" element={<TimesheetSummary />} />
 
-          {/* <Route path="pmholiday" element={<Holiday />} /> */}
           <Route path="leavesrequest" element={<LeavesRequest />} />
           <Route path="leavesrequest" element={<LeavesRequest />} />
         </Route>

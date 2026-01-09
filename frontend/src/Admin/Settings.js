@@ -118,6 +118,13 @@ export default function Settings() {
       icon: FaUsers,
       path: "orgacess",
     },
+    {
+      key: "shifts",
+      title: "Shifts",
+      desc: "Default and custom Shifts for your organization.",
+      icon: FaUsers,
+      path: "shifts",
+    },
   ], []);
 
   const [filteredSystem, setFilteredSystem] = useState(SYSTEM);

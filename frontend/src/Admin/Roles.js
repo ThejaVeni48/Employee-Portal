@@ -216,7 +216,7 @@ const handleFileChange = async (e) => {
     const data = await res.json();
     if (data.status === 201) {
       alert("Roles uploaded successfully!");
-      setRefresh((prev) => !prev); // reload table
+      setRefresh((prev) => !prev); 
     } else {
       alert("Failed to upload file");
     }

@@ -17,6 +17,7 @@ const empTimesheetSummary = (req,res)=>{
      const sql = 
      `SELECT 
      M.WEEK_START,
+    TS.TC_MASTER_ID AS WEEK_ID,
     CONCAT (M.WEEK_START, '-' , M.WEEK_END) AS WEEK,
     COALESCE(TS.STATUS, 'P') AS STATUS,
     COALESCE(TS.TOTAL_HOURS, 0) AS TOTAL_HOURS,

@@ -22,6 +22,8 @@ const AdminDashboard = () => {
   const fullName = useSelector((state) => state.user.fullName);
   const accessCode = useSelector((state) => state.user.accessCode);
   const [approveAccess, setApproveAccess] = useState("");
+  const [showAssignee,setShowAssignees] = useState(false);
+  const [assigneesList,setAssigneesList] = useState([]);
   console.log("accessCode:", accessCode);
 
   console.log("EMPiD",empId);
@@ -54,6 +56,8 @@ const AdminDashboard = () => {
   useEffect(() => {
     // getActiveProjects();
     getApproveAccess();
+    showAssignees();
+    // getAssigness();
   }, []);
 
   useEffect(() => {
@@ -83,6 +87,41 @@ const AdminDashboard = () => {
       if (res.canApprove) {
         setApproveAccess(res.canApprove);
       }
+
+      // if(!data && data.l)
+      // console.log(res.data[0][1]);
+      // if(res.data.length >0)
+      // setApproveAccess(res.data[0][1])
+    } catch (error) {
+      console.error("error occured", error);
+    }
+  };
+
+
+   const showAssignees = async () => {
+    try {
+      const data = await fetch(
+        `http://localhost:3001/api/showAssignees?orgId=${companyId}&empId=${empId}`
+      );
+
+      if (!data.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const res = await data.json();
+
+      console.log("res for assignees", res.data);
+      if(res.data.length >0 && res.data)
+      {
+        setShowAssignees(true);
+        setAssigneesList(res.data)
+      }
+      // console.log("res for access", res.canApprove);
+      // console.log("res for access", typeof res);
+
+      // if (res.canApprove) {
+      //   setApproveAccess(res.canApprove);
+      // }
 
       // if(!data && data.l)
       // console.log(res.data[0][1]);
@@ -147,6 +186,14 @@ const AdminDashboard = () => {
       path: "LeavesDashboard",
       requiredAccess: ["ALL_R", "LEAVE_TAB"],
     },
+    ...(showAssignee ? [  {
+      section: "Organization",
+      name: "Assignees",
+      icon: <MdSettings />,
+      path: "assignedEmps",
+      // requiredAccess: ["ALL_R", "LEAVE_TAB"],
+    },] : []),
+   
     {
       section: "Organization",
       name: "Holidays",
@@ -180,16 +227,16 @@ const AdminDashboard = () => {
   
 
 const filteredMenu = menuItems.filter((item) => {
-  // ✅ Admin / Org Admin → show everything
+  // Admin / Org Admin → show everything
   if (role === "Admin" || role === "Org Admin") return true;
 
-  // ✅ accessCode includes ALL_R → show everything
+  // accessCode includes ALL_R → show everything
   if (accessCode?.includes?.("ALL_R")) return true;
 
-  // ✅ No access required → show item
+  // No access required → show item
   if (!item.requiredAccess || item.requiredAccess.length === 0) return true;
 
-  // ✅ Normal user access check
+  // Normal user access check
   if (!accessCode) return false;
 
   const userCodes = Array.isArray(accessCode)
@@ -218,11 +265,15 @@ const filteredMenu = menuItems.filter((item) => {
       console.log("Passing projectIds to approvals:", projectsId);
 
       navigate(`/adminDashboard/${item.path}`, {
-        state: { projectsId },
+        state: { projectsId,assigneesList },
       });
     }
   };
 
+
+  console.log("showAssignees",showAssignee);
+  console.log("showAssignelistes",assigneesList);
+  
   const isActive = (path) => location.pathname.includes(path);
 
   return (

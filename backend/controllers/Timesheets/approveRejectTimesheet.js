@@ -147,6 +147,8 @@ WHERE EMP_ID = ? AND PROJ_ID = ?`;
       // CASE 2: NO HIERARCHY
       else {
 
+        console.log("NO HIERARCHY");
+        
         const finalSql = `
           UPDATE TC_TIMESHEET
           SET STATUS=?, APPROVER_ID = ?, REMARKS = ?

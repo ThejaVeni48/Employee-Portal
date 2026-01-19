@@ -19,16 +19,20 @@ const Profile = () => {
   const [desgn, setDesgn] = useState([]);
   const [access, setAccess] = useState([]);
   const [shifts, setShifts] = useState([]);
+  const [employees,setEmployees] = useState([]);
 
   const [selectedRoleCode, setSelectedRoleCode] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedDesgn, setSelectedDesgn] = useState("");
   const [selectedAccess, setSelectedAccess] = useState([]);
   const [selectedShift,setSelectedShift] = useState('');
+  const [selectedRM,setSelectedRM] = useState('');
 
   const [isEditing, setIsEditing] = useState(false);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [shiftDVisible,setShiftDVisible] = useState(false);
+  const [reportingD,setReportingD] = useState(false);
+  const [acessDialog,setAccessDialog] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
       const [toggle,setToggle] = useState(false);
@@ -42,7 +46,7 @@ const Profile = () => {
     getRoles();
     getAccess();
     getShifts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    getReportingManagers();
   }, [empId, companyId]);
 
 
@@ -183,7 +187,32 @@ const Profile = () => {
     }
   };
 
-  // ------------------- Save Handlers -------------------
+
+  const getReportingManagers = async()=>{
+    try {
+      
+      const data = await fetch(`http://localhost:3001/api/getEmployees?companyId=${companyId}`);
+
+
+      if(!data.ok)
+      {
+        throw new Error("Network was not good");
+        
+      }
+
+      const res = await data.json();
+      setEmployees(res.data || []);
+
+      
+    } catch (error) {
+      console.error("Error occured",error);
+      
+    }
+  }
+
+
+
+  // ------------------- Save api -------------------
   const saveBasicDetails = async () => {
     try {
       const res = await fetch("http://localhost:3001/api/updateDetails", {
@@ -213,7 +242,7 @@ const Profile = () => {
     }
     console.log("selectedRoleCode",selectedRoleCode);
     console.log("selectedDesgn",selectedDesgn);
-    console.log("selectedAccess",selectedAccess);
+    // console.log("selectedAccess",selectedAccess);
     
 
     try {
@@ -226,12 +255,44 @@ const Profile = () => {
           companyId,
           selectedRoleCode,
           selectedDesgn,
-          selectedAccess,
+          // selectedAccess,
         }),
       });
       const data = await res.json();
       alert(data.message || "Responsibilities assigned successfully!");
       setDialogVisible(false);
+      setIsEditMode(false);
+      getProfile();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to assign responsibilities");
+    }
+  };
+
+    const saveAccess = async () => {
+    if (!selectedAccess) {
+      alert("Please select a Role");
+      return;
+    }
+
+    console.log("selectedAccess",selectedAccess);
+    
+
+    try {
+      const res = await fetch("http://localhost:3001/api/assignAccess", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          empId,
+          email,
+          companyId,
+
+          selectedAccess,
+        }),
+      });
+      const data = await res.json();
+      alert(data.message || "Responsibilities assigned successfully!");
+      // setAccessDialog(false);
       setIsEditMode(false);
       getProfile();
     } catch (err) {
@@ -310,18 +371,45 @@ const Profile = () => {
 
 const openAddShiftDialog = () => {
     setIsEditMode(false);
-    // setSelectedRoleCode("");
-    // setSelectedRole("");
-    // setSelectedDesgn("");
-    // setSelectedAccess([]);
+    
     setShiftDVisible(true);
   };
 
+
+
   const openEditShiftDialog = () => {
   setIsEditMode(true);
-  // setSelectedRoleCode(profile.ROLE_CODE || "");
-  // setSelectedDesgn(profile.DESGN_CODE || "");
+  
   setShiftDVisible(true);
+};
+
+const openAddAccessDialog = () => {
+    setIsEditMode(false);
+    
+    setAccessDialog(true);
+  };
+
+
+
+  const openEditAccessDialog = () => {
+  setIsEditMode(true);
+  
+  setAccessDialog(true);
+};
+
+
+const openAddReportingDialog = () => {
+    setIsEditMode(false);
+    
+    setReportingD(true);
+  };
+
+
+
+  const openEditReportingDialog = () => {
+  setIsEditMode(true);
+  
+  setReportingD(true);
 };
 
   // const openEditDialog = () => {
@@ -380,10 +468,40 @@ try {
       console.error(err);
       alert("Failed to assign responsibilities");
     }
+
+
     
   
  }
+
+
+ // api for saving reporting manager.
  
+
+ const saveRM = async()=>{
+
+  console.log("");
+  
+  try {
+      const res = await fetch("http://localhost:3001/api/allocateRM", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          empId,
+          email,
+          orgId:companyId,
+          managerId:selectedRM        
+        }),
+      });
+      const data = await res.json();
+      console.log("data",data);
+      
+    
+    } catch (error) {
+    console.error("Error occured",error);
+    
+  }
+ }
 
 
   return (
@@ -505,14 +623,34 @@ try {
           <span>{profile.DESGN_NAME || "Not Assigned"}</span>
         </div>
 
-        <div className="profile-row">
-          <label>Access:</label>
-          <span>{ profile.ACCESS_CODES || "No Access Assigned"}</span>
-        </div>
 
          <div className="profile-row">
           <label>Timesheet Customization:</label>
                  <InputSwitch checked={checked} onChange={(e) => handleTimesheetToggle(e.value)}  disabled={toggle}/>
+        </div>
+      </div>
+
+    {/* Access Allocation */}
+
+     <div className="profile-section">
+        <h3>Responsibilities</h3>
+
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+          {noResponsibilities ? (
+            <button className="save-btn" onClick={openAddAccessDialog}>
+              Add Responsibilities
+            </button>
+          ) : (
+            <button className="save-btn" onClick={openEditAccessDialog}>
+              Edit Responsibilities
+            </button>
+          )}
+        </div>
+
+        
+        <div className="profile-row">
+          <label>Access:</label>
+          <span>{ profile.ACCESS_CODES || "No Access Assigned"}</span>
         </div>
       </div>
 
@@ -540,6 +678,30 @@ try {
 
         </div>
       
+
+
+      {/* Assign Hr and Manager */}
+
+        <div className="profile-section">
+        <h3> Reporting Manager And HR Allocation</h3>
+
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}>
+          {noResponsibilities ? (
+            <button className="save-btn" onClick={openAddReportingDialog}>
+              Add  Reporting manager
+            </button>
+          ) : (
+            <button className="save-btn" onClick={openEditReportingDialog}>
+              Modify Reporting Manager
+            </button>
+          )}
+        </div>
+ <div className="profile-row">
+          <label>Reporting Manager :</label>
+          <span>{ profile.SHIFT_CODE1 || "No Reporting Manager Assigned"}</span>
+        </div>
+
+        </div>
 
     {/* Dialog for responsibilities */}
       <Dialog
@@ -577,7 +739,24 @@ try {
           </select>
         </div>
 
-        <div className="profile-row" style={{ marginBottom: 12 }}>
+      
+
+        <div style={{ textAlign: "right", marginTop: 12 }}>
+          <button className="save-btn" onClick={saveResponsibilities}>
+            Save
+          </button>
+        </div>
+      </Dialog>
+
+      {/* Dialog for access controls */}
+
+ <Dialog
+        header="Manage Shift"
+        visible={acessDialog}
+        style={{ width: "35vw" }}
+        onHide={() => setAccessDialog(false)}
+      >
+         <div className="profile-row" style={{ marginBottom: 12 }}>
           <label>Access Levels:</label>
           <MultiSelect
             value={selectedAccess}
@@ -592,13 +771,15 @@ try {
           />
         </div>
 
+      
+       
+
         <div style={{ textAlign: "right", marginTop: 12 }}>
-          <button className="save-btn" onClick={saveResponsibilities}>
+          <button className="save-btn" onClick={saveAccess}>
             Save
           </button>
         </div>
       </Dialog>
-
 
 {/* Dialog for Shift */}
        <Dialog
@@ -624,6 +805,39 @@ try {
 
         <div style={{ textAlign: "right", marginTop: 12 }}>
           <button className="save-btn" onClick={saveShift}>
+            Save
+          </button>
+        </div>
+      </Dialog>
+
+
+
+
+  {/* Dialog for assigning manager and hr */}
+
+    <Dialog
+        header="Manage Reporting Manager and HR"
+        visible={reportingD}
+        style={{ width: "35vw" }}
+        onHide={() => setReportingD(false)}
+      >
+        <div className="profile-row" style={{ marginBottom: 12 }}>
+          <label>Reporing Manager:</label>
+          <select value={selectedRM} onChange={(e) => setSelectedRM(e.target.value)}>
+            <option value="">-- Select Reporting Manager --</option>
+            {employees.map((r) => (
+              <option key={r.USER_ID} value={r.EMP_ID}>
+                {r.DISPLAY_NAME}
+              </option>
+            ))}
+          </select>
+        </div>
+
+      
+       
+
+        <div style={{ textAlign: "right", marginTop: 12 }}>
+          <button className="save-btn" onClick={saveRM}>
             Save
           </button>
         </div>

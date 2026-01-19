@@ -258,6 +258,19 @@ const getEmp = require('./routes/Employees/getEmployeesRoute');
 app.use('/api/getEmp',getEmp)
 
 
+// this apis is used for allocating Reporting Manager
+
+
+const allocateRM = require('./routes/Employees/allocateRm');
+app.use('/api/allocateRM',allocateRM);
+
+
+// showing assigness to teh reporting managers.
+
+const showAssignees = require('./routes/Employees/showAssignees');
+app.use('/api/showAssignees',showAssignees);
+
+
 // this api is used for leaves creation by the admin
 
 
@@ -518,7 +531,7 @@ app.use('/api/weeklyTimesheetCSV',weeklyTimesheetCSV);
 
 
 
-// Designations
+// ================================== Designations   =============================
 
 const CreateDesignation = require('./routes/Designation/createRoute');
 app.use('/api/CreateDesignation',CreateDesignation)
@@ -572,6 +585,10 @@ app.use('/api/empProfile',empProfile);
 
 const assignRes = require('./routes/Employees/assignRes');
 app.use('/api/assignRes',assignRes);
+
+
+const assignAccess = require('./routes/Employees/assignAccess');
+app.use('/api/assignAccess',assignAccess)
 
 
 // api is used for displaying the emplouyees except super users

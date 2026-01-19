@@ -19,7 +19,8 @@ AND U.ORG_ID = UA.ORG_ID
 JOIN TC_ORG_ROLES R
 ON R.ROLE_CODE = UA.ROLE_CODE
 AND R.ORG_ID = UA.ORG_ID
-WHERE R.ROLE_NAME <> 'Super Admin' `;
+WHERE R.ROLE_NAME <> 'Super Admin'
+AND U.ORG_ID = ? `;
 
 
 db.query(sql,[companyId],(error,result)=>{

@@ -49,7 +49,7 @@ import PMProjectsDashboard from "./PM/Projects/PMProjectsDashboard";
 import TimesheetSummary from "./Employee/TimesheetSummary";
 import LeaveSummary from "./Leaves/Leavesummary";
 import MngMainDashboard from "./Manager/MngMainDashboard";
-import EmpTimesheet from "./Timesheets/EmpTimesheet";
+import EmpTimesheet from "./Manager/EmpTimesheet";
 import LeavesRequest from "./Leaves/LeavesRequest";
 import Approvals from "./Timesheets/Approvals";
 import ApprovedTimesheet from "./Timesheets/ApprovedTimesheet";
@@ -79,12 +79,13 @@ import Holiday from "./Holidays/Holiday";
 import PHolidays from "./Projects/ProjectHolidays/PHolidays";
 import CompaniesList from "./SSO/Company/Company";
 import ChangePassword from "./Login/ChangePassword/ChangePwd";
-import {  useSelector } from "react-redux";
-import Plans from './Login/Plans/Plans';
+import { useSelector } from "react-redux";
+import Plans from "./Login/Plans/Plans";
 import Shifts from "./Shifts/Shifts";
+import AssignedEmps from "./Manager/AssignedEmps";
 
 function AppRoutes() {
-    const role = useSelector((state) => state.user.Role);
+  const role = useSelector((state) => state.user.Role);
 
   return (
     <Router>
@@ -95,14 +96,13 @@ function AppRoutes() {
         <Route path="/register" element={<Register />} />
         <Route path="/empLogin" element={<EmpLogin />} />
         <Route path="/vieworg" element={<ViewOrg />} />
-         <Route path="changePassword" element={<ChangePassword />} />
-         <Route path="/subscriptionplans" element={<Plans/>}/>
-
+        <Route path="changePassword" element={<ChangePassword />} />
+        <Route path="/subscriptionplans" element={<Plans />} />
 
         {/* =================================SSO  ===============================================*/}
 
         <Route path="/SSODashboard" element={<SSODashboard />}>
-          <Route path="companies" element = {<CompaniesList/>}/>
+          <Route path="companies" element={<CompaniesList />} />
           <Route path="roles" element={<DRoles />} />
           <Route path="designation" element={<Designation />} />
           <Route path="jobs" element={<Jobs />} />
@@ -115,7 +115,7 @@ function AppRoutes() {
           <Route path="empleavesummary" element={<LeaveSummary />} />
 
           <Route path="mngmainDashboard" element={<MngMainDashboard />} />
-          <Route path="empTimesheet" element={<EmpTimesheet />} />
+          {/* <Route path="empTimesheet" element={<EmpTimesheet />} /> */}
           <Route path="leavesrequest" element={<LeavesRequest />} />
           {/* <Route path="holiday" element={<Holiday />} /> */}
           <Route path="weektimesheet" element={<WeekTimesheet />} />
@@ -130,30 +130,23 @@ function AppRoutes() {
         <Route path="/emp" element={<AllEmployees />} />
 
         {/*----------------------------------- Employee ---------------------------------------------------------- */}
-       
+
         <Route path="/profilepage" element={<ProfilePage />} />
         <Route path="/TimeSheetEntries" element={<TimeSheetEntries />} />
 
         <Route path="/LeavesDashboard" element={<LeavesDashboard />} />
         <Route path="/AssignmentsPage" element={<AssignmentPage />} />
 
-   {/*------------------------------------------ Admin ---------------------------------------------------*/}
+        {/*------------------------------------------ Admin ---------------------------------------------------*/}
 
+        {/* --------------------------- Dashboard ------------------------------------------- */}
 
-    {/* --------------------------- Dashboard ------------------------------------------- */}
-
-        
-      
         <Route path="/adminDashboard" element={<AdminDashboard />}>
-
-
-
-        {/* ------------------------Projects ------------------------------------------------------------------ */}
+          {/* ------------------------Projects ------------------------------------------------------------------ */}
           <Route
             path="projects"
             element={
-              <ProtectedRoute   
-              accessCode={["PROJ_VW", "ALL_R"]}>
+              <ProtectedRoute accessCode={["PROJ_VW", "ALL_R"]}>
                 <Projects />
               </ProtectedRoute>
             }
@@ -162,7 +155,7 @@ function AppRoutes() {
           <Route
             path="createproject"
             element={
-              <ProtectedRoute  accessCode={["PROJ_CR", "ALL_R", "PROJ_MD"]}>
+              <ProtectedRoute accessCode={["PROJ_CR", "ALL_R", "PROJ_MD"]}>
                 <CreateProject />
               </ProtectedRoute>
             }
@@ -171,7 +164,7 @@ function AppRoutes() {
           <Route
             path="projectassignment"
             element={
-              <ProtectedRoute   accessCode={["PROJ_ASSIGN", "ALL_R"]}>
+              <ProtectedRoute accessCode={["PROJ_ASSIGN", "ALL_R"]}>
                 <ProjectAssignmnet />
               </ProtectedRoute>
             }
@@ -180,7 +173,7 @@ function AppRoutes() {
           <Route
             path="tasks"
             element={
-              <ProtectedRoute  accessCode={["ALL_R", "PROJ_TASK"]}>
+              <ProtectedRoute accessCode={["ALL_R", "PROJ_TASK"]}>
                 <Task />
               </ProtectedRoute>
             }
@@ -189,7 +182,7 @@ function AppRoutes() {
           <Route
             path="tasks"
             element={
-              <ProtectedRoute  accessCode={["ALL_R", "PROJ_TASK"]}>
+              <ProtectedRoute accessCode={["ALL_R", "PROJ_TASK"]}>
                 <TaskList />
               </ProtectedRoute>
             }
@@ -198,25 +191,20 @@ function AppRoutes() {
           <Route
             path="projectprofile"
             element={
-              <ProtectedRoute  accessCode={["ALL_R", "PROJ_PROF"]}>
+              <ProtectedRoute accessCode={["ALL_R", "PROJ_PROF"]}>
                 <ProjectProfile />
               </ProtectedRoute>
             }
           />
 
-         
-
-
-      
           <Route
             path="holidays"
             element={
-              <ProtectedRoute  accessCode={["ALL_R", "HD_TAB"]}>
+              <ProtectedRoute accessCode={["ALL_R", "HD_TAB"]}>
                 <Holiday />
               </ProtectedRoute>
             }
           />
-
 
           <Route path="projectholidays" element={<PHolidays />} />
 
@@ -230,78 +218,70 @@ function AppRoutes() {
           <Route path="leavescreation" element={<LeavesCreation />} />
           <Route path="leavesmanagement" element={<LeaveManagement />} />
           {/* <Route path="projects" element={<Projects />} /> */}
-      
+
           <Route path="timesheet" element={<Timesheets />} />
           <Route path="adminleaves" element={<AdminLeaves />} />
           <Route path="roles" element={<Roles />} />
           <Route path="orgdesignations" element={<OrgDesignations />} />
           <Route path="orgacess" element={<OrgAccess />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="settingspage" element={<SettingsPage/>}/>
-          <Route path="shifts" element={<Shifts/>}/>
+          <Route path="settingspage" element={<SettingsPage />} />
+          <Route path="shifts" element={<Shifts />} />
 
+          {/*  ------------ assigned employees */}
 
+          <Route path="assignedEmps" element={<AssignedEmps/>}/>
+          <Route path='EmpTimesheet' element={<EmpTimesheet/>}/>
 
-            {/*------------------------------- timesheets ---------------------------------------------- */}
+          {/*------------------------------- timesheets ---------------------------------------------- */}
 
-         
-          <Route path="weektimesheet"
+          <Route
+            path="weektimesheet"
+            element={
+              // <ProtectedRoute
+              //  accessCode={["ALL_R", "TS_WEEK"]}>
 
-          element = {
-            // <ProtectedRoute      
-            //  accessCode={["ALL_R", "TS_WEEK"]}>
-
-              <WeekTimesheet/>
-          //   </ProtectedRoute>
-          }
+              <WeekTimesheet />
+              //   </ProtectedRoute>
+            }
           />
 
-            <Route path="timesheetsummary"
-
-          element = {
-            // <ProtectedRoute accessCode={['ALL_R','TS_HISTORY']}>
-              <TimesheetSummary/>
-            // </ProtectedRoute>
-          }
+          <Route
+            path="timesheetsummary"
+            element={
+              // <ProtectedRoute accessCode={['ALL_R','TS_HISTORY']}>
+              <TimesheetSummary />
+              // </ProtectedRoute>
+            }
           />
 
+          {/*---------------------------------------------- Settings ----------------------------- */}
 
-        {/*---------------------------------------------- Settings ----------------------------- */}
+          {/* <Route path="settings" element={<Settings />} /> */}
 
-
-    {/* <Route path="settings" element={<Settings />} /> */}
-
-    <Route path="settings"
-
-          element = {
-            <ProtectedRoute
-            accessCode={['ALL_R','SETTING_VW']}>
-<Settings />            </ProtectedRoute>
-          }
+          <Route
+            path="settings"
+            element={
+              <ProtectedRoute accessCode={["ALL_R", "SETTING_VW"]}>
+                <Settings />{" "}
+              </ProtectedRoute>
+            }
           />
-
-
-
-
 
           {/*--------------------------------- ChangePassword ---------------------------------------*/}
 
- <Route path="changePassword"
-
-          element = {
-            <ProtectedRoute  accessCode={['ALL_R','CHANGEPWD_MD']}>
-<ChangePassword />            </ProtectedRoute>
-          }
+          <Route
+            path="changePassword"
+            element={
+              <ProtectedRoute accessCode={["ALL_R", "CHANGEPWD_MD"]}>
+                <ChangePassword />{" "}
+              </ProtectedRoute>
+            }
           />
-
-
-
         </Route>
         <Route path="/addEmp" element={<AddEmp />} />
         <Route path="/assignleaves" element={<AssignLeaves />} />
         <Route path="/projectsemployee" element={<ProjectsEmployee />} />
-
-  
 
         <Route path="/hrDashboard" element={<HRDashboard />}>
           <Route path="maindashboard" element={<MainDashboard />} />
@@ -333,8 +313,6 @@ function AppRoutes() {
           <Route path="pmprojects" element={<PMProjects />} />
           <Route path="pmtasks" element={<PMTasks />} />
         </Route>
-
-      
 
         {/* Logins */}
       </Routes>

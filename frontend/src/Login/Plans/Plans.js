@@ -1,122 +1,83 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import styles from "./Plans.module.css";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-const Plans = () => {
+const Plans = ({ onNext, onBack, selectedPlan, setSelectedPlan }) => {
+  const companyId = useSelector(state => state.user.companyId);
   const [plans, setPlans] = useState([]);
-  const [selectedPlan, setSelectedPlan] = useState(null);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const companyId = useSelector((state) => state.user.companyId);
-  const email = useSelector((state) => state.user.email);
-
-  // Get active subscription from redux or location state
-  const activeSubscription = location?.state?.activeSubscription || null;
-
-
-  //9025924325
 
   useEffect(() => {
     const fetchPlans = async () => {
-      try {
-        const res = await fetch(`http://localhost:3001/api/GetPlans?orgId=${companyId}`);
-        const data = await res.json();
-        setPlans(data.data || []);
-      } catch (err) {
-        console.error("Error fetching plans:", err);
-      }
+      const res = await fetch(`http://localhost:3001/api/GetPlans?orgId=${companyId}`);
+      const data = await res.json();
+      setPlans(data.data || []);
     };
     fetchPlans();
   }, []);
 
-  const handleSelectPlan = (plan) => {
-    setSelectedPlan(plan);
-
-    // If no active subscription, navigate directly to register page
-    if (!activeSubscription) {
-      navigate("/register", { state: { selectedPlan: plan } });
-    }
-  };
-
-  const handleUpgrade = async () => {
-    if (!selectedPlan) {
-      alert("Please select a plan to upgrade.");
-      return;
-    }
-
-    console.log("selected plan",selectedPlan);
-    
-
-    try {
-      const res = await fetch(`http://localhost:3001/api/upgradeSubscription`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orgId: activeSubscription.ORG_ID,
-          newPlanId: selectedPlan.PLAN_ID,
-          email
-        })
-      });
-
-      const data = await res.json();
-      if (res.status === 200) {
-        alert(data.message || "Plan upgraded successfully!");
-        navigate("/");
-      } else {
-        alert(data.message || "Failed to upgrade plan");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Something went wrong while upgrading the plan.");
-    }
-  };
-
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>Choose Your Plan</h2>
+    <div className="max-w-7xl mx-auto bg-white rounded-xl border border-gray-200 shadow-sm px-10 py-12">
 
-      {activeSubscription && activeSubscription.PLAN_ID && (
-        <div className={styles.currentPlanBanner}>
-          <h3>Current Plan</h3>
-          <p>
-            {`Plan: ${activeSubscription.PLAN_ID} | Max Employees: ${activeSubscription.MAX_EMPLOYEES} | Ends on: ${activeSubscription.END_DATE}`}
-          </p>
-        </div>
-      )}
+      <h2 className="text-2xl font-semibold text-[#1c3681] text-center mb-10">
+        Choose Your Plan
+      </h2>
 
-      <div className={styles.grid}>
-        {plans.map((plan) => (
-          <div
-            key={plan.PLAN_ID}
-            className={`${styles.card} ${
-              selectedPlan?.PLAN_ID === plan.PLAN_ID ? styles.selected : ""
-            }`}
-            onClick={() => handleSelectPlan(plan)}
-          >
-            <h3 className={styles.planName}>{plan.PLAN_NAME}</h3>
-            <p className={styles.planPrice}>
-              {plan.PRICE === 0 ? "Free" : `₹${plan.PRICE}`}
-            </p>
-            <p className={styles.planDesc}>{plan.DESCRIPTION}</p>
-            <ul className={styles.features}>
-              {plan.FEATURE_TEXT && <li key={plan.FEATURE_ORDER}>{plan.FEATURE_TEXT}</li>}
-            </ul>
-            <p className={styles.planMeta}>
-              👤 Up to {plan.MAX_EMPLOYEES} employees .
-               ⌛ {plan.DURATION_DAYS} days
-            </p>
-          </div>
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {plans.map(plan => {
+          const isSelected = selectedPlan?.PLAN_ID === plan.PLAN_ID;
+
+          return (
+            <div
+              key={plan.PLAN_ID}
+              onClick={() => setSelectedPlan(plan)}
+              className={`
+                rounded-2xl border p-6 cursor-pointer transition
+                ${isSelected
+                  ? "border-indigo-600 bg-indigo-50 shadow-lg scale-105"
+                  : "border-gray-200 hover:shadow-md"}
+              `}
+            >
+              <h3 className="text-lg font-semibold text-[#1c3681] mb-1">
+                {plan.PLAN_NAME}
+              </h3>
+
+              <p className="text-3xl font-bold text-indigo-600">
+                {plan.PRICE === 0 ? "Free" : `₹${plan.PRICE}`}
+              </p>
+
+              <p className="text-sm text-gray-500 mb-4">monthly</p>
+
+              <p className="text-sm text-gray-600 leading-relaxed mb-6">
+                {plan.DESCRIPTION}
+              </p>
+
+              <p className="text-xs text-gray-500 mb-6">
+                👤 {plan.MAX_EMPLOYEES} users · ⌛ {plan.DURATION_DAYS} days
+              </p>
+
+              <button
+                className={`w-full py-2 rounded-full text-sm font-medium
+                  ${isSelected ? "bg-indigo-600 text-white" : "bg-gray-200 text-gray-700"}`}
+              >
+                {isSelected ? "Selected" : "Choose"}
+              </button>
+            </div>
+          );
+        })}
       </div>
 
-      {/* show upgrade only if active subscription exists */}
-
-      {activeSubscription && activeSubscription.PLAN_ID && (
-        <button className={styles.upgradeBtn} onClick={handleUpgrade}>
-          Upgrade Plan
+      <div className="flex justify-between mt-10">
+        <button onClick={onBack} className="px-6 py-2.5 border rounded-md text-sm">
+          Back
         </button>
-      )}
+
+        <button
+          onClick={onNext}
+          disabled={!selectedPlan}
+          className="px-10 py-2.5 bg-[#1c3681] text-white rounded-md text-sm disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };

@@ -3,7 +3,6 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Dialog } from "primereact/dialog";
 import { IoIosAdd } from "react-icons/io";
-import { Card } from "primereact/card";
 import { InputText } from "primereact/inputtext";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -17,42 +16,35 @@ const OrgDesignation = () => {
   const [designation, setDesignation] = useState("");
   const [roleCode, setRoleCode] = useState("");
   const [description, setDescription] = useState("");
-  const [newStatus, setNewStatus] = useState("Active");
-  const [refresh, setRefresh] = useState(false);
+  const [newStatus, setNewStatus] = useState("A");
+
+  // 🔹 Added states
+  const [selectedDesignation, setSelectedDesignation] = useState(null);
+  const [actionVisible, setActionVisible] = useState(false);
+
   const companyId = useSelector((state) => state.user.companyId);
- const email = useSelector((state) => state.user.email);
+  const email = useSelector((state) => state.user.email);
   const userId = localStorage.getItem("userId");
   const location = useLocation();
 
   const role = location.state?.roleCode || "";
 
-
-  console.log("role",role);
-  
-
-
-  // Fetch roles
+  /* ---------------- FETCH ROLES ---------------- */
   const fetchRoles = async () => {
-    try {
-      const response = await fetch(`http://localhost:3001/api/getOrgRole?companyId=${companyId}`);
-      const data = await response.json();
-      setRoles(data.data);
-    } catch (err) {
-      console.error("Error fetching roles:", err);
-    }
+    const res = await fetch(
+      `http://localhost:3001/api/getOrgRole?companyId=${companyId}`
+    );
+    const data = await res.json();
+    setRoles(data.data || []);
   };
 
-  // Fetch designations
+  /* ---------------- FETCH DESIGNATIONS ---------------- */
   const fetchDesignations = async () => {
-    try {
-      const response = await fetch(`http://localhost:3001/api/getDesignation?companyId=${companyId}`);
-      const data = await response.json();
-      setDesignations(data.data);
-      console.log("data",data.data);
-      
-    } catch (err) {
-      console.error("Error fetching designations:", err);
-    }
+    const res = await fetch(
+      `http://localhost:3001/api/getDesignation?companyId=${companyId}`
+    );
+    const data = await res.json();
+    setDesignations(data.data || []);
   };
 
   useEffect(() => {
@@ -60,88 +52,95 @@ const OrgDesignation = () => {
     fetchDesignations();
   }, []);
 
-  // Filter based on selected role
+  /* ---------------- FILTER DESIGNATIONS ---------------- */
   const filteredDesignations = designations.filter(
-  (d) => d.ROLE_ID === selectedRole || d.ROLE_ID === role
-);
+    (d) => d.ROLE_ID === selectedRole || d.ROLE_ID === role
+  );
 
-  // Save new designation
+  /* ---------------- SAVE DESIGNATION ---------------- */
   const saveDesignation = async () => {
     if (!selectedRole) {
       alert("Please select a Role first!");
       return;
     }
 
-    console.log("roleid",selectedRole);
-    
-    
-    try {
-      const response = await fetch("http://localhost:3001/api/CreateDesignation", {
-        method: "POST",
+    await fetch("http://localhost:3001/api/CreateDesignation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        designation,
+        userId,
+        description,
+        roleCode,
+        newStatus,
+        selectedRole,
+        companyId,
+      }),
+    });
+
+    fetchDesignations();
+    setVisible(false);
+    setDesignation("");
+    setRoleCode("");
+    setDescription("");
+    setNewStatus("Active");
+  };
+
+  /* ---------------- INACTIVATE DESIGNATION ---------------- */
+  const handleDeactivateDesignation = async () => {
+    if (!selectedDesignation) return;
+
+    const confirm = window.confirm(
+      "Are you sure you want to inactivate this designation?"
+    );
+    if (!confirm) return;
+
+    const res = await fetch(
+      "http://localhost:3001/api/inactiveDesignation",
+      {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          designation,
-          userId,
-          description,
-          roleCode,
-          newStatus,
-          selectedRole,
-          companyId
+          companyId,
+          designationCode: selectedDesignation.DESGN_CODE,
+          email,
         }),
-      });
-
-      if (response.ok) {
-        fetchDesignations();
-        setVisible(false);
-        setDesignation("");
-        setRoleCode("");
-        setDescription("");
-        setNewStatus("Active");
       }
-    } catch (err) {
-      console.error("Error adding designation:", err);
+    );
+
+    const data = await res.json();
+    if (data.success) {
+      alert("Designation marked as inactive");
+      setActionVisible(false);
+      setSelectedDesignation(null);
+      fetchDesignations();
+    } else {
+      alert(data.message || "Failed to inactivate designation");
     }
   };
 
-
-const handleFileChange = async (e) => {
-  const selectedFile = e.target.files[0];
-  if (!selectedFile) return;
-
-  if (!selectedRole) {
-    alert("Please select a role first!");
-    return;
-  }
-
-  let formData = new FormData();
-  formData.append("file", selectedFile);
-  formData.append("companyId", companyId);
-  formData.append("createdBy", userId);
-  formData.append("roleId", selectedRole); // Send role ID
-
-  try {
-    const res = await fetch("http://localhost:3001/api/uploadOrgDesignations", {
-      method: "POST",
-      body: formData,
-    });
-    const data = await res.json();
-    if (data.status === 201) {
-      alert("Designations uploaded successfully!");
-      setRefresh((prev) => !prev); // reload table
-    } else {
-      alert("Failed to upload file");
+  /* ---------------- ACTION COLUMN ---------------- */
+  const actionTemplate = (rowData) => {
+    if (rowData.DESGN_STATUS === "I") {
+      return <span style={{ color: "#999" }}>I</span>;
     }
-  } catch (err) {
-    console.error("Error uploading file:", err);
-    alert("Something went wrong during upload");
-  }
-};
 
+    return (
+      <button
+        style={{ border: "none", background: "transparent", cursor: "pointer" }}
+        onClick={() => {
+          setSelectedDesignation(rowData);
+          setActionVisible(true);
+        }}
+      >
+        ⋯
+      </button>
+    );
+  };
 
   return (
     <div style={{ display: "flex", gap: "20px", padding: "20px" }}>
-
-      {/* -------------------------------- LEFT SIDE: ROLES -------------------------------- */}
+      {/* ---------------- LEFT: ROLES ---------------- */}
       <div
         style={{
           width: "28%",
@@ -151,20 +150,19 @@ const handleFileChange = async (e) => {
           background: "#f8f9fb",
         }}
       >
-        <h3 style={{ color: "#1c3681", marginBottom: "15px" }}>Roles</h3>
+        <h3 style={{ color: "#1c3681" }}>Roles</h3>
 
         {roles.map((r) => (
           <div
             key={r.ROLE_ID}
-            onClick={() => {setSelectedRole(r.ROLE_ID);console.log("roleId",r.ROLE_ID);
-            }}
+            onClick={() => setSelectedRole(r.ROLE_ID)}
             style={{
               padding: "12px",
               marginBottom: "8px",
               borderRadius: "6px",
               cursor: "pointer",
-              backgroundColor:
-                selectedRole === r.ROLE_ID ? "#dbe3f5" : "#ffffff",
+              background:
+                selectedRole === r.ROLE_ID ? "#dbe3f5" : "#fff",
               border:
                 selectedRole === r.ROLE_ID
                   ? "2px solid #1c3681"
@@ -176,7 +174,7 @@ const handleFileChange = async (e) => {
         ))}
       </div>
 
-      {/* ------------------------------- RIGHT SIDE: DESIGNATIONS --------------------------- */}
+      {/* ---------------- RIGHT: DESIGNATIONS ---------------- */}
       <div
         style={{
           width: "72%",
@@ -207,18 +205,6 @@ const handleFileChange = async (e) => {
           >
             <IoIosAdd size={20} /> Add
           </button>
-          <button onClick={() => document.getElementById("fileInput").click()}>
-  Upload File
-</button>
-
-<input
-  id="fileInput"
-  type="file"
-  accept=".csv, .xlsx"
-  style={{ display: "none" }}
-  onChange={handleFileChange}
-/>
-
         </div>
 
         <DataTable
@@ -227,74 +213,89 @@ const handleFileChange = async (e) => {
           rows={6}
           stripedRows
           emptyMessage="No designations for this role."
-          responsiveLayout="scroll"
         >
           <Column field="DESGN_NAME" header="Designation" />
           <Column field="DESGN_CODE" header="Code" />
           <Column field="DESGN_DESC" header="Description" />
           <Column field="DESGN_STATUS" header="Status" />
+          <Column header="Action" body={actionTemplate} />
         </DataTable>
       </div>
 
-      {/* -------------------------------- ADD DIALOG -------------------------------- */}
+      {/* ---------------- ADD DESIGNATION ---------------- */}
       <Dialog
         header="Add Designation"
         visible={visible}
         style={{ width: "400px" }}
         onHide={() => setVisible(false)}
       >
-        <div className="p-fluid" style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-
-          <div>
-            <label>Designation Name</label>
-            <InputText
-              value={designation}
-              onChange={(e) => setDesignation(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label>Designation Code</label>
-            <InputText
-              value={roleCode}
-              onChange={(e) => setRoleCode(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label>Description</label>
-            <InputText
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label>Status</label>
-            <select
-              value={newStatus}
-              onChange={(e) => setNewStatus(e.target.value)}
-              style={{ width: "100%", padding: "8px", borderRadius: "6px" }}
-            >
-              <option>Active</option>
-              <option>Inactive</option>
-            </select>
-          </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+          <InputText
+            placeholder="Designation Name"
+            value={designation}
+            onChange={(e) => setDesignation(e.target.value)}
+          />
+          <InputText
+            placeholder="Designation Code"
+            value={roleCode}
+            onChange={(e) => setRoleCode(e.target.value)}
+          />
+          <InputText
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <select
+            value={newStatus}
+            onChange={(e) => setNewStatus(e.target.value)}
+          >
+            <option>Active</option>
+            <option>Inactive</option>
+          </select>
 
           <button
             onClick={saveDesignation}
             style={{
               padding: "10px",
               background: "#1c3681",
-              color: "white",
-              borderRadius: "6px",
+              color: "#fff",
               border: "none",
-              marginTop: "10px",
+              borderRadius: "6px",
             }}
           >
             Save
           </button>
         </div>
+      </Dialog>
+
+      {/* ---------------- ACTION DIALOG ---------------- */}
+      <Dialog
+        header="Designation Action"
+        visible={actionVisible}
+        style={{ width: "350px" }}
+        onHide={() => setActionVisible(false)}
+      >
+        {selectedDesignation && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <strong>{selectedDesignation.DESGN_NAME}</strong>
+            <span>Code: {selectedDesignation.DESGN_CODE}</span>
+            <span>Status: {selectedDesignation.DESGN_STATUS}</span>
+
+            <button
+              onClick={handleDeactivateDesignation}
+              style={{
+                padding: "10px",
+                background: "#e74c3c",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+            >
+              Make Inactive
+            </button>
+          </div>
+        )}
       </Dialog>
     </div>
   );

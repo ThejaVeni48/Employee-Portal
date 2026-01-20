@@ -146,7 +146,7 @@ const AdminDashboard = () => {
       icon: <MdPeople />,
       path: "employees",
       role:role,
-      requiredAccess: ["ALL_R", "EMP_T"],
+      // requiredAccess: ["ALL_R", "EMP_T"],
     },
 
     {
@@ -154,7 +154,7 @@ const AdminDashboard = () => {
       name: "Projects",
       icon: <MdSettings />,
       path: "projects",
-      requiredAccess: ["ALL_R", "P_T"],
+      // requiredAccess: ["ALL_R", "P_T"],
     },
     {
       section: "Organization",
@@ -184,7 +184,7 @@ const AdminDashboard = () => {
       name: "Leaves",
       icon: <MdSettings />,
       path: "LeavesDashboard",
-      requiredAccess: ["ALL_R", "LEAVE_TAB"],
+      // requiredAccess: ["ALL_R", "LEAVE_TAB"],
     },
     ...(showAssignee ? [  {
       section: "Organization",
@@ -199,14 +199,14 @@ const AdminDashboard = () => {
       name: "Holidays",
       icon: <MdSettings />,
       path: "holidays",
-      requiredAccess: ["ALL_R", "HD_TAB"],
+      // requiredAccess: ["ALL_R", "HD_TAB"],
     },
     {
       section: "Organization",
       name: "Settings",
       icon: <MdSettings />,
       path: "settings",
-        requiredAccess: ["ALL_R", "SETTING_TAB"],
+        // requiredAccess: ["ALL_R", "SETTING_TAB"],
       
     },
     {
@@ -214,7 +214,7 @@ const AdminDashboard = () => {
       name: "Change Password",
       icon: <MdSettings />,
       path: "changePassword",
-      requiredAccess:['ALL_R','PWD_TAB']
+      // requiredAccess:['ALL_R','PWD_TAB']
     },
   ];
 

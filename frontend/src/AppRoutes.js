@@ -54,8 +54,8 @@ import LeavesRequest from "./Leaves/LeavesRequest";
 import Approvals from "./Timesheets/Approvals";
 import ApprovedTimesheet from "./Timesheets/ApprovedTimesheet";
 import WeekTimesheet from "./Timesheets/WeeklyTimesheet";
-import EmpLogin from "./Login/EmpLogin";
-import WelcomePage from "./Login/WelcomePage";
+import EmpLogin from "./Login/Employee/EmpLogin";
+// import WelcomePage from "./Login/WelcomePage";
 import SSODashboard from "./SSO/SSODashboard";
 import ViewOrg from "./Login/ViewOrg";
 import DRoles from "./SSO/DRoles";
@@ -69,7 +69,7 @@ import Noaccess from "./Noaccess";
 import ProjectAssignmnet from "./Projects/ProjectAssignment";
 
 import ProtectedRoute from "./Routes/ProtectedRoute";
-import CreateProject from "./Projects/CreateProject";
+import CreateProject from "./Projects/CreateProject/CreateProject";
 import Task from "./Tasks/Task";
 import TaskList from "./Tasks/TaskList";
 import ProjectProfile from "./Projects/ProjectProfile";
@@ -83,7 +83,11 @@ import { useSelector } from "react-redux";
 import Plans from "./Login/Plans/Plans";
 import Shifts from "./Shifts/Shifts";
 import AssignedEmps from "./Manager/AssignedEmps";
-
+// import Test from "./test";
+import WelcomePage from "./Login/WelcomePage/WelcomePage";
+import GALogin from "./Login/GA/GALogin";
+import OrgAdmin from './Login/OrgAdmin/OrgAdminLogin';
+import EmpMainDashboard from './Employee/EmpMainDashboard';
 function AppRoutes() {
   const role = useSelector((state) => state.user.Role);
 
@@ -91,10 +95,22 @@ function AppRoutes() {
     <Router>
       <Routes>
         {/*================================ Login Routes =================================================*/}
+        {/* <Route path="/" element={<Test/>}/> */}
+       
         <Route path="/" element={<WelcomePage />} />
+
+          {/*================================ Login Routes =================================================*/}
+
+        <Route path="/galogin" element={<GALogin />} />
+
+        <Route path="/orgadminlogin" element={<OrgAdmin/>} />
+
+        <Route path="/emplogin" element={<EmpLogin />} />
+
+
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/empLogin" element={<EmpLogin />} />
+        {/* <Route path="/empLogin" element={<EmpLogin />} /> */}
         <Route path="/vieworg" element={<ViewOrg />} />
         <Route path="changePassword" element={<ChangePassword />} />
         <Route path="/subscriptionplans" element={<Plans />} />
@@ -131,6 +147,7 @@ function AppRoutes() {
 
         {/*----------------------------------- Employee ---------------------------------------------------------- */}
 
+<Route path="/EmpMainDashboard" element={<EmpMainDashboard/>}/>
         <Route path="/profilepage" element={<ProfilePage />} />
         <Route path="/TimeSheetEntries" element={<TimeSheetEntries />} />
 

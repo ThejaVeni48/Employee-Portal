@@ -11,12 +11,13 @@ import { Dropdown } from "primereact/dropdown";
 import { useNavigate } from "react-router-dom";
 
 const Roles = () => {
-  const [roles, setRoles] = useState([]);
+   const [roles, setRoles] = useState([]);
   const [roleName, setRoleName] = useState("");
   const [description, setDescription] = useState("");
   const searchQuery = useSelector((state) => state.searchQuery);
   const [filteredData, setFilteredData] = useState([]);
   const [visible, setVisible] = useState(false);
+  const [editDVisible, setEditDVisible] = useState(false);
   const companyId = useSelector((state) => state.user.companyId);
  const email = useSelector((state) => state.user.email);
    const [selectedRow, setSelectedRow] = useState(null);
@@ -50,26 +51,20 @@ const Roles = () => {
       justifyContent: "space-between",
       alignItems: "center",
       marginBottom: "1.5rem",
-      flexWrap: "wrap",
-      gap: "1rem",
     },
-    buttonGroup: { display: "flex", gap: "0.75rem" },
     button: {
       padding: "0.5rem",
       borderRadius: "8px",
       border: "none",
       background: "#cfdaf1",
       color: "white",
-      fontSize: "0.9rem",
       cursor: "pointer",
-      transition: "background 0.2s ease-in-out",
     },
     tableStyle: {
       width: "100%",
       fontSize: "0.9rem",
       borderRadius: "10px",
-      overflow: "hidden",
-      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
     },
     headerStyle: {
       backgroundColor: "#cfdaf1",
@@ -77,7 +72,6 @@ const Roles = () => {
       fontSize: "13px",
     },
     cellStyle: {
-      textAlign: "left",
       fontSize: "12px",
       borderBottom: "1px solid #e0e0e0",
     },
@@ -85,159 +79,110 @@ const Roles = () => {
       display: "flex",
       flexDirection: "column",
       gap: "15px",
-      padding: "10px",
     },
-    input: {
-      padding: "10px",
-      borderRadius: "6px",
-      border: "1px solid #ccc",
-      fontSize: "14px",
-      outline: "none",
-    },
-    dialogButton: {
-      alignSelf: "flex-end",
-      backgroundColor: "#1c3681",
+    dangerBtn: {
+      backgroundColor: "#e74c3c",
       color: "white",
       border: "none",
-      padding: "0.6rem 1.2rem",
-      borderRadius: "8px",
+      padding: "10px",
+      borderRadius: "6px",
       cursor: "pointer",
-      fontWeight: "500",
     },
   };
 
-
-
   const statusOptions = [
-    { label: "Active", value: "Active" },
+    { label: "Active", value: "A" },
    
-    { label: "Inactive", value: "Inactive" }
+    { label: "Inactive", value: "I" }
   ];
 
+  /* ---------------- FETCH ROLES ---------------- */
   useEffect(() => {
-   fetch(`http://localhost:3001/api/getOrgRole?companyId=${companyId}`)
+    fetch(`http://localhost:3001/api/getOrgRole?companyId=${companyId}`)
       .then((res) => res.json())
-        .then((data) => {
-      setRoles(data.data);
-      console.log("RES:", data.data);
-    })
-      
-      .catch((err) => console.error("Error fetching roles:", err));
-  }, [refresh]);
+      .then((data) => setRoles(data.data || []))
+      .catch(console.error);
+  }, [companyId, refresh]);
 
-
-  
-
-
-  
-
+  /* ---------------- SEARCH ---------------- */
   useEffect(() => {
-    if (searchQuery) {
-      const term = searchQuery.toLowerCase();
+    if (!searchQuery) setFilteredData(roles);
+    else {
+      const q = searchQuery.toLowerCase();
       setFilteredData(
-        roles.filter(
-          (item) =>
-            item.ROLE_NAME?.toLowerCase().includes(term) ||
-            item.ROLE_ID?.toString().includes(term)
+        roles.filter((r) =>
+          r.ROLE_NAME?.toLowerCase().includes(q)
         )
       );
-    } else {
-      setFilteredData(roles);
     }
   }, [searchQuery, roles]);
 
-
- 
-  const handleCreateRole = async () => {
-    console.log("TRIGGGERED CREATE ROLE");
-
-    if (!roleName || !description) {
-      alert("Please Enter the required fields.");
-      return;
+  /* ---------------- ACTION COLUMN ---------------- */
+  const actionTemplate = (rowData) => {
+    if (rowData.ROLE_STATUS === "Inactive") {
+      return <span style={{ color: "#999" }}>Inactive</span>;
     }
 
-    const res = await fetch("http://localhost:3001/api/createOrgRole", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ roleName,description,userId,roleCode,newStatus,email,companyId }),
-    });
+    return (
+      <button
+        style={{ background: "transparent", border: "none", cursor: "pointer" }}
+        onClick={() => {
+          setSelectedRow(rowData);
+          setEditDVisible(true);
+        }}
+      >
+        <HiOutlineDotsHorizontal />
+      </button>
+    );
+  };
+// craete role
+  const handleCreateRole = async () => {
+  };
 
-    console.log("res", res);
 
-    const response = await res.json();
+  /* ---------------- DEACTIVATE ROLE ---------------- */
+  const handleDeactivateRole = async () => {
+    if (!selectedRow) return;
 
-    if (response.status === 201) {
-      alert("Successfully created");
+    const confirm = window.confirm(
+      "Are you sure you want to make this role inactive?"
+    );
+    if (!confirm) return;
 
-      setDescription("");
-      setRoleName("");
+    const res = await fetch(
+      "http://localhost:3001/api/inactiveRole",
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orgId:companyId,
+          roleCode: selectedRow.ROLE_CODE,
+          email,
+
+        }),
+      }
+    );
+
+    const data = await res.json();
+    if (data.success) {
+      alert("Role marked as inactive");
       setVisible(false);
-      setRefresh((prev) => !prev);
+      setSelectedRow(null);
+      setRefresh((p) => !p);
+    } else {
+      alert(data.message || "Unable to deactivate role");
     }
   };
 
-  const actionTemplate = (rowData) => (
-    <button
-      style={{
-        border: "none",
-        outline: "none",
-        backgroundColor: "transparent",
-        cursor: "pointer",
-      }}
-       onClick={() => handleEdit(rowData)}
-    >
-      <HiOutlineDotsHorizontal />
-    </button>
-  );
-
-
-  const handleEdit = (row)=>{
-
-    setSelectedRow(row);
-
-  }
-
-// Inside your Roles component
-
-const handleFileChange = async (e) => {
-  const selectedFile = e.target.files[0];
-  if (!selectedFile) return;
-
-  let formData = new FormData();
-  formData.append("file", selectedFile);
-  formData.append("companyId", companyId);
-  formData.append("createdBy", userId);
-
-  try {
-    const res = await fetch("http://localhost:3001/api/uploadOrgRoles", {
-      method: "POST",
-      body: formData,
-    });
-    const data = await res.json();
-    if (data.status === 201) {
-      alert("Roles uploaded successfully!");
-      setRefresh((prev) => !prev); 
-    } else {
-      alert("Failed to upload file");
-    }
-  } catch (err) {
-    console.error("Error uploading file:", err);
-    alert("Something went wrong during upload");
-  }
+  const handleFileChange = async (e) => {
 };
-
-
-
 
   return (
     <div style={styles.container}>
-
-      
-       
-                   <Card style={styles.card}>
+      <Card style={styles.card}>
         <div style={styles.title}>Role Management</div>
 
-        <div style={styles.toolbar}>
+ <div style={styles.toolbar}>
           <div style={styles.buttonGroup}>
             <div style={{ display: "flex", gap: "10px" }}>
               <button onClick={() => setVisible(true)} style={styles.button}>
@@ -260,60 +205,65 @@ const handleFileChange = async (e) => {
 
             </div>
           </div>
-        </div>
-
+          </div>
         <DataTable
           value={filteredData}
           paginator
           rows={8}
           stripedRows
-          responsiveLayout="scroll"
-          emptyMessage="No timesheets found."
           style={styles.tableStyle}
         >
-          
           <Column
             field="ROLE_NAME"
             header="Role Name"
             headerStyle={styles.headerStyle}
             bodyStyle={styles.cellStyle}
-            body={(rowData) => (
-    <button 
-onClick={() => navigate('/adminDashboard/orgdesignations', { state: { roleCode:rowData.ROLE_CODE } })
-}
-      style={{ background: "none", border: "none", color: "blue", cursor: "pointer" }}
-    >
-      {rowData.ROLE_NAME}
-    </button>
-  )}
+            body={(row) => (
+              <button
+                style={{ background: "none", border: "none", color: "blue" }}
+                onClick={() =>
+                  navigate("/adminDashboard/orgdesignations", {
+                    state: { roleCode: row.ROLE_CODE },
+                  })
+                }
+              >
+                {row.ROLE_NAME}
+              </button>
+            )}
           />
-          <Column
-            field="ROLE_CODE"
-            header="Code"
-            headerStyle={styles.headerStyle}
-            bodyStyle={styles.cellStyle}
-          />
-          <Column
-            field="ROLE_DESCRIPTION"
-            header="Description"
-            headerStyle={styles.headerStyle}
-            bodyStyle={styles.cellStyle}
-          />
-           <Column
-            field="ROLE_STATUS"
-            header="Status"
-            headerStyle={styles.headerStyle}
-            bodyStyle={styles.cellStyle}
-          />
-
-          <Column
-            header="Action"
-            body={actionTemplate}
-            headerStyle={styles.headerStyle}
-            bodyStyle={styles.cellStyle}
-          />
+          <Column field="ROLE_CODE" header="Code" />
+          <Column field="ROLE_DESCRIPTION" header="Description" />
+          <Column field="ROLE_STATUS" header="Status" />
+          <Column header="Action" body={actionTemplate} />
         </DataTable>
       </Card>
+
+      {/* ---------------- EDIT / INACTIVATE DIALOG ---------------- */}
+      <Dialog
+        header="Role Actions"
+        visible={editDVisible}
+        style={{ width: "30vw" }}
+        onHide={() => setEditDVisible(false)}
+      >
+        {selectedRow && (
+          <div style={styles.dialogBody}>
+            <strong>{selectedRow.ROLE_NAME}</strong>
+            <p>Code: {selectedRow.ROLE_CODE}</p>
+            <p>Status: {selectedRow.ROLE_STATUS}</p>
+
+            {selectedRow.ROLE_STATUS === "Active" && (
+              <button
+                style={styles.dangerBtn}
+                onClick={handleDeactivateRole}
+              >
+                Make Inactive
+              </button>
+            )}
+          </div>
+        )}
+      </Dialog>
+
+      {/* ---------------- add DIALOG ---------------- */}
       <Dialog
         header="Add Role"
         visible={visible}

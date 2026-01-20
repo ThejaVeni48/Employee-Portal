@@ -53,7 +53,7 @@ const companiesList = require('./routes/SSO/companiesList');
 app.use("/api/companiesList",companiesList);
 
 
-// sso create default roles
+// =================== sso create default roles =======================================
 
 const createDefaultRoles =  require('./routes/SSO/Roles');
 app.use("/api/createDefaultRoles",createDefaultRoles);
@@ -71,7 +71,7 @@ app.use("/api/createDefaultJobs",createDefaultJobs);
 
 
 
-// sso for getting sso roles
+// =================== sso for getting sso roles =========================
 
 const getDefaultRoles =  require('./routes/SSO/getRoles');
 app.use("/api/getDefaultRoles",getDefaultRoles);
@@ -436,6 +436,9 @@ app.use('/api/createOrgRole',createOrgRole);
 const getOrgRole = require('./routes/Roles/getRoute');
 app.use('/api/getOrgRole',getOrgRole);
 
+const inactiveRole = require('./routes/Roles/inactiveRole');
+app.use('/api/inactiveRole',inactiveRole);
+
 
 const createProject1 = require('./routes/Project/createRoute');
 app.use('/api/createProject1',createProject1)
@@ -540,6 +543,9 @@ app.use('/api/CreateDesignation',CreateDesignation)
 const getDesignation = require('./routes/Designation/getRoute');
 app.use('/api/getDesignation',getDesignation)
 
+
+const inactiveDesignation = require('./routes/Designation/deactivateDesignation');
+app.use('/api/inactiveDesignation',inactiveDesignation);
 
 
 // COMPANIES ACCEPT /REJECT API

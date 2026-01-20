@@ -29,7 +29,7 @@ const assignRes = (req, res) => {
       });
     }
 
-    // 1️⃣ Deactivate old role/designation (if any)
+    // make inactive old role,designation (if any)
     const deactivateSql = `
       UPDATE TC_ORG_USER_ASSIGNMENT
       SET STATUS = ?, END_DATE = ?, LAST_UPDATED_BY = ?, LAST_UPDATED_DATE = NOW()
@@ -49,7 +49,7 @@ const assignRes = (req, res) => {
           );
         }
 
-        // 2️⃣ Insert new role/designation
+        //  Insert new role,designation
         const insertSql = `
           INSERT INTO TC_ORG_USER_ASSIGNMENT
           (ORG_ID, EMP_ID, ROLE_CODE, DESGN_CODE, START_DATE, STATUS, CREATED_BY)
@@ -76,6 +76,8 @@ const assignRes = (req, res) => {
                 })
               );
             }
+
+          
 
             db.commit((commitErr) => {
               if (commitErr) {

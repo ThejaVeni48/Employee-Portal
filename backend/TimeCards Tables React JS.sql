@@ -375,7 +375,7 @@ CREATE TABLE tc_notification_settings (
     last_updated_by    VARCHAR(255)
 );
 
---- History TABLESPACE
+--- History TABLESPACE  (AUDIT TABLE)
 CREATE TABLE tc_employee_history (
     history_id        INT AUTO_INCREMENT PRIMARY KEY,  -- Unique ID
     emp_id            INT NOT NULL,                    -- Employee being modified

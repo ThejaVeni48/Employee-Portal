@@ -698,7 +698,7 @@ try {
         </div>
  <div className="profile-row">
           <label>Reporting Manager :</label>
-          <span>{ profile.SHIFT_CODE1 || "No Reporting Manager Assigned"}</span>
+          <span>{ profile.MANAGER_NAME || "No Reporting Manager Assigned"}</span>
         </div>
 
         </div>

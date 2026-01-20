@@ -1,80 +1,26 @@
 import React, { useState, useEffect } from "react";
-
-
 import {  useSelector } from "react-redux";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { Card } from "primereact/card";
-
-import { HiOutlineDotsHorizontal } from "react-icons/hi";
-import { useNavigate } from "react-router-dom";
-import CreateProject from "./CreateProject";
 import ProjectList from "./ProjectList";
+import { useNavigate } from "react-router-dom";
+import CreateProject from "./CreateProject/CreateProject";
 
 
-  const styles = {
-    container: {
-      minHeight: "100vh",
-      fontFamily: "'Inter', sans-serif",
-    },
-    card: {
-      borderRadius: "12px",
-      backgroundColor: "transparent",
-    },
-    title: {
-      fontSize: "1.25rem",
-      fontWeight: "600",
-      color: "#1c3681",
-      marginBottom: "1rem",
-    },
-    toolbar: {
-      display: "flex",
-      justifyContent: "flex-end",
-      alignItems: "center",
-      marginBottom: "1.5rem",
-      flexWrap: "wrap",
-      gap: "1rem",
-    },
-    button: {
-      padding: "0.5rem 1rem",
-      borderRadius: "8px",
-      border: "none",
-      background: "#cfdaf1",
-      color: "#1c3681",
-      fontSize: "0.9rem",
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      gap: "6px",
-      transition: "all 0.2s ease-in-out",
-    },
-    tableStyle: {
-      width: "100%",
-      fontSize: "0.9rem",
-      borderRadius: "10px",
-      overflow: "hidden",
-      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
-    },
-    headerStyle: {
-      backgroundColor: "#cfdaf1",
-      color: "#1c3681",
-      fontSize: "13px",
-      textAlign: "center",
-    },
-    cellStyle: {
-      fontSize: "12px",
-      borderBottom: "1px solid #e0e0e0",
-    },
-  };
 
 
-const Projects = () => {
-  
-  const [projects, setProjects] = useState([]);
+
+const Projects = ()=>{
+
+ const [statusFilter, setStatusFilter] = useState('all');
+  const [clientFilter, setClientFilter] = useState('all');
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+
+ const [projects, setProjects] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const role = useSelector((state) => state.user.Role);
+
   
-  console.log("");
+
   
   const companyId = useSelector((state) => state.user.companyId);
   const empId = useSelector((state) => state.user.empId);
@@ -119,43 +65,53 @@ console.log("accessCode in projects",accessCode);
     }
   }, [searchQuery, projects]);
 
- 
-  return (
+  return(
+<div className="p-4 max-w-7xl border border-gray-200 rounded-lg">
 
-    
-    <div style={styles.container}>
-      
-        <div style={styles.title}>Projects {role}</div>
+  <div className="mb-4 flex items-center justify-between flex-wrap gap-4 border-2">
 
-{/* <CreateProject />
+    <h3 className="text-xl font-semibold text-gray-900">
+      Projects
+    </h3>
 
-<ProjectList /> */}
+    <div className="flex items-center gap-3 flex-wrap border-2">
 
-{
-  (accessCode.includes('ALL_R') || accessCode.includes('PROJ_CR') || accessCode.includes('PROJ_MD') || role === 'Org Admin') && (
-    <CreateProject />
-  )
-}
+      <select
+        value={statusFilter}
+        onChange={(e) => setStatusFilter(e.target.value)}
+        className="
+          w-[160px]
+          border border-gray-300 rounded-md
+          px-3 py-2 text-sm text-gray-700
+          bg-white shadow-sm
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+        "
+      >
+        <option value="">All Status</option>
+        <option value="Active">Active</option>
+        <option value="On Hold">On Hold</option>
+        <option value="Closed">Closed</option>
+      </select>
 
-
-{
-  (accessCode.includes('ALL_R') || accessCode.includes('PROJ_VW') || accessCode.includes('PROJ_MD') || role === 'Org Admin') && (
-    <ProjectList />
-  )
-}
-
-
-     
-
-      
-       
-      
-
-      {/* ---------- Add Project Dialog ---------- */}
-      
+      {/* Create Project Button  */}
+      <CreateProject />
 
     </div>
-  );
-};
+  </div>
 
-export default Projects;
+</div>
+
+
+  )
+
+
+
+
+
+
+
+}
+
+
+export default Projects
+

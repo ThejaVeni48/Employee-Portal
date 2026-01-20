@@ -145,7 +145,7 @@ const OrgAccess = () => {
     console.log("TRIGGGERED CREATE ROLE");
 
     if (!roleName || !description) {
-      alert("Please Enter the required fields.");
+      alert("Please Enter the required ds.");
       return;
     }
 
@@ -276,18 +276,18 @@ const handleFileChange = async (e) => {
             bodyStyle={styles.cellStyle}
           />
            <Column
-            field="STATUS"
+            d="STATUS"
             header="Status"
             headerStyle={styles.headerStyle}
             bodyStyle={styles.cellStyle}
           />
 
-          <Column
+          {/* <Column
             header="Action"
             body={actionTemplate}
             headerStyle={styles.headerStyle}
             bodyStyle={styles.cellStyle}
-          />
+          /> */}
         </DataTable>
       </Card>
       <Dialog

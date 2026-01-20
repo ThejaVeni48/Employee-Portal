@@ -3,6 +3,9 @@ const db = require('../../config/db');
 const GetPlans = (req, res) => {
   const { orgId } = req.query;
 
+  console.log("orgId",orgId);
+  
+
   const subscriptionSql = `
     SELECT P.PLAN_ID, P.PRICE
     FROM TC_ORG_SUBSCRIPTIONS S

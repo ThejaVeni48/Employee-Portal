@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {  useSelector } from "react-redux";
-import ProjectList from "./ProjectList";
 import { useNavigate } from "react-router-dom";
 import CreateProject from "./CreateProject/CreateProject";
-
+import ProjectList from './ProjectsList/ProjectList';
 
 
 
@@ -93,11 +92,11 @@ console.log("accessCode in projects",accessCode);
         <option value="Closed">Closed</option>
       </select>
 
-      {/* Create Project Button  */}
       <CreateProject />
 
     </div>
   </div>
+      <ProjectList/>
 
 </div>
 

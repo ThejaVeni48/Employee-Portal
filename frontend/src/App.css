@@ -41,3 +41,34 @@
     transform: rotate(360deg);
   }
 }
+
+.label {
+  font-size: 13px;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #1c3681;
+  box-shadow: 0 0 0 1px #1c3681;
+}
+.searchBar{
+   width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: red;
+  font-size: 14px;
+}
+
+

@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { TabView, TabPanel } from "primereact/tabview";
-import { data, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { IoIosAdd } from "react-icons/io";
-import { Dialog } from "primereact/dialog";
-import DatePicker from "react-datepicker";
+
 import moment from "moment";
 import { fetchRoles } from "../Redux/actions/roleActions";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import Task from "../Tasks/Task";
-import ProjectProfile from "./ProjectProfile";
+import ProjectProfile from "./Profile/ProjectProfile";
 import Approvals from "./Approvals";
 import ProjectScheduler from "./ProjectScheduler";
 import PHolidays from "./ProjectHolidays/PHolidays";
 import ViewScheduledHours from "./ViewScheduledHours";
 import './ProjectAssignmentStyles.css';
-
+import { Badge, Button } from "flowbite-react";
+import { TabItem, Tabs } from "flowbite-react";
+import { HiAdjustments, HiClipboardList, HiUserCircle } from "react-icons/hi";
+import { MdDashboard } from "react-icons/md";
+import ProjectAssignees from "./Assignees/ProjectAssignees";
 
 const ProjectAssignmnet = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const rowData = location.state?.rowData || {};
-  // console.log("rowData", rowData);
+  console.log("rowData", rowData);
   const [employees, setEmployees] = useState([]);
   const companyId = useSelector((state) => state.user.companyId);
   // const [selectedEmp, setSelectedEmp] = useState([]);
@@ -149,60 +149,6 @@ const [actionType, setActionType] = useState(""); // 'I' | 'E'
     emp.DISPLAY_NAME.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const styles = {
-    container: {
-      minHeight: "100vh",
-      fontFamily: "'Inter', sans-serif",
-    },
-    card: {
-      borderRadius: "12px",
-      backgroundColor: "transparent",
-    },
-    title: {
-      fontSize: "1.25rem",
-      fontWeight: "600",
-      color: "#1c3681",
-      marginBottom: "1rem",
-    },
-    toolbar: {
-      display: "flex",
-      justifyContent: "flex-end",
-      alignItems: "center",
-      marginBottom: "1.5rem",
-      flexWrap: "wrap",
-      gap: "1rem",
-    },
-    button: {
-      padding: "0.5rem 1rem",
-      borderRadius: "8px",
-      border: "none",
-      background: "#cfdaf1",
-      color: "#1c3681",
-      fontSize: "0.9rem",
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      gap: "6px",
-      transition: "all 0.2s ease-in-out",
-    },
-    tableStyle: {
-      width: "100%",
-      fontSize: "0.9rem",
-      borderRadius: "10px",
-      overflow: "hidden",
-      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
-    },
-    headerStyle: {
-      backgroundColor: "#cfdaf1",
-      color: "#1c3681",
-      fontSize: "13px",
-      textAlign: "center",
-    },
-    cellStyle: {
-      fontSize: "12px",
-      borderBottom: "1px solid #e0e0e0",
-    },
-  };
 
   const handleAssignProject = async () => {
     // console.log("selectedRolecode",selectedRoleCode);
@@ -322,474 +268,93 @@ alert(res.message)
   
 
   return (
-    <>
-      <p>ProjectAssignmnet</p>
-      <TabView>
-        <TabPanel header="Project Profile">
-          {(accessCode.includes("PROJ_PROF") ||
-            accessCode.includes("ALL_R") ||
-            role === "Org Admin") && <ProjectProfile rowData={rowData} />}
-        </TabPanel>
 
-        {(accessCode.includes("ALL_R") ||
-          accessCode.includes("PROJ_ASSIGNEES") ||
-          role === "Org Admin") && (
-          <TabPanel header="Assignees">
-            {(accessCode.includes("PROJ_CR") ||
-              accessCode.includes("ALL_R") ||
-              role === "Org Admin") && (
-              <button style={styles.button} onClick={() => setVisible(true)}>
-                <IoIosAdd size={20} /> Add New Assignee
-              </button>
-            )}
-
-            <DataTable
-              value={projEmployees}
-              paginator
-              rows={8}
-              stripedRows
-              responsiveLayout="scroll"
-              emptyMessage="No projects found."
-              style={styles.tableStyle}
-            >
-              <Column
-                field="EMP_ID"
-                header="Emp Id"
-                headerStyle={styles.headerStyle}
-                bodyStyle={styles.cellStyle}
-              />
-
-              <Column
-                field="DISPLAY_NAME"
-                header="Employee Name"
-                headerStyle={styles.headerStyle}
-                bodyStyle={styles.cellStyle}
-              />
-
-              <Column
-                field="ROLE_NAME"
-                header="Role"
-                headerStyle={styles.headerStyle}
-                bodyStyle={styles.cellStyle}
-              />
-              <Column
-                field="START_DATE"
-                header="Start Date"
-                headerStyle={styles.headerStyle}
-                bodyStyle={styles.cellStyle}
-              />
-
-              {!Hierachy && (
-                <Column
-                  field="TS_APPROVE_ACCESS"
-                  header="Approval Access"
-                  headerStyle={styles.headerStyle}
-                  bodyStyle={styles.cellStyle}
-                />
-              )}
-
-              
-              <Column
-                header="Action"
-                body={actionTemplate}
-                headerStyle={styles.headerStyle}
-                bodyStyle={styles.cellStyle}
-              />
-            </DataTable>
-            <Dialog
-              header="Add Assignee"
-              visible={visible}
-              style={{ width: "500px", borderRadius: "8px" }}
-              onHide={() => setVisible(false)}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "20px",
-                }}
-              >
-                {/* SEARCH BAR */}
-                <div>
-                  <label style={{ fontWeight: "500" }}>Search Assignee *</label>
-                  <input
-                    type="text"
-                    placeholder="Search employee..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "5px",
-                      border: "1px solid #ccc",
-                      marginTop: "6px",
-                    }}
-                  />
-                </div>
-
-                {/* SUGGESTION LIST */}
-                {searchTerm && filteredEmployees.length > 0 && (
-                  <div
-                    style={{
-                      border: "1px solid #ddd",
-                      borderRadius: "5px",
-                      maxHeight: "150px",
-                      overflowY: "auto",
-                    }}
-                  >
-                    {filteredEmployees.map((emp) => (
-                      <div
-                        key={emp.EMP_ID}
-                        onClick={() => {
-                          handleSelectEmp(emp);
-                          setSearchTerm("");
-                        }}
-                        style={{
-                          padding: "10px",
-                          borderBottom: "1px solid #eee",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {emp.DISPLAY_NAME}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* SELECTED EMPLOYEE */}
-                {selectedEmp && (
-                  <div
-                    style={{
-                      background: "#f1f5ff",
-                      padding: "10px",
-                      borderRadius: "6px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Selected: {selectedEmp.DISPLAY_NAME}
-                  </div>
-                )}
-
-                {/* ROLE */}
-                <div>
-                  <label style={{ fontWeight: "500" }}>Role *</label>
-                  <select
-                    value={selectedRoleId}
-                    onChange={handleRoleChange}
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "5px",
-                      border: "1px solid #ccc",
-                      marginTop: "6px",
-                    }}
-                  >
-                    <option value="">Select Role</option>
-
-                    {roles?.map((r) => (
-                      <option key={r.ROLE_ID} value={r.ROLE_ID}>
-                        {r.ROLE_NAME}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* ACTIVE STATUS */}
-                <div>
-                  <label style={{ fontWeight: "500" }}>Active *</label>
-                  <select
-                    value={isActive}
-                    onChange={(e) => setIsActive(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      borderRadius: "5px",
-                      border: "1px solid #ccc",
-                      marginTop: "6px",
-                    }}
-                  >
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                  </select>
-                </div>
-
-                {/* START DATE */}
-                <div>
-                  <label style={{ fontWeight: "500" }}>Start Date *</label>
-                  <DatePicker
-                    selected={startDate}
-                    onChange={(date) => setStartDate(date)}
-                    dateFormat="yyyy-MM-dd"
-                    placeholderText="Select start date"
-                  />
-                </div>
-
-                {/* CONTRACT START DATE */}
-                <div>
-                  <label style={{ fontWeight: "500" }}>
-                    {" "}
-                    Contract Start Date *
-                  </label>
-                  <DatePicker
-                    selected={contractStartDate}
-                    onChange={(date) => setContractStartDate(date)}
-                    dateFormat="yyyy-MM-dd"
-                    placeholderText="Select start date"
-                  />
-                </div>
-
-                {/* CONTRACT END DATE */}
-                <div>
-                  <label style={{ fontWeight: "500" }}>
-                    Contract End Date *
-                  </label>
-                  <DatePicker
-                    selected={contractEndDate}
-                    onChange={(date) => setContractEndDate(date)}
-                    dateFormat="yyyy-MM-dd"
-                    placeholderText="Select start date"
-                  />
-                </div>
-
-                {!Hierachy && (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <input
-                      type="checkbox"
-                      checked={approveAccess}
-                      // disabled={Hierachy}
-                      onChange={(e) => {
-                        setApproveAccess(e.target.checked);
-                        // console.log("checked value",e.target.checked);
-                      }}
-                      style={{ marginRight: "10px" }}
-                    />
-                    <label>Approval Access</label>
-                  </div>
-                )}
-
-                {/* SUBMIT BUTTON */}
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                  <button
-                    style={{
-                      padding: "10px 25px",
-                      backgroundColor: "#1c3681",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "6px",
-                      fontWeight: "500",
-                      cursor: "pointer",
-                    }}
-                    // onClick={() => {
-                    //   console.log("Final Payload:", {
-                    //
-                    //   });
-                    // }}
-                    onClick={handleAssignProject}
-                  >
-                    Add Assignee
-                  </button>
-                </div>
-              </div>
-               {/* {setModalVisible && (
-  <div className="upgrade-modal-overlay">
-    <div className="upgrade-modal">
-      <h3>Employee Limit Reached</h3>
-      <p>
-        You have reached the maximum employee limit for your current plan.
-        Please upgrade your subscription to add more employees.
-      </p>
-
-      <div className="upgrade-modal-actions">
-        <button
-          className="upgrade-btn"
-
-        >
-          Upgrade Plan
-        </button>
-
-        <button
-          className="cancel-btn"
-          onClick={() => setModalVisible(false)}
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-)} */}
- </Dialog>
-{modalVisible && selectedActionRow && (
-  <div
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      background: "rgba(0,0,0,0.5)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 9999,
-    }}
-  >
-    <div
-      style={{
-        background: "#fff",
-        padding: "25px",
-        borderRadius: "10px",
-        width: "420px",
-        textAlign: "center",
-      }}
+<div className=" bg-white max-w-7xl mx-auto p-6">
+  
+  {/* Top Navigation */}
+  <div className="mb-6">
+    <button
+      size="sm"
+      onClick={() => navigate("/adminDashboard/projects")}
     >
-      <h3 style={{ marginBottom: "10px" }}>Employee Status</h3>
-     
-    <p>Name:{selectedActionRow.DISPLAY_NAME}</p>
-    <p>Role:{selectedActionRow.ROLE_NAME}</p>
+      ← Projects Dashboard
+    </button>
+  </div>
 
-   <div>
-  <input
-    type="radio"
-    name="action"
-    value="I"
-    checked={actionType === "I"}
-    onChange={(e) => setActionType(e.target.value)}
-  />
-  <label style={{ marginLeft: "6px" }}>Exit</label>
-</div>
-
-<div>
-  <input
-    type="radio"
-    name="action"
-    value="E"
-    checked={actionType === "E"}
-    onChange={(e) => setActionType(e.target.value)}
-  />
-  <label style={{ marginLeft: "6px" }}>Extend Period</label>
-</div>
-
-
-
-
-{actionType === "E" && (
-  <>
-    <div>
-      <label style={{ fontWeight: "500" }}>Role *</label>
-      <select
-        value={selectedRoleId}
-        onChange={handleRoleChange}
-        style={{
-          width: "100%",
-          padding: "10px",
-          borderRadius: "5px",
-          border: "1px solid #ccc",
-          marginTop: "6px",
-        }}
-      >
-        <option value="">Select Role</option>
-        {roles?.map((r) => (
-          <option key={r.ROLE_ID} value={r.ROLE_ID}>
-            {r.ROLE_NAME}
-          </option>
-        ))}
-      </select>
-    </div>
-
-    <div>
-      <label style={{ fontWeight: "500" }}>Contract Start Date *</label>
-      <DatePicker
-        selected={contractStartDate}
-        onChange={(date) => setContractStartDate(date)}
-        dateFormat="yyyy-MM-dd"
-        placeholderText="Select start date"
-      />
-    </div>
-
-    <div>
-      <label style={{ fontWeight: "500" }}>Contract End Date *</label>
-      <DatePicker
-        selected={contractEndDate}
-        onChange={(date) => setContractEndDate(date)}
-        dateFormat="yyyy-MM-dd"
-        placeholderText="Select end date"
-      />
-    </div>
-  </>
-)}
-
-
+  {/* Project Card */}
+  <div className=" border border-red-200 rounded-lg p-2 shadow-sm">
     
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "15px",
-          marginTop: "20px",
-        }}
-      >
-        <button
-          style={{
-            background: "#e65100",
-            color: "#fff",
-            border: "none",
-            padding: "10px 18px",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
-          onClick={handleSave}
-        >
-          Save
-        </button>
+    <div className="flex items-start justify-between">
+      
+      {/* Left Section */}
+      <div>
+        <div className="flex items-center gap-3 mb-3">
+          <h1 className="text-3xl font-semibold text-gray-900">
+            {rowData.PROJ_NAME}
+          </h1>
 
-        <button
-          style={{
-            background: "#ccc",
-            border: "none",
-            padding: "10px 18px",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
-          onClick={() => setModalVisible(false)}
-        >
-          Cancel
-        </button>
+          <Badge color="info" size="sm">
+            {rowData.status}
+          </Badge>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+          <span className="font-mono bg-gray-100 px-2 py-1 rounded">
+            {rowData.PROJ_CODE}
+          </span>
+
+          <span>•</span>
+<span>{rowData.CLIENT_NAME}</span>
+
+          <span>•</span>
+          <span>
+            {rowData.START_DATE} - {rowData.END_DATE}
+          </span>
+        </div>
       </div>
+
+     
+
     </div>
   </div>
-)}
 
-           
-          </TabPanel>
-        )}
+  {/* tabs section */}
+  <Tabs aria-label="Tabs with icons" variant="underline">
+      <TabItem active title="OverView" >
+     <ProjectProfile rowData={rowData}/>
+      </TabItem>
+      <TabItem title="Assignees" >
+     <ProjectAssignees rowData={rowData}/>
+      </TabItem>
+      <TabItem title="Tasks" >
+        This is <span className="font-medium text-gray-800 dark:text-white">Settings tab's associated content</span>.
+        Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to
+        control the content visibility and styling.
+      </TabItem>
+      {
+        rowData.HIERARCHY === 'Y' && (
+<TabItem title="Hierarchy">
+        This is <span className="font-medium text-gray-800 dark:text-white">Contacts tab's associated content</span>.
+        Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to
+        control the content visibility and styling.
+      </TabItem>
+        )
+      }
+      
+       <TabItem title="Scheduled Hours">
+        This is <span className="font-medium text-gray-800 dark:text-white">Contacts tab's associated content</span>.
+        Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to
+        control the content visibility and styling.
+      </TabItem>
+       <TabItem title="Schedule ">
+        This is <span className="font-medium text-gray-800 dark:text-white">Contacts tab's associated content</span>.
+        Clicking another tab will toggle the visibility of this one for the next. The tab JavaScript swaps classes to
+        control the content visibility and styling.
+      </TabItem>
+      
+    </Tabs>
+</div>
 
-        {(accessCode.includes("ALL_R") ||
-          accessCode.includes("PROJ_TASK") ||
-          role === "Org Admin") && (
-          <TabPanel header="Tasks">
-            <Task projectId={{ projectId: projectId }} />
-          </TabPanel>
-        )}
-
-        {Hierachy && (
-          <TabPanel header="Approvals">
-            <Approvals employees={{ employees, projectId, projEmployees }} />
-          </TabPanel>
-        )}
-
-        <TabPanel header="Holidays">
-          <PHolidays projectId={projectId} />
-        </TabPanel>
-
-        <TabPanel header="View Scheduled Hours">
-          <ViewScheduledHours employees={projectId} />
-        </TabPanel>
-
-        <TabPanel header="Scheduler">
-          <ProjectScheduler employees={projectId} />
-        </TabPanel>
-      </TabView>
-    </>
   );
 };
 

@@ -108,74 +108,78 @@ const ProjectList = () => {
     </button>
   );
 
+
+
   return (
-    <>
-      <Card>
-        <DataTable
-          value={filteredData}
-          paginator
-          rows={8}
-          stripedRows
-          responsiveLayout="scroll"
-          emptyMessage="No projects found."
-          style={styles.tableStyle}
-        >
-          <Column
-            field="PROJ_NAME"
-            header="Project Name"
-            headerStyle={styles.headerStyle}
-            bodyStyle={styles.cellStyle}
-            body={(rowData) => (
-              <button
-                onClick={() =>
-                  navigate("/adminDashboard/projectassignment", {
-                    state: { rowData },
-                  })
-                }
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "blue",
-                  cursor: "pointer",
-                }}
-              >
-                {rowData.PROJ_NAME}
-              </button>
-            )}
-          />
+    <div className="p-4 max-w-7xl border border-gray-200 rounded-lg">
+  <div className="overflow-x-auto rounded-lg border border-gray-200">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
+<th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">              Client
+            </th>
+<th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">              Duration
+            </th>
+<th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">              Billable
+            </th>
+<th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">              Status
+            </th>
+<th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">              Actions
+            </th>
+          </tr>
+        </thead>
 
-          <Column
-            field="START_DATE"
-            header="Start Date"
-            headerStyle={styles.headerStyle}
-            bodyStyle={styles.cellStyle}
-          />
-          <Column
-            field="CLIENT_NAME"
-            header="Client"
-            headerStyle={styles.headerStyle}
-            bodyStyle={styles.cellStyle}
-          />
+      <tbody className="divide-y divide-gray-100 bg-white">
+  {projects.map((rowData) => (
+    <tr
+      key={rowData.PROJ_ID}
+      className="hover:bg-gray-50 transition"
+    >
+      <td className="px-4 py-3 text-sm font-bold text-gray-800">
+        {rowData.PROJ_NAME}
+      </td>
 
-          <Column
-            field="STATUS"
-            header="Status"
-            headerStyle={styles.headerStyle}
-            bodyStyle={styles.cellStyle}
-          />
-          {(accessCode.includes("ALL_R") ||
-            accessCode.includes("PROJ_MD") ||
-            role === "Org Admin") && (
-            <Column
-              header="Action"
-              body={actionTemplate}
-              headerStyle={styles.headerStyle}
-              bodyStyle={styles.cellStyle}
-            />
-          )}
-        </DataTable>
-      </Card>
-    </>
+      <td className="px-4 py-3 text-sm text-gray-600">
+        {rowData.CLIENT_NAME}
+      </td>
+
+      <td className="px-4 py-3 text-sm text-gray-600">
+        {rowData.START_DATE} - {rowData.END_DATE}
+      </td>
+
+      <td className="px-4 py-3 text-sm text-gray-600">
+        {rowData.BILLABLE}
+      </td>
+
+      <td className="px-4 py-3 text-sm text-gray-600">
+        {rowData.STATUS}
+      </td>
+
+      <td className="px-4 py-3 text-sm text-gray-600">
+        {rowData.email}
+      </td>
+
+      {/* View Action */}
+    <td className="px-4 py-3 text-sm text-gray-600 upper tracking-wider">
+<button
+  className="px-4 py-3 text-sm text-blue-600"
+  onClick={() =>
+    navigate("/projectassignment", { state: { rowData } })
+  }
+>
+  View
+</button>
+</td>
+
+    </tr>
+  ))}
+</tbody>
+
+      </table>
+    </div>
+     
+    </div>
   );
 };
 

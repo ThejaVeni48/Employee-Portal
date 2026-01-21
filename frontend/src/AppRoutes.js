@@ -72,7 +72,7 @@ import ProtectedRoute from "./Routes/ProtectedRoute";
 import CreateProject from "./Projects/CreateProject/CreateProject";
 import Task from "./Tasks/Task";
 import TaskList from "./Tasks/TaskList";
-import ProjectProfile from "./Projects/ProjectProfile";
+import ProjectProfile from "./Projects/Profile/ProjectProfile";
 import TimesheetWeeks from "./Timesheets/TimesheetWeeks";
 import SSOLeaves from "./SSO/SSOLeaves";
 import Holiday from "./Holidays/Holiday";
@@ -156,6 +156,15 @@ function AppRoutes() {
 
         {/*------------------------------------------ Admin ---------------------------------------------------*/}
 
+<Route
+            path="projectassignment"
+            element={
+              <ProtectedRoute accessCode={["PROJ_ASSIGN", "ALL_R"]}>
+                <ProjectAssignmnet />
+              </ProtectedRoute>
+            }
+          />
+         
         {/* --------------------------- Dashboard ------------------------------------------- */}
 
         <Route path="/adminDashboard" element={<AdminDashboard />}>
@@ -177,15 +186,7 @@ function AppRoutes() {
               </ProtectedRoute>
             }
           />
-
-          <Route
-            path="projectassignment"
-            element={
-              <ProtectedRoute accessCode={["PROJ_ASSIGN", "ALL_R"]}>
-                <ProjectAssignmnet />
-              </ProtectedRoute>
-            }
-          />
+ 
 
           <Route
             path="tasks"
@@ -205,20 +206,21 @@ function AppRoutes() {
             }
           />
 
-          <Route
-            path="projectprofile"
-            element={
-              <ProtectedRoute accessCode={["ALL_R", "PROJ_PROF"]}>
-                <ProjectProfile />
-              </ProtectedRoute>
-            }
-          />
+         
 
           <Route
             path="holidays"
             element={
               <ProtectedRoute accessCode={["ALL_R", "HD_TAB"]}>
                 <Holiday />
+              </ProtectedRoute>
+            }
+          />
+           <Route
+            path="projectprofile"
+            element={
+              <ProtectedRoute accessCode={["ALL_R", "PROJ_PROF"]}>
+                <ProjectProfile />
               </ProtectedRoute>
             }
           />
@@ -244,6 +246,8 @@ function AppRoutes() {
           <Route path="profile" element={<Profile />} />
           <Route path="settingspage" element={<SettingsPage />} />
           <Route path="shifts" element={<Shifts />} />
+
+
 
           {/*  ------------ assigned employees */}
 

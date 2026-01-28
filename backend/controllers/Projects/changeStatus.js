@@ -1,3 +1,7 @@
+
+// this api is ed for exit / extend the project fo the employee.
+
+
 const db = require('../../config/db');
 
 const changeStatus = (req, res) => {
@@ -12,6 +16,10 @@ const changeStatus = (req, res) => {
     contractEnd
   } = req.body;
 
+
+  console.log("req body",req.body);
+  
+
   const today = new Date().toISOString().split('T')[0];
 
   const fetchSql = `
@@ -25,6 +33,8 @@ const changeStatus = (req, res) => {
       console.error(fetchErr);
       return res.status(500).json({ message: "DB error" });
     }
+    console.log("FETCHrESUKT",fetchResult);
+    
 
     if (!fetchResult.length) {
       return res.status(404).json({ message: "Active assignment not found" });

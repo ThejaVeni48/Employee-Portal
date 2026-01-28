@@ -11,16 +11,19 @@ const getEmployees = (req,res)=>{
     const {companyId} = req.query;
 
 
-    const sql = `SELECT  DISTINCT U.*
+    console.log("COMPANYiD getEMp",companyId);
+    
+
+
+    const sql = `SELECT DISTINCT U.DISPLAY_NAME, UA.*
 FROM TC_USERS U
-JOIN TC_ORG_USER_ASSIGNMENT UA
-ON U.EMP_ID = UA.EMP_ID
-AND U.ORG_ID = UA.ORG_ID
-JOIN TC_ORG_ROLES R
-ON R.ROLE_CODE = UA.ROLE_CODE
-AND R.ORG_ID = UA.ORG_ID
-WHERE R.ROLE_NAME <> 'Super Admin'
-AND U.ORG_ID = ? `;
+ JOIN TC_ORG_USER_ASSIGNMENT UA
+  ON UA.EMP_ID = U.EMP_ID
+ AND UA.ORG_ID = U.ORG_ID
+ AND UA.ROLE_CODE <> 'SUPER_USER'
+ WHERE U.ORG_ID = ?`;
+
+
 
 
 db.query(sql,[companyId],(error,result)=>{
@@ -31,7 +34,7 @@ db.query(sql,[companyId],(error,result)=>{
         
     }
 
-    // console.log("Return for result emps",result);
+    console.log("Return for result emps",result);
 
     return res.status(200).json({data:result,status:200})
     

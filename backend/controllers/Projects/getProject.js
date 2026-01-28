@@ -1,5 +1,8 @@
 // this api is used for getting the projects for company.
 
+// This API returns projects for a company, but:
+//  Admin sees everything
+//  Employee sees only projects they’re assigned to.
 
 
 const db = require('../../config/db');
@@ -11,12 +14,23 @@ const getProject = (req,res)=>{
     const {companyId,empId,role} = req.query;
 
 
-    if(role ==='Super Admin' || role === 'Org Admin')
+     console.log("companyId",companyId);
+    console.log("empId",empId);
+    console.log("role",role);
+
+
+    if(role ==='SUPER_USER' || role === 'Org Admin')
 
         
         {
     console.log("org admin");
-const sql = `SELECT * FROM TC_PROJECTS_MASTER WHERE  ORG_ID = ?`;
+const sql = `SELECT P.*, COUNT(PA.EMP_ID) AS EMP_COUNT FROM 
+ TC_PROJECTS_MASTER P 
+ LEFT JOIN TC_PROJECTS_ASSIGNEES PA
+ ON P.PROJ_ID = PA.PROJ_ID
+ AND P.ORG_ID = PA.ORG_ID
+ WHERE  P.ORG_ID = ?
+ GROUP BY P.PROJ_ID;`;
 
 
 
@@ -48,6 +62,7 @@ ON PA.PROJ_ID = PM.PROJ_ID
 AND PA.ORG_ID = PM.ORG_ID
  WHERE PA.EMP_ID = ?
  AND PA.ORG_ID = ? `;
+
 
 
 

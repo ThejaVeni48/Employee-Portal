@@ -2,7 +2,12 @@ const db = require('../../config/db');
 const { generatePassword } = require("../../helpers/functions"); 
 
 const addEmp = (req, res) => {
-    const { employees, companyId, email } = req.body;
+    const { employees,email } = req.body;
+
+    console.log("employees",employees);
+    console.log("MP IRGID",employees[0].orgId);
+    
+    
 
     if (!employees || employees.length === 0) {
         return res.status(400).json({ message: "No employee data provided." });
@@ -16,6 +21,7 @@ const addEmp = (req, res) => {
     const attemptsLogins = 0;
 
     const empId = employees[0].empId;
+    const companyId = employees[0].orgId;
 
     // ===================== CHECK EMPLOYEE EXISTS =====================
     const checkEmp = `
@@ -109,6 +115,8 @@ const addEmp = (req, res) => {
                         emp.hireDate || insertDate,
                         status,
                         emp.phnNumber || '',
+                        emp.branchId,
+                        emp.empType,
                         attemptsLogins,
                         password,
                         insertDate,
@@ -134,7 +142,7 @@ const addEmp = (req, res) => {
                 const sqlUsers = `
                     INSERT INTO TC_USERS 
                     (EMP_ID, FIRST_NAME, LAST_NAME, MIDDLE_NAME, DISPLAY_NAME, GENDER, EMAIL, ORG_ID, START_DATE, STATUS,
-                     MOBILE_NUMBER, ATTEMPTS_LOGIN, PASSWORD, CREATION_DATE, CREATED_BY)
+                     MOBILE_NUMBER, BRANCH_ID,EMP_TYPE,ATTEMPTS_LOGIN, PASSWORD, CREATION_DATE, CREATED_BY)
                     VALUES ?
                 `;
 

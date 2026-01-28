@@ -63,6 +63,7 @@ const getSchedulers = (req, res) => {
             AND PA.ORG_ID = U.ORG_ID
         WHERE PA.PROJ_ID = ?
         AND PA.ORG_ID = ?
+         AND PA.STATUS = 'A';
     `;
 
     db.query(getSql, [projId, orgId], (error, result) => {

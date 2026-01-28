@@ -1,4 +1,4 @@
-// THIS API IS USED FOR GETTING THE PROJ SCHEDULERS.
+// THIS API IS USED FOR GETTING THE PROJ SCHEDULERS. 
 
 
 const db = require("../../../config/db");

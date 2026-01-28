@@ -10,98 +10,121 @@ import {
   getEmpId,
   getAccessCode
 } from '../../Redux/actions/UserActions.js'
+import FormLabel from "../../components/FormLabel/FormLabel.js";
+import FormTextInput from "../../components/FormInput/FormInput.js";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { categoryLoginApi } from "../../apis/Login/Login.js";
 export default function GALogin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+ 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const dispatch = useDispatch();
 
+  const [login,setLogin] = useState({
+    email:'',
+    password:''
+  })
+
   const navigate = useNavigate();
   const location = useLocation();
-  const id = location.state?.id || "";
+  const categoryId = location.state?.id || "";
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
 
-    try {
-      const response = await fetch(
-        "http://localhost:3001/api/categoryLogin",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password, id }),
-        }
-      );
 
-      const res = await response.json();
-      console.log("res",res);
-      
 
-      if (res.status === 401 || res.status === 403) {
 
-  switch (res.reason) {
 
-    case "ORG_INACTIVE":
-      alert("Your organization is inactive. Please contact support.");
-      break;
-
-    case "SUB_EXPIRED":
-      alert("Your subscription has expired. Please renew your plan.");
-      break;
-
-    case "USER_INACTIVE":
-      alert("Your account is inactive. Please contact your administrator.");
-      break;
-
-    default:
-      alert(res.message || "Login failed");
+  const handleChange = (key,value)=>{
+    setLogin((prev)=>({
+      ...prev,
+      [key]:value
+    }))
   }
 
-  return;
-}
 
+const { mutate, isPending } = useMutation({
+  mutationFn: categoryLoginApi,
 
+  onSuccess: (res) => {
+    console.log("LOGIN RES:", res);
 
-    if (res.status !== 200) {
-      setError("Something went wrong");
-      return;
-    }
-
-    const user = res.data?.[0] || {};
-
-    console.log("user",user);
-    
-
-    dispatch(getEmail(email));
-    dispatch(getUserId(res.categoryId));
+    // Redux store
+    dispatch(getEmail(login.email));
     dispatch(getCompanyId(res.companyId || ""));
-    dispatch(getFullName(res.ADMIN_NAME || user.DISPLAY_NAME || ""));
-    dispatch(getRole(res.role));
-    dispatch(getEmpId(res.empId|| ""));
-    dispatch(getAccessCode(res.accessCodes))
+    dispatch(getRole(res.role || ""));
+    dispatch(getEmpId(res.empId || ""));
+    dispatch(getAccessCode(res.accessCodes || []));
 
-   
+    if (res.displayName) {
+      dispatch(getFullName(res.displayName));
+    }
 
-    // // ORG ADMIN
-
-      if (res.attemptsLogins === 0) {
-        navigate("/changePassword");
-        return;
-      }
-
-      navigate("/adminDashboard");
+    // Force password change
+    if (res.attemptsLogins ===0)
+       {
+      navigate("/changePassword");
       return;
     }
 
    
+    
+      navigate("/dashboard");
+      return;
+ 
 
-   catch (err) {
-    console.error("Login error:", err);
-    setError("Server error");
-  }
+    
+  },
+
+  onError: (err) => {
+    console.log("LOGIN ERROR:", err);
+
+    switch (err.reason) {
+      case "ORG_INACTIVE":
+        alert(
+          "Your organization is inactive. Contact support."
+        );
+        break;
+
+      case "SUB_EXPIRED":
+        alert(
+          "Your subscription has expired."
+        );
+        break;
+
+      case "USER_INACTIVE":
+        alert(
+          "Your account is inactive."
+        );
+        break;
+
+      case "WRONG_PASSWORD":
+        alert("Invalid credentials.");
+        break;
+
+      case "NOT_ORG_ADMIN":
+        alert(
+          "You are not authorized for this login."
+        );
+        break;
+
+      default:
+        alert(err.message || "Login failed");
+    }
+  },
+});
+
+const handleLogin = (e) => {
+  e.preventDefault();
+
+  mutate({
+    email: login.email,
+    password: login.password,
+    id: categoryId,
+  });
 };
+
+
+  
 
   return (
     <div className="min-h-screen flex">
@@ -177,13 +200,12 @@ export default function GALogin() {
             </div>
 
             <form onSubmit={handleLogin} className="space-y-5">
-              {/* Email */}
               <div>
-                <label className="text-sm">Email Address</label>
-                <input
+                <FormLabel text="Email Address"/>
+                <FormTextInput
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={login.email}
+                  onChange={(val) => handleChange("email",val)}
                   placeholder="admin@system.com"
                   required
                   className="mt-1.5 w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-3 text-sm
@@ -191,15 +213,13 @@ export default function GALogin() {
                 />
               </div>
 
-              {/* Password */}
               <div>
-                <label className="text-sm">Password</label>
+                 <FormLabel text="Password"/>
                 <div className="relative mt-1.5">
-                  <input
+                  <FormTextInput
                     type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
+                    value={login.password}
+ onChange={(val) => handleChange("password",val)}                    placeholder="••••••••"
                     required
                     className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-3 pr-10 text-sm
                                focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/20 outline-none"
@@ -209,11 +229,7 @@ export default function GALogin() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
                   >
-                    {/* {showPassword ? (
-                      <EyeOff className="size-4" />
-                    ) : (
-                      <Eye className="size-4" />
-                    )} */}
+                   
                   </button>
                 </div>
               </div>
@@ -223,12 +239,14 @@ export default function GALogin() {
               )}
 
               <button
-                type="submit"
-                className="w-full py-3 rounded-lg bg-indigo-600 text-white font-semibold
-                           hover:bg-indigo-700 transition"
-              >
-                Login
-              </button>
+  type="submit"
+  disabled={isPending}
+  className="w-full py-3 rounded-lg bg-indigo-600 text-white font-semibold
+             hover:bg-indigo-700 transition disabled:opacity-50"
+>
+  {isPending ? "Logging in..." : "Login"}
+</button>
+
             </form>
 
             <div className="mt-6 flex justify-between text-sm">

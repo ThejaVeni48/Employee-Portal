@@ -23,7 +23,7 @@ JOIN TC_ORG_ROLES R
 ON R.ROLE_CODE = PA.ROLE_CODE
 AND R.ORG_ID = PA.ORG_ID
 WHERE PA.ORG_ID = ? AND PA.PROJ_ID =?
-AND PA.STATUS = 'YES' `;
+AND PA.STATUS = 'A' `;
 
     db.query(sql,[companyId,projectId],(error,result)=>{
         if(error)
@@ -33,7 +33,7 @@ AND PA.STATUS = 'YES' `;
             
         }
 
-        // console.log("Result for project employee",result);
+        console.log("Result for project employee",result);
                     return res.status(200).json({data:result})
 
         

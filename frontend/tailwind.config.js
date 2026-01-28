@@ -6,7 +6,18 @@ module.exports = {
     "./node_modules/flowbite/**/*.js"
   ],
   theme: {
-    extend: {},
+    extend: {  fontFamily: {
+        sans: [
+          "Inter",
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "Arial",
+          "sans-serif",
+        ],
+      },},
   },
   plugins: [
     require("flowbite/plugin")

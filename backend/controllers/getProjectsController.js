@@ -1,3 +1,5 @@
+// NOT IN USE
+
 const db = require('../config/db');
 
 const getProjects = (req, res) => {

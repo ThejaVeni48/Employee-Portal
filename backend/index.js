@@ -258,6 +258,15 @@ const getEmp = require('./routes/Employees/getEmployeesRoute');
 app.use('/api/getEmp',getEmp)
 
 
+// this api is used for getting employees (except super admins)
+const getEmpList = require('./routes/Employees/getEmpList');
+app.use('/api/getEmpList',getEmpList);
+
+
+const getAllEmployees  = require('./routes/Employees/getAllEmployees');
+app.use('/api/getAllEmployees',getAllEmployees)
+
+
 // this apis is used for allocating Reporting Manager
 
 
@@ -616,6 +625,16 @@ const assignProject = require('./routes/Employees/assignProjects');
 app.use('/api/assignProject',assignProject);
 
 
+const editHierarchy = require('./routes/Project/editHierarchy');
+app.use('/api/editHierarchy',editHierarchy)
+
+
+// getting project details api
+
+const ProjectDetails = require('./routes/Project/Profile/ProjectDetails');
+app.use('/api/ProjectDetails',ProjectDetails);
+
+
 // api for creating task
 
 const createTask = require('./routes/Tasks/createTask');
@@ -685,6 +704,11 @@ app.use('/api/allocateTimesheets',allocateTimesheets);
 const getScheduledHours = require('./routes/Timesheet/getScheduledHours');
 app.use('/api/getScheduledHours',getScheduledHours)
 
+
+// project approvers
+
+const getProjectApprovers = require('./routes/Project/getProjectApprovers');
+app.use('/api/getProjectApprovers',getProjectApprovers)
 
 
 // -----------------------------------Project Holidays --------------------------------------
@@ -788,12 +812,41 @@ app.use('/api/updateShift',updateShift);
 const assignShift = require('./routes/Shifts/assignShift');
 app.use('/api/assignShift',assignShift)
 
+
+// ======================================== Branch ===============================
+
+const createBranch = require('./routes/Branch/createBranch');
+app.use('/api/createBranch',createBranch);
+
+
+const getBranch = require('./routes/Branch/getBranch');
+app.use('/api/getBranch',getBranch);
+
+
+const updateBranch = require('./routes/Branch/updateBranch');
+app.use('/api/updateBranch',updateBranch);
+
+
+const addSuperUser = require('./routes/Branch/addSuperUser');
+app.use('/api/addSuperUser',addSuperUser);
+
+
+const getSuperUsersByBranch = require('./routes/Branch/getSuperUser');
+app.use('/api/getSuperUsersByBranch',getSuperUsersByBranch);
+
+
+const updateSuperUserStatus = require('./routes/Branch/deactiveSuperUser');
+app.use('/api/updateSuperUserStatus',updateSuperUserStatus);
+
+
+const createBranchHolidays = require('./routes/Branch/Holidays/createHolidays');
+app.use('/api/createBranchHolidays',createBranchHolidays);
+
+
+const getBranchHolidays = require('./routes/Branch/Holidays/getHolidays');
+app.use('/api/getBranchHolidays',getBranchHolidays);
+
 //============================================schedules  ==============================================
-
-
-
-const orderLines = require('./routes/orderLines');
-app.use('/api/orderLines',orderLines)
 
 
 require('./controllers/Schedules//timesheetGenerate');

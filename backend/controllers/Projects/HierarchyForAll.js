@@ -1,209 +1,255 @@
-const db = require('../../config/db');
+const { formatDateToLocal } = require("../../helpers/functions");
 
-const hierarchyforAll = (req, res) => {
-  const { projectId, orgId, empId, levels, createdBy } = req.body;
-  const creationDate = new Date();
+const hierarchyforAll = async ({
+  projId,
+  orgId,
+  selectedEmp,
+  email,
+  connection,
+}) => {
+  console.log("Apply-for-all hierarchy for:", selectedEmp);
 
-  if (!projectId || !orgId || !empId || !levels || levels.length === 0) {
-    return res.status(400).json({ message: "Missing required fields" });
-  }
+  const status = "A";
+  const today = formatDateToLocal(new Date());
 
-  const insertQuery = `
-    INSERT INTO TC_PROJ_HIER_LIST (
-      PROJ_ID, ORG_ID, EMP_ID, APPROVER_ID, LINE_NO, STATUS,
-      CREATION_DATE, CREATED_BY
-    ) VALUES ?
+  // ======================================================
+  // STEP 0 — Existing hierarchy for employee
+  // ======================================================
+
+  const existingSql = `
+    SELECT LEVEL_NO
+    FROM TC_PROJ_HIER_LIST
+    WHERE ORG_ID = ?
+      AND PROJ_ID = ?
+      AND EMP_ID = ?
   `;
 
-  /* -------------------------------------------------------
-     STEP 1: INSERT HIERARCHY FOR MAIN EMPLOYEE
-  ------------------------------------------------------- */
-
-  let mainValues = [];
-
-  levels.forEach((level, index) => {
-    if (Array.isArray(level.name)) {
-      level.name.forEach((approver) => {
-        mainValues.push([
-          projectId,
-          orgId,
-          empId,
-          approver,
-          index + 1,
-          "A",
-          creationDate,
-          createdBy
-        ]);
-      });
-    }
-  });
-
-  if (!mainValues.length) {
-    return res.status(400).json({ message: "No approvers found in hierarchy" });
-  }
-
-  db.query(insertQuery, [mainValues], (err) => {
-    if (err) {
-      console.error("Main Insert Error:", err);
-      return res.status(500).json({ message: "Failed to save main hierarchy" });
-    }
-
-    /* -------------------------------------------------------
-       STEP 2: FETCH REMAINING PROJECT EMPLOYEES
-    ------------------------------------------------------- */
-
-    const getProjEmp = `
-      SELECT DISTINCT PA.EMP_ID
-      FROM TC_PROJECTS_ASSIGNEES PA
-      WHERE PA.PROJ_ID = ?
-        AND PA.ORG_ID = ?
-        AND PA.EMP_ID NOT IN (
-          SELECT APPROVER_ID FROM TC_PROJ_HIER_LIST
-          WHERE PROJ_ID = ? AND ORG_ID = ?
-        )
-        AND PA.EMP_ID NOT IN (
-          SELECT EMP_ID FROM TC_PROJ_HIER_LIST
-          WHERE PROJ_ID = ? AND ORG_ID = ?
-        )
-    `;
-
-    db.query(
-      getProjEmp,
-      [projectId, orgId, projectId, orgId, projectId, orgId],
-      (getError, getResult) => {
-        if (getError) {
-          console.error("Fetch Employee Error:", getError);
-          return res.status(500).json({ message: "Error fetching employees" });
-        }
-
-        const employees = getResult.map(row => row.EMP_ID);
-
-        /* -------------------------------------------------------
-           STEP 3: APPLY SAME HIERARCHY FOR OTHER EMPLOYEES
-           (SKIP IF NO OTHER EMPLOYEES)
-        ------------------------------------------------------- */
-
-        const insertForEmployees = (callback) => {
-          if (employees.length === 0) {
-            console.log("Single employee project. Skipping apply-for-all.");
-            return callback();
-          }
-
-          let allValues = [];
-
-          employees.forEach((emp) => {
-            levels.forEach((level, index) => {
-              if (Array.isArray(level.name)) {
-                level.name.forEach((approver) => {
-                  allValues.push([
-                    projectId,
-                    orgId,
-                    emp,
-                    approver,
-                    index + 1,
-                    "A",
-                    creationDate,
-                    createdBy
-                  ]);
-                });
-              }
-            });
-          });
-
-          if (!allValues.length) {
-            return callback();
-          }
-
-          db.query(insertQuery, [allValues], (empError) => {
-            if (empError) {
-              console.error("Employee Insert Error:", empError);
-              return res.status(500).json({
-                message: "Error applying hierarchy to employees"
-              });
-            }
-            callback();
-          });
-        };
-
-        /* -------------------------------------------------------
-           STEP 4: INSERT APPROVER → APPROVER CHAIN
-           (ALWAYS REQUIRED)
-        ------------------------------------------------------- */
-
-        const insertApproverChain = () => {
-          let approverChainValues = [];
-
-          levels.forEach((level, levelIndex) => {
-            if (!Array.isArray(level.name)) return;
-
-            level.name.forEach((approver) => {
-              let hasHigher = false;
-
-              for (let next = levelIndex + 1; next < levels.length; next++) {
-                if (Array.isArray(levels[next].name)) {
-                  levels[next].name.forEach((higherApprover) => {
-                    approverChainValues.push([
-                      projectId,
-                      orgId,
-                      approver,
-                      higherApprover,
-                      next + 1,
-                      "A",
-                      creationDate,
-                      createdBy
-                    ]);
-                  });
-                  hasHigher = true;
-                }
-              }
-
-              // Final approver self-map
-              if (!hasHigher) {
-                approverChainValues.push([
-                  projectId,
-                  orgId,
-                  approver,
-                  approver,
-                  levelIndex + 1,
-                  "A",
-                  creationDate,
-                  createdBy
-                ]);
-              }
-            });
-          });
-
-          if (!approverChainValues.length) {
-            return res.status(200).json({
-              message: "Project hierarchy saved successfully",
-              appliedTo: employees.length
-            });
-          }
-
-          db.query(insertQuery, [approverChainValues], (aErr) => {
-            if (aErr) {
-              console.error("Approver Chain Error:", aErr);
-              return res.status(500).json({
-                message: "Error inserting approver chain"
-              });
-            }
-
-            return res.status(200).json({
-              message: "Project hierarchy (Apply for All) saved successfully",
-              appliedTo: employees.length
-            });
-          });
-        };
-
-        /* -------------------------------------------------------
-           EXECUTION FLOW
-        ------------------------------------------------------- */
-
-        insertForEmployees(insertApproverChain);
+  const existingRows = await new Promise((resolve, reject) => {
+    connection.query(
+      existingSql,
+      [orgId, projId, selectedEmp],
+      (err, rows) => {
+        if (err) return reject(err);
+        resolve(rows);
       }
     );
   });
+
+  const existingLevels = new Set(
+    existingRows.map((r) => Number(r.LEVEL_NO))
+  );
+
+  // ======================================================
+  // STEP 1 — Fetch project approvers
+  // ======================================================
+
+  const getApproversSql = `
+    SELECT EMP_ID AS emp_id, LEVEL_NO
+    FROM TC_PROJ_APPROVERS
+    WHERE PROJ_ID = ?
+      AND ORG_ID = ?
+      AND STATUS = 'A'
+    ORDER BY LEVEL_NO
+  `;
+
+  const approverResult = await new Promise((resolve, reject) => {
+    connection.query(getApproversSql, [projId, orgId], (err, rows) => {
+      if (err) return reject(err);
+      resolve(rows);
+    });
+  });
+
+  if (!approverResult.length) {
+    console.log(" No project approvers defined");
+    return;
+  }
+
+  // ======================================================
+  // STEP 2 — Is employee an approver?
+  // ======================================================
+
+  const empRow = approverResult.filter(
+    (u) => String(u.emp_id) === String(selectedEmp)
+  );
+
+  // ======================================================
+  // CASE 1 — Employee NOT approver → full hierarchy
+  // ======================================================
+
+  if (empRow.length === 0) {
+    console.log("New employee → assigning all levels");
+
+    const values = approverResult
+      .filter((lvl) => !existingLevels.has(Number(lvl.LEVEL_NO)))
+      .map((lvl) => [
+        orgId,
+        projId,
+        selectedEmp,
+        lvl.LEVEL_NO,
+        lvl.emp_id,
+        status,
+        today,
+        email,
+      ]);
+
+    if (!values.length) return;
+
+    const insertSql = `
+      INSERT INTO TC_PROJ_HIER_LIST
+      (
+        ORG_ID,
+        PROJ_ID,
+        EMP_ID,
+        LEVEL_NO,
+        APPROVER_ID,
+        STATUS,
+        START_DATE,
+        CREATED_BY
+      )
+      VALUES ?
+    `;
+
+    await new Promise((resolve, reject) => {
+      connection.query(insertSql, [values], (err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+
+    return;
+  }
+
+  // ======================================================
+  // STEP 3 — Higher levels than employee
+  // ======================================================
+
+  const fetchLevelsSql = `
+    SELECT EMP_ID AS emp_id, LEVEL_NO
+    FROM TC_PROJ_APPROVERS
+    WHERE ORG_ID = ?
+      AND PROJ_ID = ?
+      AND LEVEL_NO >
+        (
+          SELECT MAX(LEVEL_NO)
+          FROM TC_PROJ_APPROVERS
+          WHERE EMP_ID = ?
+            AND PROJ_ID = ?
+            AND ORG_ID = ?
+        )
+    ORDER BY LEVEL_NO
+  `;
+
+  const higherLevels = await new Promise((resolve, reject) => {
+    connection.query(
+      fetchLevelsSql,
+      [orgId, projId, selectedEmp, projId, orgId],
+      (err, rows) => {
+        if (err) return reject(err);
+        resolve(rows);
+      }
+    );
+  });
+
+
+
+ // ================= CASE 2 — employee approver → rebase levels =================
+
+if (higherLevels.length > 0) {
+  console.log("Employee approver → assigning higher levels");
+
+  const empMaxLevel = Math.max(
+    ...empRow.map((r) => Number(r.LEVEL_NO))
+  );
+
+  const values = higherLevels
+    .map((lvl) => [
+      orgId,
+      projId,
+      selectedEmp,
+
+      // 🔥 REBASE LEVEL
+      lvl.LEVEL_NO - empMaxLevel,
+
+      lvl.emp_id,
+      status,
+      today,
+      email,
+    ]);
+
+  const insertSql = `
+    INSERT INTO TC_PROJ_HIER_LIST
+    (
+      ORG_ID,
+      PROJ_ID,
+      EMP_ID,
+      LEVEL_NO,
+      APPROVER_ID,
+      STATUS,
+      START_DATE,
+      CREATED_BY
+    )
+    VALUES ?
+  `;
+
+  await new Promise((resolve, reject) => {
+    connection.query(insertSql, [values], (err) => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+
+  return;
+}
+
+
+  // ====================================================== CASE 3 — Final approver → self approval ======================================================
+
+  console.log("Final approver → self");
+
+  const empMaxLevel = Math.max(
+    ...empRow.map((r) => Number(r.LEVEL_NO))
+  );
+
+  const selfLevel = empMaxLevel + 1;
+
+  if (!existingLevels.has(selfLevel)) {
+    const selfSql = `
+      INSERT INTO TC_PROJ_HIER_LIST
+      (
+        ORG_ID,
+        PROJ_ID,
+        EMP_ID,
+        LEVEL_NO,
+        APPROVER_ID,
+        STATUS,
+        START_DATE,
+        CREATED_BY
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    await new Promise((resolve, reject) => {
+      connection.query(
+        selfSql,
+        [
+          orgId,
+          projId,
+          selectedEmp,
+          selfLevel - empMaxLevel,
+          selectedEmp,
+          status,
+          today,
+          email,
+        ],
+        (err) => {
+          if (err) return reject(err);
+          resolve();
+        }
+      );
+    });
+  }
+
+  console.log("Hierarchy done for", selectedEmp);
 };
 
 module.exports = { hierarchyforAll };
-

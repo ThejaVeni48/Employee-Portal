@@ -10,6 +10,8 @@ import {
   getEmpId,
   getAccessCode
 } from '../../Redux/actions/UserActions.js'
+import { useMutation } from "@tanstack/react-query";
+import { categoryLoginApi } from "../../apis/Login/Login.js";
 
 
 export default function EmpLogin() {
@@ -23,88 +25,64 @@ export default function EmpLogin() {
   const location = useLocation();
   const id = location.state?.id || "";
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
+ 
 
-    try {
-      const response = await fetch(
-        "http://localhost:3001/api/categoryLogin",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password, id }),
-        }
-      );
+  const { mutate, isPending } = useMutation({
+  mutationFn: categoryLoginApi,
 
-      const res = await response.json();
-
-      console.log(res);
-      
-
-      if (res.status === 401 || res.status === 403) {
-
-  switch (res.reason) {
-
-    case "ORG_INACTIVE":
-      alert("Your organization is inactive. Please contact support.");
-      break;
-
-    case "SUB_EXPIRED":
-      alert("Your subscription has expired. Please renew your plan.");
-      break;
-
-    case "USER_INACTIVE":
-      alert("Your account is inactive. Please contact your administrator.");
-      break;
-
-    default:
-      alert(res.message || "Login failed");
-  }
-
-  return;
-}
-
-
-
-    if (res.status !== 200) {
-      setError("Something went wrong");
-      return;
-    }
-
-    const user = res.data?.[0] || {};
-
-    console.log("user",user);
-    
+  onSuccess: (res) => {
+    console.log("EMP LOGIN:", res);
 
     dispatch(getEmail(email));
-    dispatch(getUserId(res.categoryId));
     dispatch(getCompanyId(res.companyId || ""));
-    dispatch(getFullName(res.ADMIN_NAME || user.DISPLAY_NAME || ""));
-    dispatch(getRole(res.role));
-    dispatch(getEmpId(res.empId|| ""));
-    dispatch(getAccessCode(res.accessCodes))
+    dispatch(getRole(res.role || ""));
+    dispatch(getEmpId(res.empId || ""));
+    dispatch(getAccessCode(res.accessCodes || []));
 
-   
+    dispatch(getFullName(res.displayName || ""));
 
-    // EMP 
-
-      if (res.attemptsLogins === 0) {
-        navigate("/changePassword");
-        return;
-      }
-
-      navigate("/EmpMainDashboard");
+    if (res.attemptsLogins ===0)
+ {
+      navigate("/changePassword");
       return;
     }
 
-   
+    navigate("/dashboard");
+  },
 
-   
-     catch {
-      setError("Server error");
+  onError: (err) => {
+    console.log("EMP LOGIN ERROR:", err);
+
+    switch (err.reason) {
+      case "ORG_INACTIVE":
+        alert("Your organization is inactive.");
+        break;
+
+      case "SUB_EXPIRED":
+        alert("Subscription expired.");
+        break;
+
+      case "USER_INACTIVE":
+        alert("Your account is inactive.");
+        break;
+
+      default:
+        alert(err.message || "Login failed");
     }
-  };
+  },
+});
+
+
+const handleLogin = (e) => {
+  e.preventDefault();
+
+  mutate({
+    email,
+   password,
+    id,
+  });
+};
+
 
   return (
     <div className="min-h-screen flex">
@@ -245,10 +223,13 @@ export default function EmpLogin() {
                 </label>
               </div>
 
-              <button type="submit"  className="w-full py-3 rounded-lg bg-indigo-600 text-white font-semibold
+              <button type="submit" 
+              disabled={isPending} 
+              className="w-full py-3 rounded-lg bg-indigo-600 text-white font-semibold
                            hover:bg-black-700 transition">
                 {/* <Lock className="size-4 mr-2" /> */}
-                Login
+                  {isPending ? "Logging in..." : "Login"}
+
               </button>
             </form>
 

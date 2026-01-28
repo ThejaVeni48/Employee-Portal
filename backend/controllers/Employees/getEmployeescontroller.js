@@ -7,15 +7,18 @@ const db = require('../../config/db');
 const getEmp = (req, res) => {
   const { companyId} = req.query; 
 
+
+  console.log("companyId getemployees controller",companyId);
+  
+
   let sql = `
     SELECT * FROM TC_USERS WHERE ORG_ID = ?
   `;
 
-  const params = [companyId];
 
  
 
-  db.query(sql, params, (error, result) => {
+  db.query(sql, companyId, (error, result) => {
     if (error) {
       console.log("Error occurred during getting employee list", error);
       return res.status(500).json({ success: false, message: "Database error", error });

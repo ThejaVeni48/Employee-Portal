@@ -1,3 +1,6 @@
+
+// api for getting scheduled hours
+
 const db = require("../../../config/db");
 
 const getScheduleHours = (req, res) => {
